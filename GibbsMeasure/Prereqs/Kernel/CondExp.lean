@@ -1,5 +1,9 @@
-import Mathlib.Probability.Kernel.Proper
-import GibbsMeasure.Mathlib.MeasureTheory.Function.ConditionalExpectation.Basic
+module
+
+public import Mathlib.Probability.Kernel.Proper
+public import GibbsMeasure.Mathlib.MeasureTheory.Function.ConditionalExpectation.Basic
+
+public section
 
 open MeasureTheory ENNReal NNReal Set
 

@@ -1,6 +1,8 @@
-import Mathlib.Probability.Kernel.Composition.Comp
-import Mathlib.Probability.Kernel.Composition.MapComap
-import Mathlib.Probability.Process.Filtration
+module
+
+public import Mathlib.Probability.Kernel.Composition.Comp
+public import Mathlib.Probability.Kernel.Composition.MapComap
+public import Mathlib.Probability.Process.Filtration
 
 /-!
 # TODO
@@ -8,6 +10,8 @@ import Mathlib.Probability.Process.Filtration
 Reopen https://github.com/leanprover-community/mathlib4/pull/17859 once we have more API depending
 on this definition.
 -/
+
+@[expose] public section
 
 open ProbabilityTheory Set MeasureTheory ENNReal NNReal
 

@@ -1,4 +1,8 @@
-import Mathlib.MeasureTheory.Measure.Prod
+module
+
+public import Mathlib.MeasureTheory.Measure.Prod
+
+public section
 
 namespace MeasureTheory.Measure
 variable (X Y : Type*) [MeasurableSpace X] [MeasurableSpace Y]

@@ -1,4 +1,8 @@
-import Mathlib.MeasureTheory.Function.SimpleFunc
+module
+
+public import Mathlib.MeasureTheory.Function.SimpleFunc
+
+public section
 
 /-!
 # TODO

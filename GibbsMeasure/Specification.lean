@@ -1,14 +1,18 @@
-import GibbsMeasure.Mathlib.MeasureTheory.Measure.GiryMonad
-import GibbsMeasure.Prereqs.Filtration.Consistent
-import GibbsMeasure.Prereqs.Juxt
-import GibbsMeasure.Prereqs.Kernel.CondExp
-import Mathlib.Probability.ProductMeasure
+module
+
+public import GibbsMeasure.Mathlib.MeasureTheory.Measure.GiryMonad
+public import GibbsMeasure.Prereqs.Filtration.Consistent
+public import GibbsMeasure.Prereqs.Juxt
+public import GibbsMeasure.Prereqs.Kernel.CondExp
+public import Mathlib.Probability.ProductMeasure
 
 /-!
 # Gibbs measures
 
 This file defines Gibbs measures.
 -/
+
+@[expose] public section
 
 open ProbabilityTheory Set MeasureTheory ENNReal NNReal
 
@@ -158,7 +162,7 @@ noncomputable section ISSSD
 variable (ν : Measure E) (η : S → E)
 
 -- TODO: Use `measurable_of_measurable_coe'` + measurable rectangles here
-private lemma measurable_isssdFun (Λ : Finset S) :
+lemma measurable_isssdFun (Λ : Finset S) :
     Measurable[cylinderEvents Λᶜ]
       fun η : S → E ↦ (Measure.pi fun _ : Λ ↦ ν).map (juxt Λ η) := by
   refine @Measure.measurable_of_measurable_coe _ _ _ (_) _ ?_

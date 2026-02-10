@@ -1,4 +1,8 @@
-import Mathlib.MeasureTheory.MeasurableSpace.Basic
+module
+
+public import Mathlib.MeasureTheory.MeasurableSpace.Basic
+
+public section
 
 namespace MeasureTheory
 variable {α β : Type*} {_ : MeasurableSpace α} {_ : MeasurableSpace β}

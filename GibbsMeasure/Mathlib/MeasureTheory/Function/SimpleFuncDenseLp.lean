@@ -1,6 +1,10 @@
-import GibbsMeasure.Mathlib.MeasureTheory.Function.SimpleFunc
-import Mathlib.MeasureTheory.Function.SimpleFuncDenseLp
-import Mathlib.MeasureTheory.Integral.IntegrableOn
+module
+
+public import GibbsMeasure.Mathlib.MeasureTheory.Function.SimpleFunc
+public import Mathlib.MeasureTheory.Function.SimpleFuncDenseLp
+public import Mathlib.MeasureTheory.Integral.IntegrableOn
+
+public section
 
 open ENNReal Function
 

@@ -1,5 +1,9 @@
-import Mathlib.Algebra.Group.Indicator
-import Mathlib.Data.ENNReal.Basic
+module
+
+public import Mathlib.Algebra.Group.Indicator
+public import Mathlib.Data.ENNReal.Basic
+
+public section
 
 namespace ENNReal
 variable {α : Type*}

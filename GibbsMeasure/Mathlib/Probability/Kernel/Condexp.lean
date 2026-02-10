@@ -1,1 +1,3 @@
-import Mathlib.Probability.Kernel.Condexp
+module
+
+public import Mathlib.Probability.Kernel.Condexp

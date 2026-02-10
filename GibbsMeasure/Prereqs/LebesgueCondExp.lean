@@ -1,5 +1,9 @@
-import Mathlib.MeasureTheory.Function.ConditionalExpectation.Basic
-import GibbsMeasure.Mathlib.MeasureTheory.Function.ConditionalExpectation.Unique
+module
+
+public import Mathlib.MeasureTheory.Function.ConditionalExpectation.Basic
+public import GibbsMeasure.Mathlib.MeasureTheory.Function.ConditionalExpectation.Unique
+
+public section
 
 open ENNReal NNReal Filter
 open scoped Topology

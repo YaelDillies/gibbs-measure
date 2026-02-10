@@ -1,5 +1,9 @@
-import GibbsMeasure.Mathlib.MeasureTheory.Measure.AEMeasurable
-import Mathlib.MeasureTheory.Function.L1Space.Integrable
+module
+
+public import GibbsMeasure.Mathlib.MeasureTheory.Measure.AEMeasurable
+public import Mathlib.MeasureTheory.Function.L1Space.Integrable
+
+public section
 
 open EMetric ENNReal Filter MeasureTheory NNReal TopologicalSpace Set
 

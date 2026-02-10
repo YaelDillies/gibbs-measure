@@ -1,17 +1,21 @@
-import GibbsMeasure.Mathlib.Data.ENNReal.Basic
-import GibbsMeasure.Mathlib.MeasureTheory.Function.SimpleFunc
-import GibbsMeasure.Mathlib.MeasureTheory.Function.SimpleFuncDenseLp
-import GibbsMeasure.Mathlib.MeasureTheory.Function.StronglyMeasurable.Basic
-import GibbsMeasure.Mathlib.MeasureTheory.Integral.Bochner.Basic
-import GibbsMeasure.Mathlib.MeasureTheory.MeasurableSpace.Basic
-import Mathlib.MeasureTheory.Integral.DominatedConvergence
-import Mathlib.Probability.Kernel.Proper
+module
+
+public import GibbsMeasure.Mathlib.Data.ENNReal.Basic
+public import GibbsMeasure.Mathlib.MeasureTheory.Function.SimpleFunc
+public import GibbsMeasure.Mathlib.MeasureTheory.Function.SimpleFuncDenseLp
+public import GibbsMeasure.Mathlib.MeasureTheory.Function.StronglyMeasurable.Basic
+public import GibbsMeasure.Mathlib.MeasureTheory.Integral.Bochner.Basic
+public import GibbsMeasure.Mathlib.MeasureTheory.MeasurableSpace.Basic
+public import Mathlib.MeasureTheory.Integral.DominatedConvergence
+public import Mathlib.Probability.Kernel.Proper
 
 /-!
 # Proper kernels
 
 We define the notion of properness for measure kernels and highlight important consequences.
 -/
+
+public section
 
 open MeasureTheory ENNReal NNReal Set
 open scoped ProbabilityTheory

@@ -1,4 +1,8 @@
-import Mathlib.MeasureTheory.Measure.GiryMonad
+module
+
+public import Mathlib.MeasureTheory.Measure.GiryMonad
+
+public section
 
 open scoped ENNReal
 

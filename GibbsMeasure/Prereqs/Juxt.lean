@@ -1,4 +1,8 @@
-import Mathlib.MeasureTheory.Constructions.Cylinders
+module
+
+public import Mathlib.MeasureTheory.Constructions.Cylinders
+
+public section
 
 open MeasureTheory
 

@@ -1,5 +1,9 @@
-import Mathlib.MeasureTheory.Function.ConditionalExpectation.Unique
-import Mathlib.MeasureTheory.Function.SimpleFunc
+module
+
+public import Mathlib.MeasureTheory.Function.ConditionalExpectation.Unique
+public import Mathlib.MeasureTheory.Function.SimpleFunc
+
+public section
 
 open scoped ENNReal
 

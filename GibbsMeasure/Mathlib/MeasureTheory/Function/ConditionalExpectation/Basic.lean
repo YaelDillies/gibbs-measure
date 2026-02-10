@@ -1,4 +1,8 @@
-import Mathlib.MeasureTheory.Function.ConditionalExpectation.Basic
+module
+
+public import Mathlib.MeasureTheory.Function.ConditionalExpectation.Basic
+
+public section
 
 open TopologicalSpace MeasureTheory.Lp Filter
 open scoped ENNReal Topology MeasureTheory
