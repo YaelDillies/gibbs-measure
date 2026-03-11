@@ -231,7 +231,7 @@ end ISSSD
 section ProductMeasure
 
 /-- The product measure `ν ^ S` is a `isssd μ`-Gibbs measure. -/
-lemma isGibbsMeasure_isssd_productMeasure (ν : Measure E) [IsProbabilityMeasure ν] :
+lemma isGibbsMeasure_isssd_infinitePi (ν : Measure E) [IsProbabilityMeasure ν] :
     (isssd ν).IsGibbsMeasure (.infinitePi fun _ : S ↦  ν) := by
   rintro Λ
   sorry
