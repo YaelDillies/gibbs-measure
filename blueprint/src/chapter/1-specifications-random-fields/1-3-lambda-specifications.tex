@@ -25,7 +25,7 @@ Let $S$ be a set, $(E, \mathcal{E})$ be a measurable space and $\nu$ a measure o
 \end{definition}
 
 \begin{lemma}[Independence of ISSSDs]
-    \label{lem:isssd-isIndep}
+    \label{lem:isssd-indep}
     \uses{def:isssd, def:indep-spec}
     \lean{Specification.isssdFun_comp_isssdFun}
     \leanok{}
@@ -39,10 +39,9 @@ Let $S$ be a set, $(E, \mathcal{E})$ be a measurable space and $\nu$ a measure o
 \end{proof}
 
 
-%TODO: change strong consistency to independent
 \begin{definition}[ISSSDs are specifications]
     \label{def:isssd-spec}
-    \uses{lem:isssd-strong-consistency, def:spec}
+    \uses{lem:isssd-indep, def:spec}
     \lean{Specification.isssd}
     \leanok
 
