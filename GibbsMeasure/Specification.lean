@@ -28,7 +28,7 @@ def IsConsistent (γ : ∀ Λ : Finset S, Kernel[cylinderEvents Λᶜ] (S → E)
 lemma isConsistentKernel_cylinderEventsCompl
     {γ : ∀ Λ : Finset S, Kernel[cylinderEvents Λᶜ] (S → E) (S → E)} :
     Filtration.cylinderEventsCompl.IsConsistentKernel (fun Λ ↦ γ (OrderDual.ofDual Λ)) ↔
-      IsConsistent γ := forall_swap
+      IsConsistent γ := forall_comm
 
 variable (S E) in
 /-- A specification from `S` to `E` is a collection of "boundary condition kernels" on the
@@ -162,16 +162,18 @@ noncomputable section ISSSD
 variable (ν : Measure E) (η : S → E)
 
 -- TODO: Use `measurable_of_measurable_coe'` + measurable rectangles here
+set_option backward.isDefEq.respectTransparency false in
 lemma measurable_isssdFun (Λ : Finset S) :
     Measurable[cylinderEvents Λᶜ]
       fun η : S → E ↦ (Measure.pi fun _ : Λ ↦ ν).map (juxt Λ η) := by
   refine @Measure.measurable_of_measurable_coe _ _ _ (_) _ ?_
-  simp_rw [MeasurableSpace.pi_eq_generateFrom_projections]
+  rw [MeasurableSpace.pi_eq_generateFrom_projections]
   refine @MeasurableSpace.generateFrom_induction _ _ _ ?_ ?_ ?_ ?_
   · rintro _ ⟨s, A, hA, rfl⟩ _
     have hA' : MeasurableSet (Function.eval s ⁻¹' A : Set (S → E)) := sorry
     have come_on η := Measure.map_apply (α := ((Λ : Set S)) → E) (β := S → E)
       (f := juxt (Λ : Set S) η) (μ := Measure.pi fun _ : Λ ↦ ν) Measurable.juxt hA'
+    stop
     simp only [come_on, ← preimage_comp]
     by_cases hs : s ∈ Λ
     · simp [Function.comp_def, juxt_apply_of_mem (Finset.mem_coe.2 hs)]

@@ -128,6 +128,7 @@ lemma ae_eq_lcondExp_of_forall_setLIntegral_eq (hm : m ≤ m₀) [SigmaFinite (�
     -- measurable_lcondExp.aestronglyMeasurable
   rw [hg_eq s hs hμs, setLIntegral_lcondExp hm hs]
 
+set_option backward.isDefEq.respectTransparency false in
 lemma lcondExp_bot' [hμ : NeZero μ] (f : α → ℝ≥0∞) :
     μ⁻[f|⊥] = fun _ => (μ Set.univ).toNNReal⁻¹ • ∫⁻ x, f x ∂μ := by
   by_cases hμ_finite : IsFiniteMeasure μ
