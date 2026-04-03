@@ -21,12 +21,9 @@ lemma measurable_coordinate_projection_2 {Δ : Set S} {x : S} (h : x ∈ Δ) :
     exact Measurable.of_comap_le fun s a ↦ a
   exact key.mono (le_iSup₂_of_le x h (fun s a ↦ a)) le_rfl
 
-lemma Measurable.juxt : Measurable (juxt Λ η) :=
-  suffices ha: ∀ (a : S), Measurable fun x ↦ _root_.juxt Λ η x a from measurable_pi_iff.mpr ha
-  fun x ↦ by
-  by_cases hx : x ∈ Λ
-  · simp_rw [juxt_apply_of_mem hx, measurable_pi_apply]
-  · simp_rw [juxt_apply_of_not_mem hx, measurable_const]
-
+protected lemma Measurable.juxt : Measurable (juxt Λ η) := by
+  rw [measurable_pi_iff]
+  rintro x
+  by_cases hx : x ∈ Λ <;> simp [juxt, hx, measurable_pi_apply]
 
 end juxt
