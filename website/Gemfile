@@ -1,7 +1,5 @@
 source "https://rubygems.org"
 
-ruby ">= 3.2.0", "< 4.0"
-
 # To upgrade, run `bundle update github-pages`.
 gem "github-pages", group: :jekyll_plugins
 # If you have any plugins, put them here!
@@ -24,7 +22,4 @@ gem "wdm", "~> 0.1.1", :platforms => [:mingw, :x64_mingw, :mswin]
 gem "http_parser.rb", "~> 0.6.0", :platforms => [:jruby]
 
 # Used for locally serving the website.
-gem "webrick", "~> 1.8"
-
-# See https://github.com/ffi/ffi/issues/1103
-gem "ffi", "< 1.17.0"
+gem "webrick", "~> 1.7"
