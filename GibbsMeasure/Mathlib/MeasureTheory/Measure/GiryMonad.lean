@@ -18,7 +18,6 @@ theorem measurable_of_measurable_coe' (t : Set (Set α)) (μ : β → Measure[.g
     simp_rw [prob_compl_eq_one_sub hs_meas]
     exact hs.const_sub _
   · rintro g hg_meas hg
-    dsimp at hg
     rw [← iUnion_disjointed]
     simp_rw [measure_iUnion (disjoint_disjointed _) (.disjointed hg_meas)]
     refine .tsum fun i ↦ ?_
