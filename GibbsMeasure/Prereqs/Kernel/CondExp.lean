@@ -52,10 +52,7 @@ private lemma condExp_indicator_ae_eq_integral_kernel (A_mble : MeasurableSet[�
   simp_rw [← Pi.one_def, @integral_indicator_one X 𝓧 _ _ A_mble]
   rfl
 
-variable [IsFiniteMeasure μ] [IsFiniteKernel π]
-
-private lemma condExp_const_indicator_ae_eq_integral_kernel (c : ℝ) (A_mble : MeasurableSet[𝓧] A)
-    (h : condExp 𝓑 μ (A.indicator (fun _ ↦ (1 : ℝ))) =ᵐ[μ] (fun x ↦ (π x A).toReal)) :
+private lemma condExp_const_indicator_ae_eq_integral_kernel (c : ℝ) (hA : MeasurableSet[𝓧] A) :
     condExp 𝓑 μ (A.indicator (fun _ ↦ (c : ℝ)))
       =ᵐ[μ] (fun x₀ ↦ ∫ x, A.indicator (fun _ ↦ (c : ℝ)) x ∂(π x₀)) := by
   have smul_eq : A.indicator (fun _ ↦ (c : ℝ)) = c • A.indicator (fun _ ↦ (1 : ℝ)) := by
@@ -81,15 +78,15 @@ private lemma condExp_const_indicator_ae_eq_integral_kernel (c : ℝ) (A_mble : 
      = fun x₀ ↦ c * ∫ (a : X), A.indicator (fun x ↦ (1 : ℝ)) a ∂π x₀ := by
     ext; simp [smul_eq_mul]
   rw [← this]
-  have := condExp_indicator_ae_eq_integral_kernel (μ := μ) (π := π) A_mble
+  have := condExp_indicator_ae_eq_integral_kernel (μ := μ) (π := π) hA
   exact this.const_smul c
+
+variable [IsFiniteMeasure μ] [IsFiniteKernel π]
 
 private lemma condExp_simpleFunc_ae_eq_integral_kernel (f : @SimpleFunc X 𝓧 ℝ) :
     condExp 𝓑 μ f =ᵐ[μ] (fun x₀ ↦ ∫ x, f x ∂(π x₀)) := by
   induction f using SimpleFunc.induction with
-  | @const c _s hs =>
-    exact condExp_const_indicator_ae_eq_integral_kernel c hs
-      (IsCondExp.condExp_ae_eq_kernel_apply hs)
+  | @const c _s hs => exact condExp_const_indicator_ae_eq_integral_kernel c hs
   | @add f g _disj hf hg =>
     simp only [SimpleFunc.coe_add]
     exact (condExp_add (by fun_prop) (by fun_prop) 𝓑).trans

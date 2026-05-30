@@ -21,7 +21,7 @@ theorem measurable_of_measurable_coe' (t : Set (Set α)) (μ : β → Measure[.g
     dsimp at hg
     rw [← iUnion_disjointed]
     simp_rw [measure_iUnion (disjoint_disjointed _) (.disjointed hg_meas)]
-    refine .ennreal_tsum fun i ↦ ?_
+    refine .tsum fun i ↦ ?_
     sorry
 
 variable {mα : MeasurableSpace α} {s : Set α}
