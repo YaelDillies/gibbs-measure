@@ -6,8 +6,8 @@ open ENNReal MeasureTheory Integrable
 
 attribute [fun_prop] MeasureTheory.IntegrableOn
 
-variable {α : Type*} {m m0 : MeasurableSpace α} {μ : Measure α} {s : Set α}
-[IsFiniteMeasure μ] {g : α → ℝ≥0∞}
+variable {α : Type*} {m m0 : MeasurableSpace α} {μ : Measure α} [IsFiniteMeasure μ] {s : Set α}
+  {g : α → ℝ≥0∞}
 
 @[fun_prop]
 public lemma integrableOn_toReal (t : Set α) (hm : m ≤ m0) (hgm : AEStronglyMeasurable[m] g μ)
