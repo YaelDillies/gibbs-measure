@@ -61,7 +61,7 @@ instance instDFunLike :
     DFunLike (Specification S E) (Finset S) fun Λ ↦ Kernel[cylinderEvents Λᶜ] (S → E) (S → E)
     where
   coe := toFun
-  coe_injective' γ₁ γ₂ h := by cases γ₁; cases γ₂; congr
+  coe_injective γ₁ γ₂ h := by cases γ₁; cases γ₂; congr
 
 /-- The boundary condition kernels of a specification are consistent. -/
 lemma isConsistent (γ : Specification S E) : IsConsistent γ := γ.isConsistent'
