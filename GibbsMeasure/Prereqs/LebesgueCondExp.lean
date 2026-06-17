@@ -124,8 +124,8 @@ lemma ae_eq_lcondExp_of_forall_setLIntegral_eq (hm : m ≤ m₀) [SigmaFinite (�
     {f g : α → ℝ≥0∞}
     (hg_eq : ∀ s : Set α, MeasurableSet[m] s → μ s < ∞ → ∫⁻ x in s, g x ∂μ = ∫⁻ x in s, f x ∂μ)
     (hgm : AEStronglyMeasurable[m] g μ) : g =ᵐ[μ] μ⁻[f|m] := by
-  refine ae_eq_of_forall_setLIntegral_eq_of_sigmaFinite' hm (fun s hs hμs => ?_) hgm sorry
-    -- measurable_lcondExp.aestronglyMeasurable
+  refine ae_eq_of_forall_setLIntegral_eq_of_sigmaFinite' hm (fun s hs hμs => ?_) hgm
+    measurable_lcondExp.aestronglyMeasurable
   rw [hg_eq s hs hμs, setLIntegral_lcondExp hm hs]
 
 set_option backward.isDefEq.respectTransparency false in
