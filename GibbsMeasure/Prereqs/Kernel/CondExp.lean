@@ -1,11 +1,15 @@
 module
 
 public import Mathlib.Probability.Kernel.Proper
+public import Mathlib.Probability.Kernel.MeasurableIntegral
 public import GibbsMeasure.Mathlib.MeasureTheory.Function.ConditionalExpectation.Basic
+public import GibbsMeasure.Mathlib.MeasureTheory.Function.SimpleFuncDenseLp
 
 public section
 
 open MeasureTheory ENNReal NNReal Set
+
+attribute [fun_prop] MeasureTheory.StronglyMeasurable.integral_kernel
 
 namespace ProbabilityTheory.Kernel
 variable {X : Type*} {𝓑 𝓧 : MeasurableSpace X} {π : Kernel[𝓑, 𝓧] X X} {μ : Measure[𝓧] X}
@@ -81,10 +85,8 @@ private lemma condExp_const_indicator_ae_eq_integral_kernel (c : ℝ) (hA : Meas
   have := condExp_indicator_ae_eq_integral_kernel (μ := μ) (π := π) hA
   exact this.const_smul c
 
-variable [IsFiniteMeasure μ] [IsFiniteKernel π]
-
-private lemma condExp_simpleFunc_ae_eq_integral_kernel (f : @SimpleFunc X 𝓧 ℝ) :
-    condExp 𝓑 μ f =ᵐ[μ] (fun x₀ ↦ ∫ x, f x ∂(π x₀)) := by
+private lemma condExp_simpleFunc_ae_eq_integral_kernel (f : @SimpleFunc X 𝓧 ℝ) [IsFiniteMeasure μ]
+  [IsFiniteKernel π] : condExp 𝓑 μ f =ᵐ[μ] (fun x₀ ↦ ∫ x, f x ∂(π x₀)) := by
   induction f using SimpleFunc.induction with
   | @const c _s hs => exact condExp_const_indicator_ae_eq_integral_kernel c hs
   | @add f g _disj hf hg =>
@@ -93,7 +95,58 @@ private lemma condExp_simpleFunc_ae_eq_integral_kernel (f : @SimpleFunc X 𝓧 �
       ((hf.add hg).trans (.of_forall fun x₀ ↦
         (integral_add (by fun_prop) (by fun_prop)).symm))
 
-lemma condExp_ae_eq_integral_kernel (f : X → ℝ) :
-    condExp 𝓑 μ f =ᵐ[μ] (fun x₀ ↦ ∫ x, f x ∂(π x₀)) := sorry
+lemma condExp_ae_eq_integral (hπ : π.IsProper) (h𝓑𝓧 : 𝓑 ≤ 𝓧) (f : X → ℝ) [IsFiniteMeasure μ]
+    (hf : Integrable f μ) : condExp 𝓑 μ f =ᵐ[μ] (fun x₀ ↦ ∫ x, f x ∂(π x₀)) := by
+  letI T (h : X → ℝ) (x₀ : X) := ∫ x, h x ∂(π x₀)
+  have hbind : μ.bind π = μ := (isCondExp_iff_bind_eq_left hπ h𝓑𝓧).mp inferInstance
+  have hπ_aemX : AEMeasurable (fun x₀ ↦ π x₀) μ := (π.measurable.mono h𝓑𝓧 le_rfl).aemeasurable
+  have hTnorm_le (h : X → ℝ) (hh : AEMeasurable h μ) : (∫⁻ x₀, ‖T h x₀‖ₑ ∂μ) ≤ ∫⁻ x, ‖h x‖ₑ ∂μ := by
+    calc (∫⁻ x₀, ‖T h x₀‖ₑ ∂μ) ≤ ∫⁻ x₀, ∫⁻ x, ‖h x‖ₑ ∂(π x₀) ∂μ :=
+      lintegral_mono fun x₀ ↦ enorm_integral_le_lintegral_enorm _
+      _ = ∫⁻ x, ‖h x‖ₑ ∂μ := by rw [← Measure.lintegral_bind hπ_aemX (hbind.symm ▸ hh.enorm), hbind]
+  have hT_congr {h₁ h₂ : X → ℝ} (h12 : h₁ =ᵐ[μ] h₂) : T h₁ =ᵐ[μ] T h₂ := by
+    filter_upwards [Measure.ae_ae_of_ae_bind hπ_aemX (hbind.symm ▸ h12)] with _ hx₀
+      using integral_congr_ae hx₀
+  have hT_sm {h : _} (hh : StronglyMeasurable[𝓧] h) : AEStronglyMeasurable[𝓧] (T h) μ :=
+    ((by fun_prop : StronglyMeasurable[𝓑] (T h)).mono h𝓑𝓧).aestronglyMeasurable
+  have hT_int {h : _} (hh : Integrable h μ) : Integrable (T h) μ :=
+    ⟨(hT_sm hh.1.stronglyMeasurable_mk).congr (hT_congr hh.1.ae_eq_mk).symm,
+      (hTnorm_le h hh.1.aemeasurable).trans_lt hh.2⟩
+  have hT_ae_int {h : _ → ℝ} (hh : Integrable h μ) : ∀ᵐ x₀ ∂μ, Integrable h (π x₀) := by
+    have hmk_eq : ∀ᵐ_ ∂μ, h =ᵐ[_] hh.1.mk := μ.ae_ae_of_ae_bind hπ_aemX (hbind.symm ▸ hh.1.ae_eq_mk)
+    have hfin : ∫⁻ x₀, (∫⁻ x, ‖hh.1.mk h x‖ₑ ∂(π x₀)) ∂μ ≠ ∞ := by
+      rw [← Measure.lintegral_bind hπ_aemX (by fun_prop), hbind]
+      exact (lintegral_congr_ae (hh.1.ae_eq_mk.symm.fun_comp _)).trans_ne hh.2.ne
+    have hkm : Measurable[𝓑] (fun x₀ ↦ ∫⁻ x, ‖hh.1.mk h x‖ₑ ∂(π x₀)) := by fun_prop
+    filter_upwards [ae_lt_top' ((hkm).mono h𝓑𝓧 le_rfl).aemeasurable hfin, hmk_eq]
+      with x₀ hx₀ heq₀ using .congr ⟨by fun_prop, hx₀⟩ heq₀.symm
+  suffices h : ∀ g : X → ℝ, Integrable g μ → condExp 𝓑 μ g =ᵐ[μ] T g from h f hf
+  refine Integrable.induction' (fun g _ ↦ condExp 𝓑 μ g =ᵐ[μ] T g) (fun c _ hs _ ↦
+    condExp_const_indicator_ae_eq_integral_kernel _ hs)
+    (fun _ _ hh₁ hh₂ _ ih₁ ih₂ ↦ (condExp_add hh₁ hh₂ 𝓑).trans ((ih₁.add ih₂).trans ?_)) ?_
+    (fun h₁ h₂ _ h12 ih ↦ (condExp_congr_ae h12).symm.trans (ih.trans (hT_congr h12)))
+  · filter_upwards [hT_ae_int hh₁, hT_ae_int hh₂] with _ hx₁ hx₂ using (integral_add hx₁ hx₂).symm
+  · letI Φ (f : X →₁[μ] ℝ) : X →₁[μ] ℝ := condExpL1CLM ℝ h𝓑𝓧 μ f
+    letI Ψ (f : X →₁[μ] ℝ) : X →₁[μ] ℝ := (hT_int (L1.integrable_coeFn f)).toL1 (T f)
+    have hΨ_cont : Continuous Ψ := by
+      refine LipschitzWith.continuous (K := 1) (fun f g ↦ ?_)
+      rw [Integrable.edist_toL1_toL1, ENNReal.coe_one, one_mul]
+      have hstep : ∀ᵐ x₀ ∂μ, edist (T (⇑f) x₀) (T (⇑g) x₀) ≤ ∫⁻ x, edist (⇑f x) (⇑g x) ∂(π x₀) := by
+        filter_upwards [hT_ae_int (L1.integrable_coeFn f), hT_ae_int (L1.integrable_coeFn g)]
+          with _ hf₀ hg₀ using edist_eq_enorm_sub (E := ℝ) _ _ ▸ integral_sub hf₀ hg₀ ▸
+            ((enorm_integral_le_lintegral_enorm _).trans
+            (lintegral_mono fun _ ↦ (edist_eq_enorm_sub _ _).ge))
+      calc
+        _ ≤ ∫⁻ x₀, ∫⁻ x, edist (⇑f x) (⇑g x) ∂(π x₀) ∂μ := lintegral_mono_ae hstep
+        _ = ∫⁻ x, edist _ _ ∂μ := by rw [← Measure.lintegral_bind hπ_aemX (by fun_prop), hbind]
+        _ = edist f g := by rw [← Integrable.edist_toL1_toL1 (⇑f) (⇑g) (L1.integrable_coeFn f)
+              (L1.integrable_coeFn g), Integrable.toL1_coeFn, Integrable.toL1_coeFn]
+    have hset (f: ↥(Lp ℝ 1 μ)) : f ∈ {f | μ[↑↑f | 𝓑] =ᵐ[μ] T ↑↑f} ↔ f ∈ {f | Φ f = Ψ f} := by
+      have hΦf : (⇑(Φ f)) =ᵐ[μ] condExp 𝓑 μ (⇑f) := by
+        simpa using (condExp_ae_eq_condExpL1CLM h𝓑𝓧 (L1.integrable_coeFn f)).symm
+      rw [Set.mem_setOf_eq, Set.mem_setOf_eq, Lp.ext_iff]
+      exact ⟨fun h ↦ hΦf.trans (h.trans (Integrable.coeFn_toL1 _).symm), fun h ↦ hΦf.symm.trans
+        (h.trans (Integrable.coeFn_toL1 _))⟩
+    exact (Set.ext hset).symm ▸ (isClosed_eq (condExpL1CLM ℝ h𝓑𝓧 μ).continuous hΨ_cont)
 
 end ProbabilityTheory.Kernel
