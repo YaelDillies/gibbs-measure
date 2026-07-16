@@ -286,6 +286,7 @@ noncomputable def modificationKer (γ : ∀ Λ : Finset S, Kernel[cylinderEvents
 @[simp] lemma modificationKer_one' (γ : ∀ Λ : Finset S, Kernel[cylinderEvents Λᶜ] (S → E) (S → E)) :
     modificationKer γ (fun _Λ _η ↦ 1) (fun _Λ ↦ measurable_const) = γ := by ext Λ; simp
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp] lemma modificationKer_one (γ : ∀ Λ : Finset S, Kernel[cylinderEvents Λᶜ] (S → E) (S → E)) :
     modificationKer γ 1 (fun _Λ ↦ measurable_const) = γ := by ext Λ; simp
 
@@ -304,6 +305,7 @@ structure IsModifier (γ : Specification S E) (ρ : Finset S → (S → E) → �
 
 @[simp] lemma IsModifier.one : γ.IsModifier 1 := .one'
 
+set_option backward.isDefEq.respectTransparency false in
 lemma isModifier_iff_ae_eq (hγ : γ.IsProper) :
     γ.IsModifier ρ ↔ (∀ Λ, Measurable (ρ Λ)) ∧ ∀ ⦃Λ₁ Λ₂⦄, Λ₁ ⊆ Λ₂ → ∀ η,
       ρ Λ₂ =ᵐ[γ Λ₂ η] fun η ↦ ∫⁻ ζ, ρ Λ₂ ζ ∂(γ Λ₁ η).withDensity (ρ Λ₁) := by
