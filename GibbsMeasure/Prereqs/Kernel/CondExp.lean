@@ -96,18 +96,9 @@ private lemma condExp_simpleFunc_ae_eq_integral_kernel (f : @SimpleFunc X 𝓧 �
       ((hf.add hg).trans (.of_forall fun x₀ ↦
         (integral_add (by fun_prop) (by fun_prop)).symm))
 
-@[reducible]
-noncomputable def T {𝓧 : MeasurableSpace X} {π : Kernel X X} (h : X → ℝ) (x₀ : X) :=
-    ∫ x, h x ∂(π x₀)
-
 attribute [fun_prop] Measurable.mono
 
 set_option trace.Meta.Tactic.fun_prop true
-
-@[fun_prop]
-lemma ProbabilityTheory.Kernel.measurable' {α : Type*} {β : Type*} {mα : MeasurableSpace α}
-  {mβ : MeasurableSpace β} : (κ : Kernel α β) → Measurable (fun x ↦ κ x) := fun k ↦ k.measurable'
-
 /-
       [] ❌️ applying: Measurable.mono ▼
         [] ❌️ Measurable fun a ↦ π a ▼
