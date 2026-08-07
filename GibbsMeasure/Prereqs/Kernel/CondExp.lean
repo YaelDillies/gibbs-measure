@@ -96,8 +96,6 @@ private lemma condExp_simpleFunc_ae_eq_integral_kernel (f : @SimpleFunc X 𝓧 �
       ((hf.add hg).trans (.of_forall fun x₀ ↦
         (integral_add (by fun_prop) (by fun_prop)).symm))
 
-attribute [fun_prop] Measurable.mono
-
 set_option trace.Meta.Tactic.fun_prop true
 /-
       [] ❌️ applying: Measurable.mono ▼
