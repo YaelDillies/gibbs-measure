@@ -62,7 +62,7 @@ lemma lcondExp_zero : μ⁻[(0 : α → ℝ≥0∞)|m] = 0 := by
   swap; · rw [lcondExp_of_not_le hm]
   by_cases hμm : SigmaFinite (μ.trim hm)
   swap; · rw [lcondExp_of_not_sigmaFinite hm hμm]
-  haveI : SigmaFinite (μ.trim hm) := hμm
+  have : SigmaFinite (μ.trim hm) := hμm
   exact lcondExp_of_measurable hm (@measurable_zero _ _ _ (_) _)
 
 lemma measurable_lcondExp : Measurable[m] (μ⁻[f|m]) := by
@@ -70,7 +70,7 @@ lemma measurable_lcondExp : Measurable[m] (μ⁻[f|m]) := by
   swap; · rw [lcondExp_of_not_le hm]; exact @measurable_zero _ _ _ (_) _
   by_cases hμm : SigmaFinite (μ.trim hm)
   swap; · rw [lcondExp_of_not_sigmaFinite hm hμm]; exact @measurable_zero _ _ _ (_) _
-  haveI : SigmaFinite (μ.trim hm) := hμm
+  have : SigmaFinite (μ.trim hm) := hμm
   rw [lcondExp_of_sigmaFinite hm]
   split_ifs with hfm
   · exact hfm
@@ -83,7 +83,7 @@ lemma lcondExp_congr_ae (h : f =ᵐ[μ] g) : μ⁻[f|m] =ᵐ[μ] μ⁻[g|m] := b
   swap; · simp_rw [lcondExp_of_not_le hm]; rfl
   by_cases hμm : SigmaFinite (μ.trim hm)
   swap; · simp_rw [lcondExp_of_not_sigmaFinite hm hμm]; rfl
-  haveI : SigmaFinite (μ.trim hm) := hμm
+  have : SigmaFinite (μ.trim hm) := hμm
   sorry
   -- exact (lcondExp_ae_eq_lcondExpL1 hm f).trans
   --   (Filter.EventuallyEq.trans (by rw [lcondExpL1_congr_ae hm h])
@@ -162,7 +162,7 @@ lemma lcondExp_add : μ⁻[f + g|m] =ᵐ[μ] μ⁻[f|m] + μ⁻[g|m] := by
   swap; · simp_rw [lcondExp_of_not_le hm]; simp
   by_cases hμm : SigmaFinite (μ.trim hm)
   swap; · simp_rw [lcondExp_of_not_sigmaFinite hm hμm]; simp
-  haveI : SigmaFinite (μ.trim hm) := hμm
+  have : SigmaFinite (μ.trim hm) := hμm
   sorry
   -- refine (lcondExp_ae_eq_lcondExpL1 hm _).trans ?_
   -- rw [lcondExpL1_add hf hg]
@@ -180,7 +180,7 @@ lemma lcondExp_smul (c : ℝ≥0) (f : α → ℝ≥0∞) : μ⁻[c • f|m] =�
   swap; · simp_rw [lcondExp_of_not_le hm]; simp
   by_cases hμm : SigmaFinite (μ.trim hm)
   swap; · simp_rw [lcondExp_of_not_sigmaFinite hm hμm]; simp
-  haveI : SigmaFinite (μ.trim hm) := hμm
+  have : SigmaFinite (μ.trim hm) := hμm
   sorry
   -- refine (lcondExp_ae_eq_lcondExpL1 hm _).trans ?_
   -- rw [lcondExpL1_smul c f]
@@ -198,7 +198,7 @@ lemma lcondExp_lcondExp_of_le {m₁ m₂ m₀ : MeasurableSpace α} {μ : Measur
     μ⁻[μ⁻[f|m₂]|m₁] =ᵐ[μ] μ⁻[f|m₁] := by
   by_cases hμm₁ : SigmaFinite (μ.trim (hm₁₂.trans hm₂))
   swap; · simp_rw [lcondExp_of_not_sigmaFinite (hm₁₂.trans hm₂) hμm₁]; rfl
-  haveI : SigmaFinite (μ.trim (hm₁₂.trans hm₂)) := hμm₁
+  have : SigmaFinite (μ.trim (hm₁₂.trans hm₂)) := hμm₁
   sorry
   -- refine ae_eq_of_forall_setLIntegral_eq_of_sigmaFinite' (hm₁₂.trans hm₂)
   --   (fun s _ _ => integrable_lcondExp.integrableOn)
@@ -214,7 +214,7 @@ lemma lcondExp_mono (f g : α → ℝ≥0∞) : μ⁻[f|m] ≤ᵐ[μ] μ⁻[g|m]
   swap; · simp_rw [lcondExp_of_not_le hm]; rfl
   by_cases hμm : SigmaFinite (μ.trim hm)
   swap; · simp_rw [lcondExp_of_not_sigmaFinite hm hμm]; rfl
-  haveI : SigmaFinite (μ.trim hm) := hμm
+  have : SigmaFinite (μ.trim hm) := hμm
   sorry
   -- exact (lcondExp_ae_eq_lcondExpL1 hm _).trans_le
   --   ((lcondExpL1_mono hf hg hfg).trans_eq (lcondExp_ae_eq_lcondExpL1 hm _).symm)

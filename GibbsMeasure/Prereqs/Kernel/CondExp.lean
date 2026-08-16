@@ -97,7 +97,7 @@ private lemma condExp_simpleFunc_ae_eq_integral_kernel (f : @SimpleFunc X 𝓧 �
 
 lemma condExp_ae_eq_integral (hπ : π.IsProper) (h𝓑𝓧 : 𝓑 ≤ 𝓧) (f : X → ℝ) [IsFiniteMeasure μ]
     (hf : Integrable f μ) : condExp 𝓑 μ f =ᵐ[μ] (fun x₀ ↦ ∫ x, f x ∂(π x₀)) := by
-  letI T (h : X → ℝ) (x₀ : X) := ∫ x, h x ∂(π x₀)
+  let T (h : X → ℝ) (x₀ : X) := ∫ x, h x ∂(π x₀)
   have hbind : μ.bind π = μ := (isCondExp_iff_bind_eq_left hπ h𝓑𝓧).mp inferInstance
   have hπ_aemX : AEMeasurable (fun x₀ ↦ π x₀) μ := (π.measurable.mono h𝓑𝓧 le_rfl).aemeasurable
   have hTnorm_le (h : X → ℝ) (hh : AEMeasurable h μ) : (∫⁻ x₀, ‖T h x₀‖ₑ ∂μ) ≤ ∫⁻ x, ‖h x‖ₑ ∂μ := by
@@ -126,8 +126,8 @@ lemma condExp_ae_eq_integral (hπ : π.IsProper) (h𝓑𝓧 : 𝓑 ≤ 𝓧) (f 
     (fun _ _ hh₁ hh₂ _ ih₁ ih₂ ↦ (condExp_add hh₁ hh₂ 𝓑).trans ((ih₁.add ih₂).trans ?_)) ?_
     (fun h₁ h₂ _ h12 ih ↦ (condExp_congr_ae h12).symm.trans (ih.trans (hT_congr h12)))
   · filter_upwards [hT_ae_int hh₁, hT_ae_int hh₂] with _ hx₁ hx₂ using (integral_add hx₁ hx₂).symm
-  · letI Φ (f : X →₁[μ] ℝ) : X →₁[μ] ℝ := condExpL1CLM ℝ h𝓑𝓧 μ f
-    letI Ψ (f : X →₁[μ] ℝ) : X →₁[μ] ℝ := (hT_int (L1.integrable_coeFn f)).toL1 (T f)
+  · let Φ (f : X →₁[μ] ℝ) : X →₁[μ] ℝ := condExpL1CLM ℝ h𝓑𝓧 μ f
+    let Ψ (f : X →₁[μ] ℝ) : X →₁[μ] ℝ := (hT_int (L1.integrable_coeFn f)).toL1 (T f)
     have hΨ_cont : Continuous Ψ := by
       refine LipschitzWith.continuous (K := 1) (fun f g ↦ ?_)
       rw [Integrable.edist_toL1_toL1, ENNReal.coe_one, one_mul]
@@ -144,7 +144,7 @@ lemma condExp_ae_eq_integral (hπ : π.IsProper) (h𝓑𝓧 : 𝓑 ≤ 𝓧) (f 
     have hset (f: ↥(Lp ℝ 1 μ)) : f ∈ {f | μ[↑↑f | 𝓑] =ᵐ[μ] T ↑↑f} ↔ f ∈ {f | Φ f = Ψ f} := by
       have hΦf : (⇑(Φ f)) =ᵐ[μ] condExp 𝓑 μ (⇑f) := by
         simpa using (condExp_ae_eq_condExpL1CLM h𝓑𝓧 (L1.integrable_coeFn f)).symm
-      rw [Set.mem_setOf_eq, Set.mem_setOf_eq, Lp.ext_iff]
+      rw [Set.mem_ofPred_eq, Set.mem_ofPred_eq, Lp.ext_iff]
       exact ⟨fun h ↦ hΦf.trans (h.trans (Integrable.coeFn_toL1 _).symm), fun h ↦ hΦf.symm.trans
         (h.trans (Integrable.coeFn_toL1 _))⟩
     exact (Set.ext hset).symm ▸ (isClosed_eq (condExpL1CLM ℝ h𝓑𝓧 μ).continuous hΨ_cont)
