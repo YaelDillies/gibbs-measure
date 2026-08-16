@@ -36,10 +36,10 @@ the following conditions holds:
 * `μ` is not σ-finite with respect to `m`. -/
 scoped notation μ "⁻[" f "|" m "]" => MeasureTheory.lcondExp m μ f
 
-lemma lcondExp_of_not_le (hm_not : ¬m ≤ m₀) : μ⁻[f|m] = 0 := by rw [lcondExp, dif_neg hm_not]
+lemma lcondExp_of_not_le (hm_not : ¬m ≤ m₀) : μ⁻[f|m] = 0 := by rw [lcondExp, dite_eq_right hm_not]
 
 lemma lcondExp_of_not_sigmaFinite (hm : m ≤ m₀) (hμm_not : ¬SigmaFinite (μ.trim hm)) :
-    μ⁻[f|m] = 0 := by rw [lcondExp, dif_pos hm, dif_neg hμm_not]
+    μ⁻[f|m] = 0 := by rw [lcondExp, dite_eq_left hm, dite_eq_right hμm_not]
 
 open scoped Classical in
 lemma lcondExp_of_sigmaFinite (hm : m ≤ m₀) [hμm : SigmaFinite (μ.trim hm)] :
@@ -47,11 +47,11 @@ lemma lcondExp_of_sigmaFinite (hm : m ≤ m₀) [hμm : SigmaFinite (μ.trim hm)
       ENNReal.ofReal ∘
         ⨆ n, μ[ENNReal.toReal ∘ (hf.stronglyMeasurable.finStronglyMeasurable μ).approx n | m]
       else 0 := by
-  simp [lcondExp, dif_pos hm, hμm]
+  simp [lcondExp, dite_eq_left hm, hμm]
 
 lemma lcondExp_of_measurable (hm : m ≤ m₀) [hμm : SigmaFinite (μ.trim hm)] {f : α → ℝ≥0∞}
     (hf : Measurable[m] f) : μ⁻[f|m] = f := by
-  rw [lcondExp_of_sigmaFinite hm, if_pos hf]
+  rw [lcondExp_of_sigmaFinite hm, ite_eq_left hf]
 
 lemma lcondExp_const (hm : m ≤ m₀) (c : ℝ≥0∞) [IsFiniteMeasure μ] :
     μ⁻[fun _ : α => c|m] = fun _ => c := lcondExp_of_measurable hm measurable_const
