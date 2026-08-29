@@ -85,7 +85,7 @@ variable (ι) (X) in
 abbrev measurableSquareCylinders : Set (Set (∀ i, X i)) :=
   squareCylinders fun _ ↦ {s | MeasurableSet s}
 
-lemma isPiSystem_measurableSquareCylinders :
+protected lemma IsPiSystem.measurableSquareCylinders :
     IsPiSystem (measurableSquareCylinders ι X) :=
   isPiSystem_squareCylinders (fun _ ↦ MeasurableSpace.isPiSystem_measurableSet)
     fun _ ↦ MeasurableSet.univ
