@@ -27,7 +27,7 @@ lemma ext_of_generateFrom_of_univ
 
 end Measure
 
-lemma ext_of_generate_finite_of_isProbabilityMeasure
+lemma ext_of_generateFrom_of_isProbabilityMeasure
     [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
     (hA : ‹MeasurableSpace α› = MeasurableSpace.generateFrom C) (hC : IsPiSystem C)
     (hμν : ∀ s ∈ C, μ s = ν s) : μ = ν :=
