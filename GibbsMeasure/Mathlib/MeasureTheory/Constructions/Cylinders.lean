@@ -39,11 +39,6 @@ lemma cylinderEvents_eq_comap_domRestrict (Δ : Set ι) :
   exact MeasurableSpace.comap_le_comap_of_eq_comp (fun x : ∀ i : Δ, X i ↦ x ⟨i, hi⟩)
     (measurable_pi_apply _) rfl
 
-lemma cylinderEvents_eq_comap_restrict {S E : Type*} [MeasurableSpace E] (Δ : Set S) :
-    cylinderEvents (X := fun _ : S ↦ E) Δ =
-      MeasurableSpace.comap (Set.domRestrict Δ) (inferInstance : MeasurableSpace (Δ → E)) :=
-  cylinderEvents_eq_comap_domRestrict (X := fun _ : S ↦ E) Δ
-
 lemma cylinderEvents_eq_comap_finsetRestrict (Λ : Finset ι) :
     cylinderEvents (X := X) (Λ : Set ι) =
       MeasurableSpace.comap (Λ.restrict (π := X))
