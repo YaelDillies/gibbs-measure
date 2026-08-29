@@ -1,6 +1,7 @@
 module
 
 public import GibbsMeasure.Mathlib.Data.ENNReal.Basic
+public import GibbsMeasure.Mathlib.MeasureTheory.Constructions.Cylinders
 public import GibbsMeasure.Mathlib.MeasureTheory.Function.ConditionalExpectation.Basic
 public import GibbsMeasure.Mathlib.MeasureTheory.Function.ConditionalExpectation.Unique
 public import GibbsMeasure.Mathlib.MeasureTheory.Function.L1Space.Integrable
@@ -10,6 +11,7 @@ public import GibbsMeasure.Mathlib.MeasureTheory.Function.SimpleFuncDenseLp
 public import GibbsMeasure.Mathlib.MeasureTheory.Function.StronglyMeasurable.Basic
 public import GibbsMeasure.Mathlib.MeasureTheory.Integral.Bochner.Basic
 public import GibbsMeasure.Mathlib.MeasureTheory.Measure.AEMeasurable
+public import GibbsMeasure.Mathlib.MeasureTheory.Measure.Ext
 public import GibbsMeasure.Mathlib.MeasureTheory.Measure.GiryMonad
 public import GibbsMeasure.Mathlib.MeasureTheory.Measure.Prod
 public import GibbsMeasure.Mathlib.Probability.Kernel.Condexp
