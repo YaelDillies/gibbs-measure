@@ -18,7 +18,7 @@ variable {α : Type*} {mα : MeasurableSpace α} {C : Set (Set α)} {μ ν : Mea
 
 namespace Measure
 
-lemma ext_of_generateFrom_of_iUnion_univ
+lemma ext_of_generateFrom_of_univ
     (hA : ‹MeasurableSpace α› = MeasurableSpace.generateFrom C) (hC : IsPiSystem C)
     (h_univ : (univ : Set α) ∈ C) (hμ : μ univ ≠ ∞)
     (h : ∀ s ∈ C, μ s = ν s) : μ = ν :=
