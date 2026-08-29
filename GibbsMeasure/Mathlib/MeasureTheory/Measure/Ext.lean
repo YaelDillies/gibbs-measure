@@ -14,7 +14,7 @@ open scoped ENNReal
 
 namespace MeasureTheory
 
-variable {α : Type*} [MeasurableSpace α] {C : Set (Set α)} {μ ν : Measure α}
+variable {α : Type*} {mα : MeasurableSpace α} {C : Set (Set α)} {μ ν : Measure α}
 
 namespace Measure
 
