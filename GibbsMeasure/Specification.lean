@@ -255,8 +255,7 @@ lemma measurable_isssdFun (Λ : Finset S) :
       fun η : S → E ↦ (Measure.pi fun _ : Λ ↦ ν).map (juxt Λ η) := by
   let μ' : (S → E) → Measure (S → E) :=
     fun η ↦ (Measure.pi fun _ : Λ ↦ ν).map (juxt Λ η)
-  have : ∀ η, IsProbabilityMeasure (μ' η) :=
-    fun _ ↦ Measure.isProbabilityMeasure_map Measurable.juxt.aemeasurable
+  have : ∀ η, IsProbabilityMeasure (μ' η) := inferInstance
   refine @Measurable.measure_of_isPiSystem_of_isProbabilityMeasure (S → E) (S → E)
     (cylinderEvents (Λ : Set S)ᶜ) _ μ' _ (measurableSquareCylinders S fun _ : S ↦ E)
     generateFrom_measurableSquareCylinders.symm IsPiSystem.measurableSquareCylinders ?_
@@ -271,7 +270,7 @@ def isssdFun (Λ : Finset S) : Kernel[cylinderEvents Λᶜ] (S → E) (S → E) 
     (measurable_isssdFun ν Λ)
 
 instance instIsMarkovKernel_isssdFun {Λ : Finset S} : IsMarkovKernel (isssdFun ν Λ) :=
-  ⟨fun _ ↦ Measure.isProbabilityMeasure_map Measurable.juxt.aemeasurable⟩
+  ⟨fun _ ↦ by simp only [isssdFun_apply]; infer_instance⟩
 
 private lemma isssdFun_comap_id (Λ : Finset S) :
     (isssdFun ν Λ).comap id cylinderEvents_le_pi =
@@ -377,9 +376,8 @@ protected lemma IsProper.isssd : (isssd (S := S) ν).IsProper := by
     rw [this, inter_empty, measure_empty, indicator_of_notMem hx, zero_mul]
 
 instance isssd.instIsMarkov : (isssd (S := S) ν).IsMarkov where
-  isMarkovKernel Λ := ⟨fun _ ↦ by
-    simp only [isssd_apply]
-    exact Measure.isProbabilityMeasure_map Measurable.juxt.aemeasurable⟩
+  isMarkovKernel Λ := ⟨inferInstanceAs <|
+    ∀ η, IsProbabilityMeasure (.map (juxt (Λ : Set S) η) <| .pi fun _ ↦ ν)⟩
 
 section ProductMeasure
 
