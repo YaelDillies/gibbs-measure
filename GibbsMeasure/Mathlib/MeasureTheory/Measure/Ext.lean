@@ -7,13 +7,6 @@ module
 
 public import Mathlib.MeasureTheory.Measure.Typeclasses.Probability
 
-/-!
-# Measure uniqueness on a generating π-system
-
-Wrappers around Mathlib's `Measure.ext_of_generateFrom_of_iUnion` and `ext_of_generate_finite`
-for the two common special cases `univ ∈ C` and probability measures.
--/
-
 @[expose] public section
 
 open Set
@@ -25,7 +18,6 @@ variable {α : Type*} [MeasurableSpace α] {C : Set (Set α)} {μ ν : Measure �
 
 namespace Measure
 
-/-- `Measure.ext_of_generateFrom_of_iUnion` specialised to the spanning sequence `fun _ ↦ univ`. -/
 lemma ext_of_generateFrom_of_iUnion_univ
     (hA : ‹MeasurableSpace α› = MeasurableSpace.generateFrom C) (hC : IsPiSystem C)
     (h_univ : (univ : Set α) ∈ C) (hμ : μ univ ≠ ∞)
@@ -35,8 +27,6 @@ lemma ext_of_generateFrom_of_iUnion_univ
 
 end Measure
 
-/-- `ext_of_generate_finite` specialised to probability measures, so the `univ`-mass hypothesis
-is automatic. -/
 lemma ext_of_generate_finite_of_isProbabilityMeasure
     [IsProbabilityMeasure μ] [IsProbabilityMeasure ν]
     (hA : ‹MeasurableSpace α› = MeasurableSpace.generateFrom C) (hC : IsPiSystem C)

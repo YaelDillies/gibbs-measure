@@ -8,27 +8,12 @@ module
 public import Mathlib.MeasureTheory.Constructions.Cylinders
 public import Mathlib.MeasureTheory.Function.FactorsThrough
 
-/-!
-# Cylinder events as pullbacks, and square cylinders
-
-Mathlib defines `cylinderEvents Δ` as `⨆ i ∈ Δ, comap (eval i)`. We record the equivalent
-pullback characterisation along `Set.domRestrict` / `Finset.restrict`, and the resulting
-characterisation of measurability: a function is `cylinderEvents Δ`-measurable iff it is
-measurable and `DependsOn` the coordinates in `Δ`.
-
-Mathlib already has the Finset, one-directional special case `Measurable.dependsOn_of_piFinset`.
-
-We also name the π-system of square cylinders with measurable sides, i.e. Mathlib's
-`squareCylinders` specialised to `{s | MeasurableSet s}` in each coordinate.
--/
-
 @[expose] public section
 
 open Function MeasureTheory Set
 
 variable {S E : Type*} {mE : MeasurableSpace E}
 
-/-- Membership in a `cylinderEvents Δ`-measurable set depends only on the coordinates in `Δ`. -/
 lemma mem_congr_of_measurableSet_cylinderEvents {Δ : Set S} {B : Set (S → E)}
     (hB : MeasurableSet[cylinderEvents Δ] B) {f₁ f₂ : S → E} (h : ∀ i ∈ Δ, f₁ i = f₂ i) :
     f₁ ∈ B ↔ f₂ ∈ B := by
@@ -46,9 +31,6 @@ namespace MeasureTheory
 
 variable {ι : Type*} {X : ι → Type*} [∀ i, MeasurableSpace (X i)] {Δ : Set ι}
 
-/-! ### `cylinderEvents` as a pullback σ-algebra -/
-
-/-- `cylinderEvents Δ` is the pullback of the product σ-algebra along restriction to `Δ`. -/
 lemma cylinderEvents_eq_comap_domRestrict (Δ : Set ι) :
     cylinderEvents (X := X) Δ =
       MeasurableSpace.comap Δ.domRestrict (inferInstance : MeasurableSpace (∀ i : Δ, X i)) := by
@@ -57,33 +39,25 @@ lemma cylinderEvents_eq_comap_domRestrict (Δ : Set ι) :
   exact MeasurableSpace.comap_le_comap_of_eq_comp (fun x : ∀ i : Δ, X i ↦ x ⟨i, hi⟩)
     (measurable_pi_apply _) rfl
 
-/-- Homogeneous restatement of `cylinderEvents_eq_comap_domRestrict`. -/
 lemma cylinderEvents_eq_comap_restrict {S E : Type*} [MeasurableSpace E] (Δ : Set S) :
     cylinderEvents (X := fun _ : S ↦ E) Δ =
       MeasurableSpace.comap (Set.domRestrict Δ) (inferInstance : MeasurableSpace (Δ → E)) :=
   cylinderEvents_eq_comap_domRestrict (X := fun _ : S ↦ E) Δ
 
-/-- Finite-volume form: `cylinderEvents Λ` is the pullback along `Finset.restrict`. -/
 lemma cylinderEvents_eq_comap_finsetRestrict (Λ : Finset ι) :
     cylinderEvents (X := X) (Λ : Set ι) =
       MeasurableSpace.comap (Λ.restrict (π := X))
         (inferInstance : MeasurableSpace (Π i : Λ, X i)) :=
   cylinderEvents_eq_comap_domRestrict (X := X) (Λ : Set ι)
 
-/-! ### Cylinder measurability versus dependence on coordinates -/
-
 variable {Z : Type*} [MeasurableSpace Z] {f : (∀ i, X i) → Z}
 
-/-- A function measurable for the cylinder σ-algebra of `Δ` depends only on the coordinates in
-`Δ`. -/
 theorem _root_.Measurable.dependsOn_of_cylinderEvents [MeasurableSingletonClass Z]
     (hf : Measurable[cylinderEvents Δ] f) : DependsOn f Δ :=
   dependsOn_iff_factorsThrough.2 <| by
     rw [cylinderEvents_eq_comap_domRestrict] at hf
     exact hf.factorsThrough
 
-/-- A measurable function depending only on the coordinates in `Δ` is measurable for the cylinder
-σ-algebra of `Δ`. -/
 theorem _root_.Measurable.cylinderEvents_of_dependsOn
     (hf : Measurable f) (hdep : DependsOn f Δ) : Measurable[cylinderEvents Δ] f := by
   rcases isEmpty_or_nonempty (∀ i, X i) with hα | hα
@@ -107,18 +81,12 @@ theorem _root_.Measurable.cylinderEvents_of_dependsOn
     rw [cylinderEvents_eq_comap_domRestrict, hfe]
     exact (hf.comp he).comp (Measurable.of_comap_le le_rfl)
 
-/-- A function is `cylinderEvents Δ`-measurable iff it is measurable and depends only on the
-coordinates in `Δ`. -/
 theorem measurable_cylinderEvents_iff_dependsOn [MeasurableSingletonClass Z] :
     Measurable[cylinderEvents Δ] f ↔ Measurable f ∧ DependsOn f Δ :=
   ⟨fun h ↦ ⟨h.mono cylinderEvents_le_pi le_rfl, h.dependsOn_of_cylinderEvents⟩,
     fun h ↦ h.1.cylinderEvents_of_dependsOn h.2⟩
 
-/-! ### Square cylinders with measurable sides -/
-
 variable (ι) (X) in
-/-- The π-system of square cylinders with measurable sides. This is `squareCylinders` specialised
-to `{s | MeasurableSet s}` in each coordinate. -/
 abbrev measurableSquareCylinders : Set (Set (∀ i, X i)) :=
   squareCylinders fun _ ↦ {s | MeasurableSet s}
 
