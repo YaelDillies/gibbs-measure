@@ -166,18 +166,15 @@ lemma isGibbsMeasure_iff_frequently_bind_eq (hγ : γ.IsProper) [IsFiniteMeasure
 end IsGibbsMeasure
 
 noncomputable section ISSSD
-variable (ν : Measure E) [IsProbabilityMeasure ν]
 
-omit [IsProbabilityMeasure ν] in
 private lemma setOf_mem_of_notMem_eq_pi_sdiff [DecidableEq S] (Λ s : Finset S)
     (t : S → Set E) :
     {η : S → E | ∀ i ∈ s, i ∉ Λ → η i ∈ t i} =
       ((s \ Λ : Finset S) : Set S).pi t := by
   ext η; simp [mem_pi]
 
-omit [IsProbabilityMeasure ν] in
-private lemma measurableSet_setOf_mem_of_notMem (Λ s : Finset S) {t : S → Set E}
-    (ht : ∀ i, MeasurableSet (t i)) :
+private lemma measurableSet_setOf_mem_of_notMem (Λ s : Finset S)
+    {t : S → Set E} (ht : ∀ i, MeasurableSet (t i)) :
     MeasurableSet[cylinderEvents (X := fun _ : S ↦ E) (Λ : Set S)ᶜ]
       {η : S → E | ∀ i ∈ s, i ∉ Λ → η i ∈ t i} := by
   classical
@@ -191,7 +188,6 @@ private lemma measurableSet_setOf_mem_of_notMem (Λ s : Finset S) {t : S → Set
     (ht i).preimage <| measurable_cylinderEvent_apply (X := fun _ : S ↦ E)
       (Set.mem_compl (Finset.mem_sdiff.1 hi).2)
 
-omit [IsProbabilityMeasure ν] in
 private lemma preimage_juxt_pi [DecidableEq S] {Λ s : Finset S} {t : S → Set E}
     {η : S → E} (hP : ∀ i ∈ s, i ∉ Λ → η i ∈ t i) :
     juxt (Λ : Set S) η ⁻¹' (s : Set S).pi t =
@@ -209,7 +205,6 @@ private lemma preimage_juxt_pi [DecidableEq S] {Λ s : Finset S} {t : S → Set 
       simpa [juxt_apply_of_mem hiΛ, hi'] using h ⟨i, hiΛ⟩
     · simpa [juxt_apply_of_not_mem hiΛ] using hP i hi hiΛ
 
-omit [IsProbabilityMeasure ν] in
 private lemma preimage_juxt_pi_eq_empty {Λ s : Finset S} {t : S → Set E} {η : S → E}
     (hP : ¬ ∀ i ∈ s, i ∉ Λ → η i ∈ t i) :
     juxt (Λ : Set S) η ⁻¹' (s : Set S).pi t = (∅ : Set (Λ → E)) := by
@@ -217,43 +212,47 @@ private lemma preimage_juxt_pi_eq_empty {Λ s : Finset S} {t : S → Set E} {η 
   simp only [mem_preimage, mem_empty_iff_false, iff_false, mem_pi]
   intro h
   push Not at hP
-  obtain ⟨i, hi_s, hi_Λ, hi_t⟩ := hP
-  exact hi_t <| by simpa [juxt_apply_of_not_mem hi_Λ] using h i hi_s
+  obtain ⟨i, his, hiΛ, hit⟩ := hP
+  exact hit <| by simpa [juxt_apply_of_not_mem hiΛ] using h i his
 
-open Classical in
-omit [IsProbabilityMeasure ν] in
+variable (ν : Measure E)
+
 private lemma map_juxt_apply_pi [DecidableEq S] (Λ s : Finset S) (t : S → Set E)
     (ht : ∀ i, MeasurableSet (t i)) (η : S → E) :
     (Measure.pi fun _ : Λ ↦ ν).map (juxt Λ η) ((s : Set S).pi t) =
-      if ∀ i ∈ s, i ∉ Λ → η i ∈ t i then
-        (Measure.pi fun _ : Λ ↦ ν)
-          (univ.pi fun j : Λ ↦ if (j : S) ∈ s then t j else univ)
-      else 0 := by
+      {ω : S → E | ∀ i ∈ s, i ∉ Λ → ω i ∈ t i}.indicator
+        (fun _ ↦ (Measure.pi fun _ : Λ ↦ ν)
+          (univ.pi fun j : Λ ↦ if (j : S) ∈ s then t j else univ)) η := by
   rw [Measure.map_apply .juxt (MeasurableSet.pi s.countable_toSet fun i _ ↦ ht i)]
-  split_ifs with hP
-  · rw [preimage_juxt_pi hP]
-  · rw [preimage_juxt_pi_eq_empty hP, measure_empty]
+  by_cases hP : ∀ i ∈ s, i ∉ Λ → η i ∈ t i
+  · have hmem : η ∈ {ω : S → E | ∀ i ∈ s, i ∉ Λ → ω i ∈ t i} := hP
+    rw [preimage_juxt_pi hP, indicator_of_mem hmem]
+  · have hmem : η ∉ {ω : S → E | ∀ i ∈ s, i ∉ Λ → ω i ∈ t i} := hP
+    rw [preimage_juxt_pi_eq_empty hP, measure_empty, indicator_of_notMem hmem]
 
-omit [IsProbabilityMeasure ν] in
 private lemma measurable_map_juxt_apply_pi (Λ s : Finset S) (t : S → Set E)
     (ht : ∀ i, MeasurableSet (t i)) :
     Measurable[cylinderEvents (X := fun _ : S ↦ E) (Λ : Set S)ᶜ] fun η : S → E ↦
       (Measure.pi fun _ : Λ ↦ ν).map (juxt Λ η) ((s : Set S).pi t) := by
   classical
-  let c : ℝ≥0∞ :=
+  simp_rw [map_juxt_apply_pi ν Λ s t ht]
+  exact Measurable.indicator (m := cylinderEvents (X := fun _ : S ↦ E) (Λ : Set S)ᶜ)
+    measurable_const (measurableSet_setOf_mem_of_notMem Λ s ht)
+
+variable [IsProbabilityMeasure ν]
+
+private lemma measure_pi_univ_pi_ite [DecidableEq S] (Λ s : Finset S) (t : S → Set E) :
     (Measure.pi fun _ : Λ ↦ ν)
-      (univ.pi fun j : Λ ↦ if (j : S) ∈ s then t j else univ)
-  have : (fun η : S → E ↦ (Measure.pi fun _ : Λ ↦ ν).map (juxt Λ η) ((s : Set S).pi t)) =
-      fun η ↦ if ∀ i ∈ s, i ∉ Λ → η i ∈ t i then c else 0 :=
-    funext fun η ↦ map_juxt_apply_pi ν Λ s t ht η
-  rw [this]
-  exact Measurable.ite (m := cylinderEvents (X := fun _ : S ↦ E) (Λ : Set S)ᶜ)
-    (measurableSet_setOf_mem_of_notMem Λ s ht) measurable_const measurable_const
+        (univ.pi fun j : Λ ↦ if (j : S) ∈ s then t j else univ) =
+      ∏ i ∈ s ∩ Λ, ν (t i) := by
+  rw [Measure.pi_pi]
+  simp only [apply_ite, measure_univ]
+  exact (Finset.prod_attach Λ fun i : S ↦ if i ∈ s then ν (t i) else 1).trans <| by
+    simp [Finset.prod_ite_mem, Finset.inter_comm]
 
 lemma measurable_isssdFun (Λ : Finset S) :
     Measurable[cylinderEvents Λᶜ]
       fun η : S → E ↦ (Measure.pi fun _ : Λ ↦ ν).map (juxt Λ η) := by
-  classical
   let μ' : (S → E) → Measure (S → E) :=
     fun η ↦ (Measure.pi fun _ : Λ ↦ ν).map (juxt Λ η)
   have : ∀ η, IsProbabilityMeasure (μ' η) :=
@@ -266,8 +265,7 @@ lemma measurable_isssdFun (Λ : Finset S) :
 
 /-- Auxiliary definition for `Specification.isssd`. -/
 @[simps -fullyApplied]
-def isssdFun (ν : Measure E) [IsProbabilityMeasure ν] (Λ : Finset S) :
-    Kernel[cylinderEvents Λᶜ] (S → E) (S → E) :=
+def isssdFun (Λ : Finset S) : Kernel[cylinderEvents Λᶜ] (S → E) (S → E) :=
   @Kernel.mk _ _ (_) _
     (fun η ↦ Measure.map (juxt Λ η) (Measure.pi fun _ : Λ ↦ ν))
     (measurable_isssdFun ν Λ)
@@ -275,88 +273,66 @@ def isssdFun (ν : Measure E) [IsProbabilityMeasure ν] (Λ : Finset S) :
 instance instIsMarkovKernel_isssdFun {Λ : Finset S} : IsMarkovKernel (isssdFun ν Λ) :=
   ⟨fun _ ↦ Measure.isProbabilityMeasure_map Measurable.juxt.aemeasurable⟩
 
-private lemma measure_pi_univ_pi_ite [DecidableEq S] (Λ s : Finset S) (t : S → Set E) :
-    (Measure.pi fun _ : Λ ↦ ν)
-        (univ.pi fun j : Λ ↦ if (j : S) ∈ s then t j else univ) =
-      ∏ i ∈ s ∩ Λ, ν (t i) := by
-  rw [Measure.pi_pi]
-  simp only [apply_ite, measure_univ]
-  exact (Finset.prod_attach Λ fun i : S ↦ if i ∈ s then ν (t i) else 1).trans <| by
-    simp [Finset.prod_ite_mem, Finset.inter_comm]
+private lemma isssdFun_comap_id (Λ : Finset S) :
+    (isssdFun ν Λ).comap id cylinderEvents_le_pi =
+      (isssdFun ν Λ).comap id (measurable_id'' cylinderEvents_le_pi) :=
+  DFunLike.ext _ _ fun _ ↦ rfl
 
-open Classical in
 lemma isssdFun_apply_squareCylinder [DecidableEq S] (Λ s : Finset S) (t : S → Set E)
     (ht : ∀ i, MeasurableSet (t i)) (η : S → E) :
     isssdFun ν Λ η ((s : Set S).pi t) =
-      if ∀ i ∈ s, i ∉ Λ → η i ∈ t i then ∏ i ∈ s ∩ Λ, ν (t i) else 0 := by
+      {ω | ∀ i ∈ s, i ∉ Λ → ω i ∈ t i}.indicator
+        (fun _ ↦ ∏ i ∈ s ∩ Λ, ν (t i)) η := by
   rw [isssdFun_apply, map_juxt_apply_pi ν Λ s t ht η, measure_pi_univ_pi_ite]
 
-open Classical in
 private lemma isssdFun_apply_pi_sdiff [DecidableEq S] (Λ₁ Λ₂ s : Finset S) (t : S → Set E)
     (ht : ∀ i, MeasurableSet (t i)) (η : S → E) :
     isssdFun ν Λ₂ η {ω : S → E | ∀ i ∈ s, i ∉ Λ₁ → ω i ∈ t i} =
-      if ∀ i ∈ s, i ∉ Λ₁ ∪ Λ₂ → η i ∈ t i then
-        ∏ i ∈ s ∩ (Λ₂ \ Λ₁), ν (t i) else 0 := by
-  have hP : (∀ i ∈ s \ Λ₁, i ∉ Λ₂ → η i ∈ t i) ↔
-      ∀ i ∈ s, i ∉ Λ₁ ∪ Λ₂ → η i ∈ t i := by
-    constructor
-    · intro h i hi hiU
-      exact h i (Finset.mem_sdiff.2 ⟨hi, fun h₁ ↦ hiU (Finset.mem_union.2 (.inl h₁))⟩)
-        fun h₂ ↦ hiU (Finset.mem_union.2 (.inr h₂))
-    · intro h i hi hi₂
-      exact h i (Finset.mem_sdiff.1 hi).1 fun hiU ↦
-        (Finset.mem_union.1 hiU).elim (Finset.mem_sdiff.1 hi).2 hi₂
-  rw [setOf_mem_of_notMem_eq_pi_sdiff, isssdFun_apply_squareCylinder ν Λ₂ (s \ Λ₁) t ht η,
-    Finset.inter_comm, Finset.inter_sdiff_left_comm, if_congr hP rfl rfl]
+      {ω | ∀ i ∈ s, i ∉ Λ₁ ∪ Λ₂ → ω i ∈ t i}.indicator
+        (fun _ ↦ ∏ i ∈ s ∩ (Λ₂ \ Λ₁), ν (t i)) η := by
+  rw [setOf_mem_of_notMem_eq_pi_sdiff, isssdFun_apply_squareCylinder ν Λ₂ (s \ Λ₁) t ht η]
+  congr 1
+  · ext ω; simp [Finset.mem_sdiff, Finset.mem_union]
+  · rw [Finset.inter_comm, Finset.inter_sdiff_left_comm]
 
 private lemma lintegral_isssdFun_apply_pi [DecidableEq S] {μ : Measure (S → E)}
     (Λ s : Finset S) (t : S → Set E) (ht : ∀ i, MeasurableSet (t i)) :
     ∫⁻ ω, isssdFun ν Λ ω ((s : Set S).pi t) ∂μ =
       (∏ i ∈ s ∩ Λ, ν (t i)) * μ {ω | ∀ i ∈ s, i ∉ Λ → ω i ∈ t i} := by
-  classical
   have hP : MeasurableSet {ω : S → E | ∀ i ∈ s, i ∉ Λ → ω i ∈ t i} := by
     simpa [setOf_mem_of_notMem_eq_pi_sdiff] using
       MeasurableSet.pi (s \ Λ).countable_toSet fun i _ ↦ ht i
-  have h_eval : (fun ω ↦ isssdFun ν Λ ω ((s : Set S).pi t)) =
-      {ω | ∀ i ∈ s, i ∉ Λ → ω i ∈ t i}.indicator
-        fun _ ↦ ∏ i ∈ s ∩ Λ, ν (t i) := by
-    ext ω
-    rw [isssdFun_apply_squareCylinder ν Λ s t ht ω]
-    simp [indicator]
-  rw [h_eval, lintegral_indicator_const hP]
+  simp_rw [isssdFun_apply_squareCylinder ν Λ s t ht]
+  exact lintegral_indicator_const hP _
 
 private lemma lintegral_isssdFun_apply_squareCylinder [DecidableEq S] (Λ₁ Λ₂ s : Finset S)
     (t : S → Set E) (ht : ∀ i, MeasurableSet (t i)) (η : S → E) :
     ∫⁻ b, isssdFun ν Λ₁ b ((s : Set S).pi t) ∂isssdFun ν Λ₂ η =
       isssdFun ν (Λ₁ ∪ Λ₂) η ((s : Set S).pi t) := by
-  classical
   rw [lintegral_isssdFun_apply_pi ν Λ₁ s t ht, isssdFun_apply_pi_sdiff ν Λ₁ Λ₂ s t ht η,
-    isssdFun_apply_squareCylinder ν (Λ₁ ∪ Λ₂) s t ht η]
-  split_ifs
-  · rw [← Finset.prod_inter_mul_prod_sdiff (s ∩ (Λ₁ ∪ Λ₂)) Λ₁ fun i ↦ ν (t i)]
-    congr 1
-    · rw [Finset.inter_assoc, Finset.inter_eq_right.2 Finset.subset_union_left]
-    · rw [Finset.inter_sdiff_assoc, Finset.union_sdiff_left]
-  · simp
+    isssdFun_apply_squareCylinder ν (Λ₁ ∪ Λ₂) s t ht η, ← indicator_const_mul]
+  congr 1
+  ext
+  rw [← Finset.prod_inter_mul_prod_sdiff (s ∩ (Λ₁ ∪ Λ₂)) Λ₁ fun i ↦ ν (t i)]
+  congr 1
+  · rw [Finset.inter_assoc, Finset.inter_eq_right.2 Finset.subset_union_left]
+  · rw [Finset.inter_sdiff_assoc, Finset.union_sdiff_left]
 
 /-- The ISSSD of a measure is strongly consistent. -/
 lemma isssdFun_comp_isssdFun [DecidableEq S] (Λ₁ Λ₂ : Finset S) :
     (isssdFun ν Λ₁).comap id cylinderEvents_le_pi ∘ₖ isssdFun ν Λ₂ =
       (isssdFun ν (Λ₁ ∪ Λ₂)).comap id
         (measurable_id'' <| by gcongr; exact Finset.subset_union_right) := by
-  rw [show (isssdFun ν Λ₁).comap id cylinderEvents_le_pi =
-      (isssdFun ν Λ₁).comap id (measurable_id'' cylinderEvents_le_pi) from
-    DFunLike.ext _ _ fun _ ↦ rfl]
+  rw [isssdFun_comap_id]
   refine DFunLike.ext _ _ fun η ↦ ?_
-  apply ext_of_generateFrom_of_isProbabilityMeasure
+  refine ext_of_generateFrom_of_isProbabilityMeasure
     (C := measurableSquareCylinders S fun _ : S ↦ E)
-    generateFrom_measurableSquareCylinders.symm IsPiSystem.measurableSquareCylinders
+    generateFrom_measurableSquareCylinders.symm IsPiSystem.measurableSquareCylinders ?_
   rintro A ⟨s, t, ht, rfl⟩
   have ht' : ∀ i, MeasurableSet (t i) := fun i ↦ ht i (mem_univ _)
-  have hmeas : MeasurableSet ((s : Set S).pi t) :=
-    MeasurableSet.pi s.countable_toSet fun i _ ↦ ht' i
-  rw [Kernel.comp_apply, Measure.bind_apply hmeas (Kernel.aemeasurable _)]
-  simp only [Kernel.coe_comap, Function.comp_apply, id_eq]
+  rw [Kernel.comp_apply, Measure.bind_apply
+    (MeasurableSet.pi s.countable_toSet fun i _ ↦ ht' i) (Kernel.aemeasurable _)]
+  simp only [Kernel.comap_apply, id_eq]
   exact lintegral_isssdFun_apply_squareCylinder ν Λ₁ Λ₂ s t ht' η
 
 /-- The **Independent Specification with Single Spin Distribution**.
@@ -388,10 +364,9 @@ protected lemma IsProper.isssd : (isssd (S := S) ν).IsProper := by
   rw [Measure.map_apply .juxt (hA.inter (cylinderEvents_le_pi _ hB)), Measure.map_apply .juxt hA,
     Set.preimage_inter]
   by_cases hx : x ∈ B
-  · have : juxt (↑Λ) x ⁻¹' B = Set.univ := by
+  · have : juxt (↑Λ) x ⁻¹' B = univ := by
       ext ζ
-      simp only [mem_preimage, mem_univ, iff_true]
-      exact (mem_congr_of_measurableSet_cylinderEvents hB
+      simpa using (mem_congr_of_measurableSet_cylinderEvents hB
         fun _ hi ↦ juxt_apply_of_not_mem hi ζ).mpr hx
     rw [this, inter_univ, indicator_of_mem hx, Pi.one_apply, one_mul]
   · have : juxt (↑Λ) x ⁻¹' B = ∅ := by
@@ -406,24 +381,21 @@ instance isssd.instIsMarkov : (isssd (S := S) ν).IsMarkov where
     simp only [isssd_apply]
     exact Measure.isProbabilityMeasure_map Measurable.juxt.aemeasurable⟩
 
-end ISSSD
-
 section ProductMeasure
-variable (ν : Measure E) [IsProbabilityMeasure ν]
 
 lemma isssd_apply_squareCylinder_of_subset {Λ s : Finset S} (hs : s ⊆ Λ) (t : S → Set E)
     (ht : ∀ i, MeasurableSet (t i)) (η : S → E) :
     isssd ν Λ η ((s : Set S).pi t) = ∏ i ∈ s, ν (t i) := by
   classical
-  rw [isssd_apply, isssdFun_apply_squareCylinder ν Λ s t ht,
-    ite_eq_left (fun i hi hiΛ ↦ (hiΛ (hs hi)).elim), Finset.inter_eq_left.2 hs]
+  have hmem : η ∈ {ω : S → E | ∀ i ∈ s, i ∉ Λ → ω i ∈ t i} :=
+    fun i hi hΛ ↦ (hΛ (hs hi)).elim
+  rw [isssd_apply, isssdFun_apply_squareCylinder ν Λ s t ht, indicator_of_mem hmem,
+    Finset.inter_eq_left.2 hs]
 
 lemma bind_isssd_apply_squareCylinder_of_subset (μ : Measure (S → E)) {Λ s : Finset S}
     (hs : s ⊆ Λ) (t : S → Set E) (ht : ∀ i, MeasurableSet (t i)) :
     μ.bind (isssd ν Λ) ((s : Set S).pi t) = μ univ * ∏ i ∈ s, ν (t i) := by
-  have hmeas : MeasurableSet ((s : Set S).pi t) :=
-    MeasurableSet.pi s.countable_toSet fun i _ ↦ ht i
-  rw [Measure.bind_apply hmeas
+  rw [Measure.bind_apply (MeasurableSet.pi s.countable_toSet fun i _ ↦ ht i)
     ((isssd ν Λ).measurable.mono cylinderEvents_le_pi le_rfl).aemeasurable]
   simp_rw [isssd_apply_squareCylinder_of_subset ν hs t ht]
   rw [lintegral_const, mul_comm]
@@ -433,12 +405,9 @@ lemma infinitePi_bind_isssd (Λ : Finset S) :
       Measure.infinitePi fun _ : S ↦ ν := by
   classical
   refine Measure.eq_infinitePi (μ := fun _ : S ↦ ν) fun s t ht ↦ ?_
-  have hmeas : MeasurableSet ((s : Set S).pi t) :=
-    MeasurableSet.pi s.countable_toSet fun i _ ↦ ht i
-  rw [Measure.bind_apply hmeas
-    ((isssd ν Λ).measurable.mono cylinderEvents_le_pi le_rfl).aemeasurable]
-  simp_rw [isssd_apply]
-  rw [lintegral_isssdFun_apply_pi ν Λ s t ht, setOf_mem_of_notMem_eq_pi_sdiff,
+  rw [Measure.bind_apply (MeasurableSet.pi s.countable_toSet fun i _ ↦ ht i)
+    ((isssd ν Λ).measurable.mono cylinderEvents_le_pi le_rfl).aemeasurable, isssd_apply,
+    lintegral_isssdFun_apply_pi ν Λ s t ht, setOf_mem_of_notMem_eq_pi_sdiff,
     Measure.infinitePi_pi (μ := fun _ : S ↦ ν) fun i _ ↦ ht i]
   exact Finset.prod_inter_mul_prod_sdiff s Λ fun i ↦ ν (t i)
 
@@ -450,17 +419,14 @@ lemma isGibbsMeasure_isssd_infinitePi :
 
 lemma isGibbsMeasure_isssd_iff (μ : Measure (S → E)) [IsProbabilityMeasure μ] :
     (isssd ν).IsGibbsMeasure μ ↔ μ = Measure.infinitePi fun _ : S ↦ ν := by
-  constructor
-  · intro hμ
-    have hbind : ∀ Λ, μ.bind (isssd ν Λ) = μ :=
-      (isGibbsMeasure_iff_forall_bind_eq (IsProper.isssd (ν := ν))).1 hμ
-    refine Measure.eq_infinitePi (μ := fun _ : S ↦ ν) fun s t ht ↦ ?_
-    rw [← hbind s, bind_isssd_apply_squareCylinder_of_subset ν μ le_rfl t ht,
-      measure_univ, one_mul]
-  · rintro rfl
-    exact isGibbsMeasure_isssd_infinitePi ν
+  refine ⟨fun hμ ↦ ?_, fun h ↦ h ▸ isGibbsMeasure_isssd_infinitePi ν⟩
+  refine Measure.eq_infinitePi (μ := fun _ : S ↦ ν) fun s t ht ↦ ?_
+  rw [← (isGibbsMeasure_iff_forall_bind_eq (IsProper.isssd (ν := ν))).1 hμ s,
+    bind_isssd_apply_squareCylinder_of_subset ν μ le_rfl t ht, measure_univ, one_mul]
 
 end ProductMeasure
+
+end ISSSD
 
 section Modifier
 variable {ρ : Finset S → (S → E) → ℝ≥0∞}
