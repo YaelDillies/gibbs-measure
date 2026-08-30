@@ -235,7 +235,7 @@ def isssd (ν : Measure E) [IsProbabilityMeasure ν] : Specification S E where
   toFun := isssdFun ν
   isConsistent' Λ₁ Λ₂ hΛ := by
     classical
-    rw [isssdFun_comp_isssdFun (ν := ν)]
+    rw [isssdFun_comp_isssdFun]
     ext a s _
     simp only [Kernel.comap_apply, id_eq, isssdFun_apply, Finset.coe_sort_coe]
     rw [Finset.union_eq_right.2 hΛ]
