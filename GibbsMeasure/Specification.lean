@@ -246,9 +246,8 @@ protected lemma IsProper.isssd : (isssd (S := S) ν).IsProper := by
     rw [this, inter_empty, measure_empty, indicator_of_notMem hx, zero_mul]
 
 instance isssd.instIsMarkov [IsProbabilityMeasure ν] : (isssd (S := S) ν).IsMarkov where
-  isMarkovKernel Λ := ⟨fun _ ↦ by
-    simp only [isssd_apply]
-    exact Measure.isProbabilityMeasure_map Measurable.juxt.aemeasurable⟩
+  isMarkovKernel Λ := ⟨inferInstanceAs <|
+    ∀ η, IsProbabilityMeasure (.map (juxt (Λ : Set S) η) <| .pi fun _ ↦ ν)⟩
 
 end ISSSD
 
