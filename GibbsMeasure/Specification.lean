@@ -80,7 +80,7 @@ protected lemma bind (hΛ : Λ₁ ⊆ Λ₂) (η : S → E) : (γ Λ₂ η).bind
 
 lemma lintegral_bind (hΛ : Λ₁ ⊆ Λ₂) {f : (S → E) → ℝ≥0∞} (hf : Measurable f) (η : S → E) :
     ∫⁻ x, f x ∂γ Λ₂ η = ∫⁻ ζ, ∫⁻ x, f x ∂γ Λ₁ ζ ∂γ Λ₂ η := by
-  conv_lhs => rw [← γ.isConsistent hΛ, Kernel.comap_id_le]
+  conv_lhs => rw [← γ.isConsistent hΛ]
   rw [Kernel.lintegral_comp _ _ _ hf]
   simp_rw [Kernel.comap_apply, id_eq]
 
@@ -94,7 +94,7 @@ def IsIndep (γ : Specification S E) : Prop :=
 
 lemma IsIndep.bind_union [DecidableEq S] (hγ : γ.IsIndep) (Λ₁ Λ₂ : Finset S) (η : S → E) :
     (γ Λ₂ η).bind (γ Λ₁) = γ (Λ₁ ∪ Λ₂) η := by
-  simpa [Kernel.comap_id_le, Kernel.comp_apply, Kernel.comap_apply] using
+  simpa [Kernel.comp_apply, Kernel.comap_apply] using
     DFunLike.congr_fun (hγ (Λ₁ := Λ₁) (Λ₂ := Λ₂)) η
 
 end IsIndep
@@ -384,7 +384,7 @@ lemma comp_modificationKer_apply (hγ : γ.IsProper) (hρ : ∀ Λ, Measurable (
   have hL : ((modificationKer γ ρ hρ Λ₁).comap id cylinderEvents_le_pi ∘ₖ
       modificationKer γ ρ hρ Λ₂) η A =
       ∫⁻ ζ, (∫⁻ ω in A, ρ Λ₁ ω ∂γ Λ₁ ζ) * ρ Λ₂ ζ ∂γ Λ₂ η := by
-    rw [Kernel.comp_apply' _ _ _ hA, Kernel.comap_id_le]
+    rw [Kernel.comp_apply' _ _ _ hA]
     simp_rw [Kernel.comap_apply', id_eq]
     nth_rw 1 [modificationKer_apply]
     rw [lintegral_withDensity_eq_lintegral_mul _ (hρ Λ₂)
