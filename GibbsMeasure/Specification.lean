@@ -9,6 +9,7 @@ public import GibbsMeasure.Mathlib.MeasureTheory.Constructions.Cylinders
 public import GibbsMeasure.Mathlib.MeasureTheory.Constructions.Pi
 public import GibbsMeasure.Mathlib.MeasureTheory.Measure.Ext
 public import GibbsMeasure.Mathlib.MeasureTheory.Measure.GiryMonad
+public import GibbsMeasure.Mathlib.Probability.Kernel.Composition.MapComap
 public import GibbsMeasure.Prereqs.Filtration.Consistent
 public import GibbsMeasure.Prereqs.Juxt
 public import GibbsMeasure.Prereqs.Kernel.CondExp
@@ -201,14 +202,12 @@ lemma lintegral_isssdFun_apply_squareCylinder [DecidableEq S] {μ : Measure (S �
   simp_rw [isssdFun_apply_squareCylinder Λ s t ht]
   exact lintegral_indicator_const (MeasurableSet.pi (s \ Λ).countable_toSet fun i _ ↦ ht i) _
 
-/-- The ISSSD of a measure is strongly consistent. -/
+/-- Resampling `Λ₁` then `Λ₂` is resampling `Λ₁ ∪ Λ₂`. -/
 lemma isssdFun_comp_isssdFun [DecidableEq S] (Λ₁ Λ₂ : Finset S) :
     (isssdFun ν Λ₁).comap id cylinderEvents_le_pi ∘ₖ isssdFun ν Λ₂ =
       (isssdFun ν (Λ₁ ∪ Λ₂)).comap id
         (measurable_id'' <| by gcongr; exact Finset.subset_union_right) := by
-  rw [show (isssdFun ν Λ₁).comap id cylinderEvents_le_pi =
-      (isssdFun ν Λ₁).comap id (measurable_id'' cylinderEvents_le_pi) from
-      DFunLike.ext _ _ fun _ ↦ rfl]
+  rw [Kernel.comap_id_le]
   refine DFunLike.ext _ _ fun η ↦ ext_of_generateFrom_of_isProbabilityMeasure
     generateFrom_measurableSquareCylinders.symm IsPiSystem.measurableSquareCylinders ?_
   rintro A ⟨s, t, ht, rfl⟩
@@ -241,28 +240,17 @@ def isssd (ν : Measure E) [IsProbabilityMeasure ν] : Specification S E where
     simp only [Kernel.comap_apply, id_eq, isssdFun_apply, Finset.coe_sort_coe]
     rw [Finset.union_eq_right.2 hΛ]
 
-/-- The ISSSD of a measure is strongly consistent. -/
-lemma isssd_comp_isssd [DecidableEq S] (Λ₁ Λ₂ : Finset S) :
-    (isssd ν Λ₁).comap id cylinderEvents_le_pi ∘ₖ isssd ν Λ₂ =
-      (isssd ν (Λ₁ ∪ Λ₂)).comap id
-        (measurable_id'' <| by gcongr; exact Finset.subset_union_right) :=
-  isssdFun_comp_isssdFun ..
-
 protected lemma IsIndep.isssd : (isssd (S := S) ν).IsIndep :=
   fun _ _ ↦ isssdFun_comp_isssdFun ..
 
-protected lemma IsProper.isssd : (isssd (S := S) ν).IsProper := by
-  refine .of_inter_eq_indicator_mul fun Λ A hA B hB x ↦ ?_
-  simp only [isssd_apply, isssdFun_apply, Finset.coe_sort_coe]
-  rw [Measure.map_apply .juxt (hA.inter (cylinderEvents_le_pi _ hB)), Measure.map_apply .juxt hA,
-    Set.preimage_inter]
-  have hxB (ζ) : juxt (↑Λ) x ζ ∈ B ↔ x ∈ B :=
-    mem_congr_of_measurableSet_cylinderEvents hB fun _ hi ↦ juxt_apply_of_not_mem hi ζ
-  by_cases hx : x ∈ B
-  · have : juxt (↑Λ) x ⁻¹' B = univ := by ext; simp [hxB, hx]
-    rw [this, inter_univ, indicator_of_mem hx, Pi.one_apply, one_mul]
-  · have : juxt (↑Λ) x ⁻¹' B = ∅ := by ext; simp [hxB, hx]
-    rw [this, inter_empty, measure_empty, indicator_of_notMem hx, zero_mul]
+protected lemma IsProper.isssd : (isssd (S := S) ν).IsProper :=
+  .of_inter_eq_indicator_mul fun Λ A hA B hB x ↦ by
+    simp only [isssd_apply, isssdFun_apply, Finset.coe_sort_coe]
+    rw [Measure.map_apply .juxt (hA.inter (cylinderEvents_le_pi _ hB)), Measure.map_apply .juxt hA,
+      preimage_inter]
+    have hxB (ζ) : juxt (↑Λ) x ζ ∈ B ↔ x ∈ B :=
+      mem_congr_of_measurableSet_cylinderEvents hB fun _ hi ↦ juxt_apply_of_not_mem hi ζ
+    by_cases hx : x ∈ B <;> simp [hxB, hx]
 
 instance isssd.instIsMarkov : (isssd (S := S) ν).IsMarkov where
   isMarkovKernel Λ := ⟨inferInstanceAs <|
