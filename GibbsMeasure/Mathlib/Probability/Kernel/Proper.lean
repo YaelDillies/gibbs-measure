@@ -142,4 +142,20 @@ lemma IsProper.integral_bdd_mul (h𝓑𝓧 : 𝓑 ≤ 𝓧) (hπ : IsProper π) 
       filter_upwards [hf] with x hx; simp [hx]
     simpa [integral_congr_ae this, integral_congr_ae hf] using hgf₁
 
+omit [IsFiniteKernel π] in
+lemma IsProper.ae_eq_const (hπ : IsProper π) (h𝓑𝓧 : 𝓑 ≤ 𝓧)
+    {Y : Type*} [MeasurableSpace Y] [MeasurableSingletonClass Y] {g : X → Y}
+    (hg : Measurable[𝓑] g) (x₀ : X) :
+    ∀ᵐ x ∂π x₀, g x = g x₀ := by
+  let B := g ⁻¹' {g x₀}
+  have hB : MeasurableSet[𝓑] B := hg (measurableSet_singleton _)
+  have hB' := h𝓑𝓧 _ hB
+  have hπB : π.restrict hB' x₀ = π x₀ := by
+    rw [hπ.restrict_eq_indicator_smul h𝓑𝓧 hB x₀]
+    simp [B]
+  rw [ae_iff, ← hπB]
+  convert restrict_apply' π hB' x₀ hB'.compl
+  · ext a; simp [B]
+  · simp
+
 end ProbabilityTheory.Kernel
