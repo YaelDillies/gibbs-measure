@@ -9,13 +9,14 @@ open scoped ENNReal
 namespace MeasureTheory
 variable {Ω : Type*} {mΩ₀ mΩ : MeasurableSpace Ω} {P : Measure[mΩ₀] Ω} {X Y : Ω → ℝ≥0∞}
 
+lemma tsub_add_cancel_of_eventuallyLE (hYX : Y ≤ᵐ[P] X) : X - Y + Y =ᵐ[P] X :=
+  hYX.mono fun ω hω ↦ by simpa [Pi.sub_apply, Pi.add_apply] using tsub_add_cancel_of_le hω
+
 lemma condLExp_sub (hY : AEMeasurable[mΩ₀] Y P)
     (hYX : Y ≤ᵐ[P] X) (hY_ne_top : ∀ᵐ ω ∂P, P⁻[Y|mΩ] ω ≠ ∞) :
     P⁻[X - Y|mΩ] =ᵐ[P] P⁻[X|mΩ] - P⁻[Y|mΩ] := by
-  have hXeq : X =ᵐ[P] (X - Y) + Y :=
-    hYX.mono fun ω hω ↦ by simpa [Pi.sub_apply, Pi.add_apply] using (tsub_add_cancel_of_le hω).symm
   have hsum : P⁻[X|mΩ] =ᵐ[P] P⁻[X - Y|mΩ] + P⁻[Y|mΩ] :=
-    (condLExp_congr_ae hXeq).trans (condLExp_add_right _ hY)
+    (condLExp_congr_ae (tsub_add_cancel_of_eventuallyLE hYX).symm).trans (condLExp_add_right _ hY)
   filter_upwards [hY_ne_top, hsum] with ω hω hx
   exact (ENNReal.sub_eq_of_eq_add_rev hω (by simpa [add_comm] using hx)).symm
 
