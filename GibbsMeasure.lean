@@ -14,7 +14,7 @@ public import GibbsMeasure.Mathlib.MeasureTheory.Measure.AEMeasurable
 public import GibbsMeasure.Mathlib.MeasureTheory.Measure.Ext
 public import GibbsMeasure.Mathlib.MeasureTheory.Measure.GiryMonad
 public import GibbsMeasure.Mathlib.MeasureTheory.Measure.Prod
-public import GibbsMeasure.Mathlib.Probability.Kernel.Composition.MeasureComp
+public import GibbsMeasure.Mathlib.Probability.Kernel.Composition.IntegralCompProd
 public import GibbsMeasure.Mathlib.Probability.Kernel.Condexp
 public import GibbsMeasure.Mathlib.Probability.Kernel.Proper
 public import GibbsMeasure.Prereqs.Filtration.Consistent
