@@ -4,6 +4,7 @@ public import Mathlib.MeasureTheory.Measure.GiryMonad
 
 public section
 
+open Set
 open scoped ENNReal
 
 namespace MeasureTheory.Measure
@@ -32,5 +33,19 @@ lemma measurable_restrict (hs : MeasurableSet s) : Measurable fun μ : Measure �
 lemma measurable_setLIntegral {f : α → ℝ≥0∞} (hf : Measurable f) (hs : MeasurableSet s) :
     Measurable fun μ : Measure α ↦ ∫⁻ x in s, f x ∂μ :=
   (measurable_lintegral hf).comp (measurable_restrict hs)
+
+/-- Converse to `ae_ae_of_ae_bind` for a measurable predicate. -/
+lemma ae_bind_iff {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
+    {μ : Measure α} {f : α → Measure β} {p : β → Prop}
+    (hf : AEMeasurable f μ) (hp : MeasurableSet {x | p x}) :
+    (∀ᵐ x ∂μ.bind f, p x) ↔ ∀ᵐ a ∂μ, ∀ᵐ x ∂f a, p x := by
+  refine ⟨ae_ae_of_ae_bind hf, fun h ↦ ?_⟩
+  have hpc : MeasurableSet {x | ¬p x} := (compl_ofPred p).symm ▸ hp.compl
+  rw [ae_iff, bind_apply hpc hf]
+  have hmeas : AEMeasurable (fun a ↦ f a {x | ¬p x}) μ :=
+    (measurable_coe hpc).comp_aemeasurable hf
+  rw [lintegral_eq_zero_iff' hmeas]
+  filter_upwards [h] with a ha
+  simpa [ae_iff] using ha
 
 end MeasureTheory.Measure
