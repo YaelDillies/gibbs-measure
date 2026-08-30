@@ -189,7 +189,7 @@ def isssdFun (ν : Measure E) [IsProbabilityMeasure ν] (Λ : Finset S) :
 instance instIsMarkovKernel_isssdFun {Λ : Finset S} : IsMarkovKernel (isssdFun ν Λ) :=
   ⟨fun _ ↦ by simp only [isssdFun_apply]; infer_instance⟩
 
-lemma isssdFun_apply_squareCylinder [DecidableEq S] (Λ s : Finset S) (t : S → Set E)
+lemma isssdFun_pi [DecidableEq S] (Λ s : Finset S) (t : S → Set E)
     (ht : ∀ i, MeasurableSet (t i)) (η : S → E) :
     isssdFun ν Λ η ((s : Set S).pi t) =
       (((s \ Λ : Finset S) : Set S).pi t).indicator (fun _ ↦ ∏ i ∈ s ∩ Λ, ν (t i)) η := by
