@@ -1,7 +1,6 @@
 module
 
 public import GibbsMeasure.Mathlib.Data.ENNReal.Basic
-public import GibbsMeasure.Mathlib.Data.Set.Prod
 public import GibbsMeasure.Mathlib.MeasureTheory.Constructions.Cylinders
 public import GibbsMeasure.Mathlib.MeasureTheory.Constructions.Pi
 public import GibbsMeasure.Mathlib.MeasureTheory.Function.ConditionalExpectation.Basic
