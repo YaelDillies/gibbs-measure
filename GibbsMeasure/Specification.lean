@@ -250,7 +250,11 @@ protected lemma IsProper.isssd : (isssd (S := S) ν).IsProper :=
       preimage_inter]
     have hxB (ζ) : juxt (↑Λ) x ζ ∈ B ↔ x ∈ B :=
       mem_congr_of_measurableSet_cylinderEvents hB fun _ hi ↦ juxt_apply_of_not_mem hi ζ
-    by_cases hx : x ∈ B <;> simp [hxB, hx]
+    by_cases hx : x ∈ B
+    · have : juxt (↑Λ) x ⁻¹' B = univ := by ext; simp [hxB, hx]
+      rw [this, inter_univ, indicator_of_mem hx, Pi.one_apply, one_mul]
+    · have : juxt (↑Λ) x ⁻¹' B = ∅ := by ext; simp [hxB, hx]
+      rw [this, inter_empty, measure_empty, indicator_of_notMem hx, zero_mul]
 
 instance isssd.instIsMarkov : (isssd (S := S) ν).IsMarkov where
   isMarkovKernel Λ := ⟨inferInstanceAs <|
