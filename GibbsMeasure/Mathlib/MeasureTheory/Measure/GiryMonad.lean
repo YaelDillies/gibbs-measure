@@ -42,9 +42,8 @@ lemma ae_bind_iff {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSp
   refine ⟨ae_ae_of_ae_bind hf, fun h ↦ ?_⟩
   have hpc : MeasurableSet {x | ¬p x} := (compl_ofPred p).symm ▸ hp.compl
   rw [ae_iff, bind_apply hpc hf]
-  have hmeas : AEMeasurable (fun a ↦ f a {x | ¬p x}) μ :=
-    (measurable_coe hpc).comp_aemeasurable hf
-  rw [lintegral_eq_zero_iff' hmeas]
+  rw [lintegral_eq_zero_iff' (f := fun a ↦ f a {x | ¬p x}) <|
+    (measurable_coe hpc).comp_aemeasurable hf]
   filter_upwards [h] with a ha
   simpa [ae_iff] using ha
 
