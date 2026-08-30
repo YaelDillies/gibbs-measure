@@ -2,7 +2,6 @@ module
 
 public import GibbsMeasure.Mathlib.Data.ENNReal.Basic
 public import GibbsMeasure.Mathlib.MeasureTheory.Constructions.Cylinders
-public import GibbsMeasure.Mathlib.MeasureTheory.Constructions.Pi
 public import GibbsMeasure.Mathlib.MeasureTheory.Function.ConditionalExpectation.Basic
 public import GibbsMeasure.Mathlib.MeasureTheory.Function.ConditionalExpectation.Unique
 public import GibbsMeasure.Mathlib.MeasureTheory.Function.L1Space.Integrable
@@ -16,7 +15,6 @@ public import GibbsMeasure.Mathlib.MeasureTheory.Measure.Ext
 public import GibbsMeasure.Mathlib.MeasureTheory.Measure.GiryMonad
 public import GibbsMeasure.Mathlib.MeasureTheory.Measure.Prod
 public import GibbsMeasure.Mathlib.Probability.Kernel.Composition.IntegralCompProd
-public import GibbsMeasure.Mathlib.Probability.Kernel.Composition.MapComap
 public import GibbsMeasure.Mathlib.Probability.Kernel.Condexp
 public import GibbsMeasure.Mathlib.Probability.Kernel.Proper
 public import GibbsMeasure.Prereqs.Filtration.Consistent

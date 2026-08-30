@@ -6,10 +6,8 @@ Authors: Yaël Dillies, Matteo Cipollina
 module
 
 public import GibbsMeasure.Mathlib.MeasureTheory.Constructions.Cylinders
-public import GibbsMeasure.Mathlib.MeasureTheory.Constructions.Pi
 public import GibbsMeasure.Mathlib.MeasureTheory.Measure.Ext
 public import GibbsMeasure.Mathlib.MeasureTheory.Measure.GiryMonad
-public import GibbsMeasure.Mathlib.Probability.Kernel.Composition.MapComap
 public import GibbsMeasure.Prereqs.Filtration.Consistent
 public import GibbsMeasure.Prereqs.Juxt
 public import GibbsMeasure.Prereqs.Kernel.CondExp
@@ -193,13 +191,21 @@ lemma isssdFun_pi [DecidableEq S] (Λ s : Finset S) (t : S → Set E)
     (ht : ∀ i, MeasurableSet (t i)) (η : S → E) :
     isssdFun ν Λ η ((s : Set S).pi t) =
       (((s \ Λ : Finset S) : Set S).pi t).indicator (fun _ ↦ ∏ i ∈ s ∩ Λ, ν (t i)) η := by
-  rw [isssdFun_apply, map_juxt_apply_pi _ ht η, Measure.pi_pi_ite]
+  have hprod :
+      (Measure.pi fun _ : Λ ↦ ν)
+        (univ.pi fun j : Λ ↦ if (j : S) ∈ s then t j else univ) =
+      ∏ i ∈ s ∩ Λ, ν (t i) := by
+    rw [Measure.pi_pi]
+    simp only [apply_ite, measure_univ]
+    exact (Finset.prod_attach Λ fun i : S ↦ if i ∈ s then ν (t i) else 1).trans <| by
+      simp [Finset.prod_ite_mem, Finset.inter_comm]
+  rw [isssdFun_apply, map_juxt_apply_pi _ ht η, hprod]
 
-lemma lintegral_isssdFun_apply_squareCylinder [DecidableEq S] {μ : Measure (S → E)}
+lemma lintegral_isssdFun_pi [DecidableEq S] {μ : Measure (S → E)}
     (Λ s : Finset S) (t : S → Set E) (ht : ∀ i, MeasurableSet (t i)) :
     ∫⁻ ω, isssdFun ν Λ ω ((s : Set S).pi t) ∂μ =
       (∏ i ∈ s ∩ Λ, ν (t i)) * μ (((s \ Λ : Finset S) : Set S).pi t) := by
-  simp_rw [isssdFun_apply_squareCylinder Λ s t ht]
+  simp_rw [isssdFun_pi Λ s t ht]
   exact lintegral_indicator_const (MeasurableSet.pi (s \ Λ).countable_toSet fun i _ ↦ ht i) _
 
 /-- Resampling `Λ₁` then `Λ₂` is resampling `Λ₁ ∪ Λ₂`. -/
@@ -207,7 +213,6 @@ lemma isssdFun_comp_isssdFun [DecidableEq S] (Λ₁ Λ₂ : Finset S) :
     (isssdFun ν Λ₁).comap id cylinderEvents_le_pi ∘ₖ isssdFun ν Λ₂ =
       (isssdFun ν (Λ₁ ∪ Λ₂)).comap id
         (measurable_id'' <| by gcongr; exact Finset.subset_union_right) := by
-  rw [Kernel.comap_id_le]
   refine DFunLike.ext _ _ fun η ↦ ext_of_generateFrom_of_isProbabilityMeasure
     generateFrom_measurableSquareCylinders.symm IsPiSystem.measurableSquareCylinders ?_
   rintro A ⟨s, t, ht, rfl⟩
@@ -215,9 +220,9 @@ lemma isssdFun_comp_isssdFun [DecidableEq S] (Λ₁ Λ₂ : Finset S) :
   rw [Kernel.comp_apply, Measure.bind_apply
     (MeasurableSet.pi s.countable_toSet fun i _ ↦ ht' i) (Kernel.aemeasurable _)]
   simp_rw [Kernel.comap_apply, id_eq]
-  rw [lintegral_isssdFun_apply_squareCylinder Λ₁ s t ht',
-    isssdFun_apply_squareCylinder Λ₂ (s \ Λ₁) t ht' η,
-    isssdFun_apply_squareCylinder (Λ₁ ∪ Λ₂) s t ht' η, ← indicator_const_mul]
+  rw [lintegral_isssdFun_pi Λ₁ s t ht',
+    isssdFun_pi Λ₂ (s \ Λ₁) t ht' η,
+    isssdFun_pi (Λ₁ ∪ Λ₂) s t ht' η, ← indicator_const_mul]
   congr 1
   · ext; simp
   ext
@@ -266,7 +271,7 @@ lemma isssd_pi {Λ s : Finset S} (hs : s ⊆ Λ) (t : S → Set E)
     (ht : ∀ i, MeasurableSet (t i)) (η : S → E) :
     isssd ν Λ η ((s : Set S).pi t) = ∏ i ∈ s, ν (t i) := by
   classical
-  rw [isssd_apply, isssdFun_apply_squareCylinder Λ s t ht,
+  rw [isssd_apply, isssdFun_pi Λ s t ht,
     Finset.sdiff_eq_empty_iff_subset.2 hs]
   simp [Finset.inter_eq_left.2 hs]
 
@@ -285,7 +290,7 @@ lemma infinitePi_bind_isssd (Λ : Finset S) :
   refine Measure.eq_infinitePi (μ := fun _ : S ↦ ν) fun s t ht ↦ ?_
   rw [Measure.bind_apply (MeasurableSet.pi s.countable_toSet fun i _ ↦ ht i)
     ((isssd ν Λ).measurable.mono cylinderEvents_le_pi le_rfl).aemeasurable, isssd_apply,
-    lintegral_isssdFun_apply_squareCylinder Λ s t ht,
+    lintegral_isssdFun_pi Λ s t ht,
     Measure.infinitePi_pi (μ := fun _ : S ↦ ν) fun i _ ↦ ht i]
   exact Finset.prod_inter_mul_prod_sdiff s Λ fun i ↦ ν (t i)
 
@@ -395,8 +400,7 @@ lemma modificationKer_modification {ρ₁ ρ₂ : Finset S → (S → E) → ℝ
       modificationKer γ (ρ₁ * ρ₂) (fun Λ ↦ (hρ₁.measurable Λ).mul (hρ₂ Λ)) := by
   ext Λ η; simp [withDensity_mul, hρ₁.measurable, hρ₂]
 
-@[simp]
-lemma IsModifier.mul {ρ₁ ρ₂ : Finset S → (S → E) → ℝ≥0∞}
+@[simp] lemma IsModifier.mul {ρ₁ ρ₂ : Finset S → (S → E) → ℝ≥0∞}
     (hρ₁ : γ.IsModifier ρ₁) (hρ₂ : (γ.modification ρ₁ hρ₁).IsModifier ρ₂) :
     γ.IsModifier (ρ₁ * ρ₂) where
   measurable Λ := (hρ₁.measurable _).mul (hρ₂.measurable _)
