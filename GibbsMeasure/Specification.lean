@@ -573,7 +573,7 @@ lemma IsPremodifier.isModifier_div (hρ : IsPremodifier ρ) (ν : Measure E)
         (Z Λ₂ ω)⁻¹ * ∫⁻ ζ, ρ Λ₂ ζ ∂isssd ν Λ₁ ω := by
       simp_rw [div_eq_mul_inv, mul_comm (ρ Λ₂ _)]
       simpa [mul_comm] using
-        (IsProper.isssd).lintegral_mul Λ₁ (hρ.measurable Λ₂) hG.inv
+        (IsProper.isssd (ν := ν)).lintegral_mul Λ₁ (hρ.measurable Λ₂) hG.inv
     calc
       ρ Λ₂ ω / Z Λ₂ ω
           = ρ Λ₂ ω * (Z Λ₂ ω)⁻¹ := by rw [div_eq_mul_inv]
