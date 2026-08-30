@@ -4,7 +4,6 @@ public import Mathlib.MeasureTheory.Measure.GiryMonad
 
 public section
 
-open Set
 open scoped ENNReal
 
 namespace MeasureTheory.Measure
@@ -34,13 +33,11 @@ lemma measurable_setLIntegral {f : α → ℝ≥0∞} (hf : Measurable f) (hs : 
     Measurable fun μ : Measure α ↦ ∫⁻ x in s, f x ∂μ :=
   (measurable_lintegral hf).comp (measurable_restrict hs)
 
-/-- Converse to `ae_ae_of_ae_bind` for a measurable predicate. -/
-lemma ae_bind_iff {α β : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
-    {μ : Measure α} {f : α → Measure β} {p : β → Prop}
-    (hf : AEMeasurable f μ) (hp : MeasurableSet {x | p x}) :
-    (∀ᵐ x ∂μ.bind f, p x) ↔ ∀ᵐ a ∂μ, ∀ᵐ x ∂f a, p x := by
+lemma ae_bind_iff {m : Measure α} {f : α → Measure β} {p : β → Prop}
+    (hf : AEMeasurable f m) (hp : MeasurableSet {x | p x}) :
+    (∀ᵐ b ∂m.bind f, p b) ↔ ∀ᵐ a ∂m, ∀ᵐ b ∂f a, p b := by
   refine ⟨ae_ae_of_ae_bind hf, fun h ↦ ?_⟩
-  have hpc : MeasurableSet {x | ¬p x} := (compl_ofPred p).symm ▸ hp.compl
+  have hpc : MeasurableSet {x | ¬p x} := (Set.compl_ofPred p).symm ▸ hp.compl
   rw [ae_iff, bind_apply hpc hf]
   rw [lintegral_eq_zero_iff' (f := fun a ↦ f a {x | ¬p x}) <|
     (measurable_coe hpc).comp_aemeasurable hf]

@@ -80,7 +80,11 @@ protected lemma bind (hΛ : Λ₁ ⊆ Λ₂) (η : S → E) : (γ Λ₂ η).bind
 
 lemma lintegral_bind (hΛ : Λ₁ ⊆ Λ₂) {f : (S → E) → ℝ≥0∞} (hf : Measurable f) (η : S → E) :
     ∫⁻ x, f x ∂γ Λ₂ η = ∫⁻ ζ, ∫⁻ x, f x ∂γ Λ₁ ζ ∂γ Λ₂ η := by
-  conv_lhs => rw [← γ.isConsistent hΛ]
+  have hγc := γ.isConsistent hΛ
+  rw [show (γ Λ₁).comap id cylinderEvents_le_pi =
+        (γ Λ₁).comap id (measurable_id'' cylinderEvents_le_pi) from
+      DFunLike.ext _ _ fun _ ↦ rfl] at hγc
+  conv_lhs => rw [← hγc]
   rw [Kernel.lintegral_comp _ _ _ hf]
   simp_rw [Kernel.comap_apply, id_eq]
 
@@ -94,8 +98,11 @@ def IsIndep (γ : Specification S E) : Prop :=
 
 lemma IsIndep.bind_union [DecidableEq S] (hγ : γ.IsIndep) (Λ₁ Λ₂ : Finset S) (η : S → E) :
     (γ Λ₂ η).bind (γ Λ₁) = γ (Λ₁ ∪ Λ₂) η := by
-  simpa [Kernel.comp_apply, Kernel.comap_apply] using
-    DFunLike.congr_fun (hγ (Λ₁ := Λ₁) (Λ₂ := Λ₂)) η
+  have h := DFunLike.congr_fun (hγ (Λ₁ := Λ₁) (Λ₂ := Λ₂)) η
+  rw [show (γ Λ₁).comap id cylinderEvents_le_pi =
+        (γ Λ₁).comap id (measurable_id'' cylinderEvents_le_pi) from
+      DFunLike.ext _ _ fun _ ↦ rfl] at h
+  simpa [Kernel.comp_apply, Kernel.comap_apply, id_eq] using h
 
 end IsIndep
 
@@ -384,6 +391,9 @@ lemma comp_modificationKer_apply (hγ : γ.IsProper) (hρ : ∀ Λ, Measurable (
   have hL : ((modificationKer γ ρ hρ Λ₁).comap id cylinderEvents_le_pi ∘ₖ
       modificationKer γ ρ hρ Λ₂) η A =
       ∫⁻ ζ, (∫⁻ ω in A, ρ Λ₁ ω ∂γ Λ₁ ζ) * ρ Λ₂ ζ ∂γ Λ₂ η := by
+    rw [show (modificationKer γ ρ hρ Λ₁).comap id cylinderEvents_le_pi =
+          (modificationKer γ ρ hρ Λ₁).comap id (measurable_id'' cylinderEvents_le_pi) from
+        DFunLike.ext _ _ fun _ ↦ rfl]
     rw [Kernel.comp_apply' _ _ _ hA]
     simp_rw [Kernel.comap_apply', id_eq]
     nth_rw 1 [modificationKer_apply]
@@ -405,7 +415,6 @@ lemma comp_modificationKer_apply (hγ : γ.IsProper) (hρ : ∀ Λ, Measurable (
     ((hF.mono cylinderEvents_le_pi le_rfl).mul (hρ Λ₂)) η]
   exact lintegral_congr fun ζ ↦ by rw [hγ.lintegral_mul _ (hρ Λ₂) hF, mul_comm]
 
-/-- Georgii (1.30)(a) ↔ (b). -/
 lemma isModifier_iff_ae_eq [γ.IsMarkov] (hγ : γ.IsProper) :
     γ.IsModifier ρ ↔ (∀ Λ, Measurable (ρ Λ)) ∧ ∀ ⦃Λ₁ Λ₂⦄, Λ₁ ⊆ Λ₂ → ∀ η,
       ρ Λ₂ =ᵐ[γ Λ₂ η] fun ω ↦ ρ Λ₁ ω * ∫⁻ ζ, ρ Λ₂ ζ ∂γ Λ₁ ω := by
@@ -458,7 +467,6 @@ lemma ae_eq_iff_ae_ae_eq [DecidableEq S] (hindep : γ.IsIndep) (hmeas : ∀ Λ, 
   exact Measure.ae_bind_iff ((γ Λ₁).measurable.mono cylinderEvents_le_pi le_rfl).aemeasurable
     (measurableSet_eq_fun (hmeas Λ₂) ((hmeas Λ₁).mul hG))
 
-/-- Georgii (1.30)(a) ↔ (c). -/
 lemma isModifier_iff_ae_comm [DecidableEq S] [γ.IsMarkov] (hγ : γ.IsProper) (hindep : γ.IsIndep)
     (hnorm : ∀ Λ η, ∫⁻ ζ, ρ Λ ζ ∂γ Λ η = 1) :
     γ.IsModifier ρ ↔ (∀ Λ, Measurable (ρ Λ)) ∧
@@ -550,7 +558,6 @@ lemma IsPremodifier.mul_lintegral_isssd {ν : Measure E} [IsProbabilityMeasure �
     (mul_comm _ _).trans <| (hρ.comm_of_subset (ζ := juxt Λ ξ ζ) (η := ξ) hΛ
       fun s hs ↦ juxt_apply_of_not_mem hs ζ).symm.trans (mul_comm _ _)
 
-/-- Georgii (1.32). -/
 lemma IsPremodifier.isModifier_div (hρ : IsPremodifier ρ) (ν : Measure E)
     [IsProbabilityMeasure ν]
     (hZ : ∀ Λ σ, 0 < ∫⁻ x, ρ Λ x ∂isssd ν Λ σ ∧ ∫⁻ x, ρ Λ x ∂isssd ν Λ σ < ⊤) :
@@ -566,7 +573,7 @@ lemma IsPremodifier.isModifier_div (hρ : IsPremodifier ρ) (ν : Measure E)
         (Z Λ₂ ω)⁻¹ * ∫⁻ ζ, ρ Λ₂ ζ ∂isssd ν Λ₁ ω := by
       simp_rw [div_eq_mul_inv, mul_comm (ρ Λ₂ _)]
       simpa [mul_comm] using
-        (IsProper.isssd (ν := ν)).lintegral_mul Λ₁ (hρ.measurable Λ₂) hG.inv
+        (IsProper.isssd).lintegral_mul Λ₁ (hρ.measurable Λ₂) hG.inv
     calc
       ρ Λ₂ ω / Z Λ₂ ω
           = ρ Λ₂ ω * (Z Λ₂ ω)⁻¹ := by rw [div_eq_mul_inv]
@@ -574,7 +581,7 @@ lemma IsPremodifier.isModifier_div (hρ : IsPremodifier ρ) (ν : Measure E)
             rw [ENNReal.mul_inv_cancel (ne_of_gt (hZ Λ₁ ω).1) (hZ Λ₁ ω).2.ne, mul_one]
         _ = (ρ Λ₂ ω * Z Λ₁ ω) * (Z Λ₁ ω)⁻¹ * (Z Λ₂ ω)⁻¹ := by ac_rfl
         _ = ρ Λ₁ ω * (∫⁻ ζ, ρ Λ₂ ζ ∂isssd ν Λ₁ ω) * (Z Λ₁ ω)⁻¹ * (Z Λ₂ ω)⁻¹ := by
-            rw [hρ.mul_lintegral_isssd (ν := ν) hΛ ω]
+            rw [hρ.mul_lintegral_isssd hΛ ω]
         _ = ρ Λ₁ ω * (Z Λ₁ ω)⁻¹ * ((Z Λ₂ ω)⁻¹ * ∫⁻ ζ, ρ Λ₂ ζ ∂isssd ν Λ₁ ω) := by ac_rfl
         _ = ρ Λ₁ ω / Z Λ₁ ω * ∫⁻ ζ, ρ Λ₂ ζ / Z Λ₂ ζ ∂isssd ν Λ₁ ω := by
             rw [hint, div_eq_mul_inv]
