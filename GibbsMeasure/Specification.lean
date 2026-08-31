@@ -30,7 +30,7 @@ variable {S E : Type*} {mE : MeasurableSpace E} {Λ₁ Λ₂ : Finset S}
 Morally, the LHS should be thought of as discovering `Λ₁` then `Λ₂`, while the RHS should be
 thought of as discovering `Λ₂` straight away. -/
 def IsConsistent (γ : ∀ Λ : Finset S, Kernel[cylinderEvents Λᶜ] (S → E) (S → E)) : Prop :=
-  ∀ ⦃Λ₁ Λ₂⦄, Λ₁ ⊆ Λ₂ → (γ Λ₁).comap id (measurable_id'' cylinderEvents_le_pi) ∘ₖ γ Λ₂ = γ Λ₂
+  ∀ ⦃Λ₁ Λ₂⦄, Λ₁ ⊆ Λ₂ → (γ Λ₁).comap id (by exact cylinderEvents_le_pi) ∘ₖ γ Λ₂ = γ Λ₂
 
 lemma isConsistentKernel_cylinderEventsCompl
     {γ : ∀ Λ : Finset S, Kernel[cylinderEvents Λᶜ] (S → E) (S → E)} :
@@ -81,9 +81,8 @@ section IsIndep
 /-- An independent specification is a specification `γ` where `γ Λ₁ ∘ₖ γ Λ₂ = γ (Λ₁ ∪ Λ₂)` for all
 `Λ₁ Λ₂`. -/
 def IsIndep (γ : Specification S E) : Prop :=
-  ∀ ⦃Λ₁ Λ₂⦄ [DecidableEq S], (γ Λ₁).comap id (measurable_id'' cylinderEvents_le_pi) ∘ₖ γ Λ₂ =
-      (γ (Λ₁ ∪ Λ₂)).comap id
-      (measurable_id'' <| by gcongr; exact Finset.subset_union_right)
+  ∀ ⦃Λ₁ Λ₂⦄ [DecidableEq S], (γ Λ₁).comap id (by exact cylinderEvents_le_pi) ∘ₖ γ Λ₂ =
+      (γ (Λ₁ ∪ Λ₂)).comap id (by gcongr; exact Finset.subset_union_right)
 
 end IsIndep
 
@@ -175,7 +174,7 @@ lemma measurable_isssdFun (Λ : Finset S) :
   refine Measurable.measure_of_isPiSystem_of_isProbabilityMeasure
     generateFrom_measurableSquareCylinders.symm IsPiSystem.measurableSquareCylinders ?_
   rintro A ⟨s, t, ht, rfl⟩
-  exact measurable_map_juxt_apply_pi (Measure.pi fun _ : Λ ↦ ν)
+  exact measurable_map_juxt_pi (Measure.pi fun _ : Λ ↦ ν)
     (fun i ↦ ht i (mem_univ _)) s.countable_toSet
 
 /-- Auxiliary definition for `Specification.isssd`. -/
@@ -201,7 +200,7 @@ lemma isssdFun_pi [DecidableEq S] (Λ s : Finset S) (t : S → Set E)
     simp only [apply_ite, measure_univ]
     exact (Finset.prod_attach Λ fun i : S ↦ if i ∈ s then ν (t i) else 1).trans <| by
       simp [Finset.prod_ite_mem, Finset.inter_comm]
-  rw [isssdFun_apply, map_juxt_apply_pi _ ht s.countable_toSet η]
+  rw [isssdFun_apply, map_juxt_pi _ ht s.countable_toSet η]
   simp [Finset.coe_sdiff, hprod]
 
 lemma lintegral_isssdFun_pi [DecidableEq S] {μ : Measure (S → E)}
@@ -213,9 +212,8 @@ lemma lintegral_isssdFun_pi [DecidableEq S] {μ : Measure (S → E)}
 
 /-- Resampling `Λ₁` then `Λ₂` is resampling `Λ₁ ∪ Λ₂`. -/
 lemma isssdFun_comp_isssdFun [DecidableEq S] (Λ₁ Λ₂ : Finset S) :
-    (isssdFun ν Λ₁).comap id (measurable_id'' cylinderEvents_le_pi) ∘ₖ isssdFun ν Λ₂ =
-      (isssdFun ν (Λ₁ ∪ Λ₂)).comap id
-        (measurable_id'' <| by gcongr; exact Finset.subset_union_right) := by
+    (isssdFun ν Λ₁).comap id (by exact cylinderEvents_le_pi) ∘ₖ isssdFun ν Λ₂ =
+      (isssdFun ν (Λ₁ ∪ Λ₂)).comap id (by gcongr; exact Finset.subset_union_right) := by
   refine DFunLike.ext _ _ fun η ↦ ext_of_generateFrom_of_isProbabilityMeasure
     generateFrom_measurableSquareCylinders.symm IsPiSystem.measurableSquareCylinders ?_
   rintro A ⟨s, t, ht, rfl⟩
