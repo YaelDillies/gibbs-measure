@@ -175,16 +175,17 @@ Let $S$ be a set, $(E, \mathcal{E})$ be a measurable space and $\nu$ a measure o
 
 \begin{proposition}[Characterisation of modifiers, Proposition 1.30.1]
     \label{prop:modif-char}
-    \uses{def:modif}
+    \uses{def:modif, def:proper-spec, def:markov-spec}
     \lean{Specification.isModifier_iff_ae_eq}
     \leanok{}
 
-    If $\rho$ is a family of measurable densities and $\gamma$ is a proper specification, then TFAE
+    If $\rho$ is a family of measurable densities and $\gamma$ is a proper Markov specification, then TFAE
     \begin{enumerate}
         \item $\rho$ is a modifier of $\gamma$
         \item For all $\Lambda_1, \Lambda_2$ with $\Lambda_1 \subseteq \Lambda_2$ and all $\eta : S \to E$, we have
         \[\rho_{\Lambda_2} = \rho_{\Lambda_1}\cdot (\gamma_{\Lambda_1} \rho_{\Lambda_2}) \quad \gamma_{\Lambda_2}(\cdot|\eta)\text{-a.e.}\]
     \end{enumerate}
+    Georgii's (1.30) is the $\lambda$-specification case, and assumes $\lambda_\Lambda\rho_\Lambda=1$ from the start.
 \end{proposition}
 \begin{proof}
     % \uses{}
@@ -201,16 +202,17 @@ Let $S$ be a set, $(E, \mathcal{E})$ be a measurable space and $\nu$ a measure o
 
 \begin{proposition}[Characterisation of modifiers of independent specifications, Proposition 1.30.2]
     \label{prop:modif-indep-char}
-    \uses{def:modif, def:indep-spec}
+    \uses{def:modif, def:indep-spec, def:proper-spec, def:markov-spec}
     \lean{Specification.isModifier_iff_ae_comm}
     \leanok{}
 
-    If $\rho$ is a family of measurable densities and $\gamma$ is a proper independent specification, then TFAE
+    If $\rho$ is a family of measurable densities, $\gamma$ is a proper Markov independent specification,
+    and $\gamma_\Lambda(\rho_\Lambda)=1$ for all $\Lambda$, then TFAE
     \begin{enumerate}
         \item $\rho$ is a modifier of $\gamma$
         \item For all $\Lambda_1, \Lambda_2$ with $\Lambda_1 \subseteq \Lambda_2$, $\eta : S \to E$ and $\gamma_{\Lambda_2 \setminus \Lambda_1}(\cdot|\alpha)$-almost all $\eta_2 : S \to E$, we have
         \[\rho_{\Lambda_2}(\zeta_1)\rho_{\Lambda_1}(\zeta_2) = \rho_{\Lambda_2}(\zeta_2) \rho_{\Lambda_1}(\zeta_1)\]
-        for $\gamma_{\Lambda_1}(\cdot|\eta_2) \times \gamma_{\Lambda_2}(\cdot|\eta_2)$-almost all $(\zeta_1, \zeta_2)$.
+        for $\gamma_{\Lambda_1}(\cdot|\eta_2) \times \gamma_{\Lambda_1}(\cdot|\eta_2)$-almost all $(\zeta_1, \zeta_2)$.
     \end{enumerate}
 \end{proposition}
 \begin{proof}
@@ -267,9 +269,9 @@ Let $S$ be a set, $(E, \mathcal{E})$ be a measurable space and $\nu$ a measure o
     is a modifier of $\ISSSD(\nu)$.
 \end{lemma}
 \begin{proof}
-    \uses{prop:modif-indep-char}
+    \uses{prop:modif-char}
 
-    TODO
+    Georgii goes through (1.30)(c). The Lean proof uses (1.30)(b), which is equivalent.
 \end{proof}
 
 % Skipping Theorem 1.33 for now

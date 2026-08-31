@@ -5,6 +5,8 @@ public import GibbsMeasure.Mathlib.MeasureTheory.Function.SimpleFunc
 public import GibbsMeasure.Mathlib.MeasureTheory.Function.SimpleFuncDenseLp
 public import GibbsMeasure.Mathlib.MeasureTheory.Function.StronglyMeasurable.Basic
 public import GibbsMeasure.Mathlib.MeasureTheory.Integral.Bochner.Basic
+public import GibbsMeasure.Mathlib.MeasureTheory.Measure.GiryMonad
+public import GibbsMeasure.Mathlib.MeasureTheory.Measure.WithDensity
 public import Mathlib.MeasureTheory.Integral.DominatedConvergence
 public import Mathlib.Probability.Kernel.Proper
 
@@ -54,6 +56,31 @@ lemma IsProper.ae_eq_const (hπ : IsProper π) (h𝓑𝓧 : 𝓑 ≤ 𝓧)
   convert restrict_apply' π hB' x₀ hB'.compl
   · ext a; simp [B]
   · simp
+
+lemma IsProper.bind_withDensity (hπ : IsProper π) (h𝓑𝓧 : 𝓑 ≤ 𝓧)
+    {μ : Measure[𝓧] X} {f g : X → ℝ≥0∞} (hf : Measurable[𝓧] f) (hg : Measurable[𝓧] g)
+    (hμ : μ.bind (fun x ↦ (π x : Measure[𝓧] X)) = μ) :
+    (μ.withDensity g).bind (fun x ↦ (π x).withDensity f) =
+      μ.withDensity fun x ↦ f x * ∫⁻ y, g y ∂π x := by
+  have hπm : Measurable[𝓧] fun x : X ↦ (π x : Measure[𝓧] X) := π.measurable.mono h𝓑𝓧 le_rfl
+  have hwd : Measurable[𝓧] fun x ↦ (π x).withDensity f :=
+    (Measure.measurable_withDensity hf).comp hπm
+  ext A hA
+  have hF : Measurable[𝓑] fun x ↦ ∫⁻ y in A, f y ∂π x :=
+    (Measure.measurable_setLIntegral hf hA).comp π.measurable
+  have hG : Measurable[𝓑] fun x ↦ ∫⁻ y, g y ∂π x :=
+    (Measure.measurable_lintegral hg).comp π.measurable
+  rw [Measure.bind_apply hA hwd.aemeasurable,
+    lintegral_withDensity_eq_lintegral_mul _ hg ((Measure.measurable_coe hA).comp hwd)]
+  simp_rw [Pi.mul_apply, withDensity_apply _ hA]
+  rw [withDensity_apply _ hA, ← lintegral_indicator hA]
+  simp_rw [mul_comm (f _), indicator_mul_right, ← hμ]
+  rw [Measure.lintegral_bind hπm.aemeasurable (hg.mul (hF.mono h𝓑𝓧 le_rfl)).aemeasurable,
+    Measure.lintegral_bind hπm.aemeasurable
+      ((hG.mono h𝓑𝓧 le_rfl).mul (hf.indicator hA)).aemeasurable]
+  exact lintegral_congr fun x ↦ by
+    rw [mul_comm, hπ.lintegral_mul h𝓑𝓧 hg hF,
+      hπ.lintegral_mul h𝓑𝓧 (hf.indicator hA) hG, lintegral_indicator hA, mul_comm]
 
 variable [IsFiniteKernel π]
 

@@ -5,6 +5,7 @@ public import Mathlib.MeasureTheory.Measure.GiryMonad
 public section
 
 open scoped ENNReal
+open Filter
 
 namespace MeasureTheory.Measure
 variable {α β : Type*} [MeasurableSpace β]
@@ -33,15 +34,20 @@ lemma measurable_setLIntegral {f : α → ℝ≥0∞} (hf : Measurable f) (hs : 
     Measurable fun μ : Measure α ↦ ∫⁻ x in s, f x ∂μ :=
   (measurable_lintegral hf).comp (measurable_restrict hs)
 
+lemma bind_null {m : Measure α} {f : α → Measure β} {s : Set β}
+    (hs : MeasurableSet s) (hf : AEMeasurable f m) :
+    m.bind f s = 0 ↔ (fun a ↦ f a s) =ᵐ[m] 0 :=
+  (bind_apply hs hf).trans <| lintegral_eq_zero_iff' <| (measurable_coe hs).comp_aemeasurable hf
+
+lemma ae_bind_of_ae_ae {m : Measure α} {f : α → Measure β} {p : β → Prop}
+    (hf : AEMeasurable f m) (hp : MeasurableSet {x | p x})
+    (h : ∀ᵐ a ∂m, ∀ᵐ b ∂f a, p b) : ∀ᵐ b ∂m.bind f, p b := by
+  rwa [ae_iff, bind_null _ hf] at *
+  exact hp.compl
+
 theorem ae_bind_iff {m : Measure α} {f : α → Measure β} {p : β → Prop}
     (hf : AEMeasurable f m) (hp : MeasurableSet {x | p x}) :
-    (∀ᵐ b ∂m.bind f, p b) ↔ ∀ᵐ a ∂m, ∀ᵐ b ∂f a, p b := by
-  refine ⟨ae_ae_of_ae_bind hf, fun h ↦ ?_⟩
-  have hpc : MeasurableSet {x | ¬p x} := (Set.compl_ofPred p).symm ▸ hp.compl
-  rw [ae_iff, bind_apply hpc hf]
-  rw [lintegral_eq_zero_iff' (f := fun a ↦ f a {x | ¬p x}) <|
-    (measurable_coe hpc).comp_aemeasurable hf]
-  filter_upwards [h] with a ha
-  simpa [ae_iff] using ha
+    (∀ᵐ b ∂m.bind f, p b) ↔ ∀ᵐ a ∂m, ∀ᵐ b ∂f a, p b :=
+  ⟨ae_ae_of_ae_bind hf, ae_bind_of_ae_ae hf hp⟩
 
 end MeasureTheory.Measure
