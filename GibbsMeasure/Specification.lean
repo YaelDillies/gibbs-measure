@@ -368,7 +368,7 @@ structure IsModifier (γ : Specification S E) (ρ : Finset S → (S → E) → �
 
 lemma comp_modificationKer_apply (hγ : γ.IsProper) (hρ : ∀ Λ, Measurable (ρ Λ))
     (hΛ : Λ₁ ⊆ Λ₂) (η : S → E) :
-    ((modificationKer γ ρ hρ Λ₁).comap id (measurable_id'' cylinderEvents_le_pi) ∘ₖ
+    ((modificationKer γ ρ hρ Λ₁).comap id (by exact cylinderEvents_le_pi) ∘ₖ
       modificationKer γ ρ hρ Λ₂) η =
       (γ Λ₂ η).withDensity fun ω ↦ ρ Λ₁ ω * ∫⁻ ζ, ρ Λ₂ ζ ∂γ Λ₁ ω := by
   ext A hA
@@ -377,7 +377,7 @@ lemma comp_modificationKer_apply (hγ : γ.IsProper) (hρ : ∀ Λ, Measurable (
     (Measure.measurable_setLIntegral (hρ Λ₁) hA).comp (γ Λ₁).measurable
   have hG : Measurable[cylinderEvents (Λ₁ : Set S)ᶜ]
       fun ω ↦ ∫⁻ ζ, ρ Λ₂ ζ ∂γ Λ₁ ω := (hρ Λ₂).lintegral_kernel
-  have hL : ((modificationKer γ ρ hρ Λ₁).comap id (measurable_id'' cylinderEvents_le_pi) ∘ₖ
+  have hL : ((modificationKer γ ρ hρ Λ₁).comap id (by exact cylinderEvents_le_pi) ∘ₖ
       modificationKer γ ρ hρ Λ₂) η A =
       ∫⁻ ζ, (∫⁻ ω in A, ρ Λ₁ ω ∂γ Λ₁ ζ) * ρ Λ₂ ζ ∂γ Λ₂ η := by
     rw [Kernel.comp_apply' _ _ _ hA]
