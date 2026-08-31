@@ -81,7 +81,8 @@ protected lemma bind (hΛ : Λ₁ ⊆ Λ₂) (η : S → E) : (γ Λ₂ η).bind
 lemma lintegral_bind (hΛ : Λ₁ ⊆ Λ₂) {f : (S → E) → ℝ≥0∞} (hf : Measurable f) (η : S → E) :
     ∫⁻ x, f x ∂γ Λ₂ η = ∫⁻ ζ, ∫⁻ x, f x ∂γ Λ₁ ζ ∂γ Λ₂ η := by
   conv_lhs => rw [← γ.isConsistent hΛ]
-  simp_rw [Kernel.lintegral_comp _ _ _ hf, Kernel.comap_apply, id_eq]
+  simp_rw [Kernel.lintegral_comp _ _ _ hf,
+    Kernel.comap_apply (hg := measurable_id'' cylinderEvents_le_pi), id_eq]
 
 section IsIndep
 
@@ -93,7 +94,8 @@ def IsIndep (γ : Specification S E) : Prop :=
 
 lemma IsIndep.bind_union [DecidableEq S] (hγ : γ.IsIndep) (Λ₁ Λ₂ : Finset S) (η : S → E) :
     (γ Λ₂ η).bind (γ Λ₁) = γ (Λ₁ ∪ Λ₂) η := by
-  simpa [Kernel.comp_apply, Kernel.comap_apply, id_eq] using
+  simpa [Kernel.comp_apply, Kernel.comap_apply (hg := measurable_id'' cylinderEvents_le_pi),
+    Kernel.comap_apply, id_eq] using
     DFunLike.congr_fun (hγ (Λ₁ := Λ₁) (Λ₂ := Λ₂)) η
 
 end IsIndep
@@ -370,7 +372,7 @@ structure IsModifier (γ : Specification S E) (ρ : Finset S → (S → E) → �
 
 lemma comp_modificationKer_apply (hγ : γ.IsProper) (hρ : ∀ Λ, Measurable (ρ Λ))
     (hΛ : Λ₁ ⊆ Λ₂) (η : S → E) :
-    ((modificationKer γ ρ hρ Λ₁).comap id (measurable_id'' cylinderEvents_le_pi) ∘ₖ
+    ((modificationKer γ ρ hρ Λ₁).comap id cylinderEvents_le_pi ∘ₖ
       modificationKer γ ρ hρ Λ₂) η =
       (γ Λ₂ η).withDensity fun ω ↦ ρ Λ₁ ω * ∫⁻ ζ, ρ Λ₂ ζ ∂γ Λ₁ ω := by
   ext A hA
@@ -379,11 +381,11 @@ lemma comp_modificationKer_apply (hγ : γ.IsProper) (hρ : ∀ Λ, Measurable (
     (Measure.measurable_setLIntegral (hρ Λ₁) hA).comp (γ Λ₁).measurable
   have hG : Measurable[cylinderEvents (Λ₁ : Set S)ᶜ]
       fun ω ↦ ∫⁻ ζ, ρ Λ₂ ζ ∂γ Λ₁ ω := (hρ Λ₂).lintegral_kernel
-  have hL : ((modificationKer γ ρ hρ Λ₁).comap id (measurable_id'' cylinderEvents_le_pi) ∘ₖ
+  have hL : ((modificationKer γ ρ hρ Λ₁).comap id cylinderEvents_le_pi ∘ₖ
       modificationKer γ ρ hρ Λ₂) η A =
       ∫⁻ ζ, (∫⁻ ω in A, ρ Λ₁ ω ∂γ Λ₁ ζ) * ρ Λ₂ ζ ∂γ Λ₂ η := by
     rw [Kernel.comp_apply' _ _ _ hA]
-    simp_rw [Kernel.comap_apply', id_eq]
+    simp_rw [Kernel.comap_apply' (hg := measurable_id'' cylinderEvents_le_pi), id_eq]
     nth_rw 1 [modificationKer_apply]
     rw [lintegral_withDensity_eq_lintegral_mul _ (hρ Λ₂)
       (((modificationKer γ ρ hρ Λ₁).measurable_coe hA).mono cylinderEvents_le_pi le_rfl)]
@@ -495,8 +497,7 @@ lemma modificationKer_modification {ρ₁ ρ₂ : Finset S → (S → E) → ℝ
       modificationKer γ (ρ₁ * ρ₂) (fun Λ ↦ (hρ₁.measurable Λ).mul (hρ₂ Λ)) := by
   ext Λ η; simp [withDensity_mul, hρ₁.measurable, hρ₂]
 
-@[simp]
-lemma IsModifier.mul {ρ₁ ρ₂ : Finset S → (S → E) → ℝ≥0∞}
+@[simp] lemma IsModifier.mul {ρ₁ ρ₂ : Finset S → (S → E) → ℝ≥0∞}
     (hρ₁ : γ.IsModifier ρ₁) (hρ₂ : (γ.modification ρ₁ hρ₁).IsModifier ρ₂) :
     γ.IsModifier (ρ₁ * ρ₂) where
   measurable Λ := (hρ₁.measurable _).mul (hρ₂.measurable _)
