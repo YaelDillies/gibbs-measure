@@ -81,8 +81,7 @@ protected lemma bind (hΛ : Λ₁ ⊆ Λ₂) (η : S → E) : (γ Λ₂ η).bind
 lemma lintegral_bind (hΛ : Λ₁ ⊆ Λ₂) {f : (S → E) → ℝ≥0∞} (hf : Measurable f) (η : S → E) :
     ∫⁻ x, f x ∂γ Λ₂ η = ∫⁻ ζ, ∫⁻ x, f x ∂γ Λ₁ ζ ∂γ Λ₂ η := by
   conv_lhs => rw [← γ.isConsistent hΛ]
-  rw [Kernel.lintegral_comp _ _ _ hf]
-  simp_rw [Kernel.comap_apply, id_eq]
+  simp_rw [Kernel.lintegral_comp _ _ _ hf, Kernel.comap_apply, id_eq]
 
 section IsIndep
 
@@ -379,29 +378,22 @@ lemma comp_modificationKer_apply (hγ : γ.IsProper) (hρ : ∀ Λ, Measurable (
       fun ζ ↦ ∫⁻ ω in A, ρ Λ₁ ω ∂γ Λ₁ ζ :=
     (Measure.measurable_setLIntegral (hρ Λ₁) hA).comp (γ Λ₁).measurable
   have hG : Measurable[cylinderEvents (Λ₁ : Set S)ᶜ]
-      fun ω ↦ ∫⁻ ζ, ρ Λ₂ ζ ∂γ Λ₁ ω :=
-    (Measure.measurable_lintegral (hρ Λ₂)).comp (γ Λ₁).measurable
-  have hL : ((modificationKer γ ρ hρ Λ₁).comap id (measurable_id'' cylinderEvents_le_pi) ∘ₖ
-      modificationKer γ ρ hρ Λ₂) η A =
-      ∫⁻ ζ, (∫⁻ ω in A, ρ Λ₁ ω ∂γ Λ₁ ζ) * ρ Λ₂ ζ ∂γ Λ₂ η := by
+      fun ω ↦ ∫⁻ ζ, ρ Λ₂ ζ ∂γ Λ₁ ω := (hρ Λ₂).lintegral_kernel
+  conv_lhs =>
     rw [Kernel.comp_apply' _ _ _ hA]
     simp_rw [Kernel.comap_apply', id_eq]
     nth_rw 1 [modificationKer_apply]
     rw [lintegral_withDensity_eq_lintegral_mul _ (hρ Λ₂)
       (((modificationKer γ ρ hρ Λ₁).measurable_coe hA).mono cylinderEvents_le_pi le_rfl)]
-    exact lintegral_congr fun ζ ↦ by
-      rw [Pi.mul_apply, modificationKer_apply, withDensity_apply _ hA, mul_comm]
-  have hR : ((γ Λ₂ η).withDensity fun ω ↦ ρ Λ₁ ω * ∫⁻ ζ, ρ Λ₂ ζ ∂γ Λ₁ ω) A =
-      ∫⁻ ζ, (∫⁻ ξ, ρ Λ₂ ξ ∂γ Λ₁ ζ) * (∫⁻ ω in A, ρ Λ₁ ω ∂γ Λ₁ ζ) ∂γ Λ₂ η := by
+    simp_rw [Pi.mul_apply, modificationKer_apply, withDensity_apply _ hA]
+  conv_rhs =>
     rw [withDensity_apply _ hA, ← lintegral_indicator hA]
     simp_rw [mul_comm (ρ Λ₁ _), indicator_mul_right]
     rw [γ.lintegral_bind hΛ
       (f := fun ω ↦ (∫⁻ ζ, ρ Λ₂ ζ ∂γ Λ₁ ω) * A.indicator (ρ Λ₁) ω)
       ((hG.mono cylinderEvents_le_pi le_rfl).mul ((hρ Λ₁).indicator hA)) η]
-    exact lintegral_congr fun ζ ↦ by
-      rw [hγ.lintegral_mul _ ((hρ Λ₁).indicator hA) hG, lintegral_indicator hA]
-  rw [hL, hR, γ.lintegral_bind hΛ
-    (f := fun ζ ↦ (∫⁻ ω in A, ρ Λ₁ ω ∂γ Λ₁ ζ) * ρ Λ₂ ζ)
+    simp_rw [hγ.lintegral_mul _ ((hρ Λ₁).indicator hA) hG, lintegral_indicator hA]
+  rw [γ.lintegral_bind hΛ (f := fun ζ ↦ (∫⁻ ω in A, ρ Λ₁ ω ∂γ Λ₁ ζ) * ρ Λ₂ ζ)
     ((hF.mono cylinderEvents_le_pi le_rfl).mul (hρ Λ₂)) η]
   exact lintegral_congr fun ζ ↦ by rw [hγ.lintegral_mul _ (hρ Λ₂) hF, mul_comm]
 
@@ -411,51 +403,34 @@ lemma isModifier_iff_ae_eq [γ.IsMarkov] (hγ : γ.IsProper) :
   constructor
   · intro h
     refine ⟨h.measurable, fun Λ₁ Λ₂ hΛ η ↦ ?_⟩
-    have := DFunLike.congr_fun (h.isConsistent hΛ) η
-    rw [comp_modificationKer_apply hγ h.measurable hΛ, modificationKer_apply] at this
-    exact (withDensity_eq_iff_of_sigmaFinite (h.measurable Λ₂).aemeasurable
+    apply (withDensity_eq_iff_of_sigmaFinite (h.measurable Λ₂).aemeasurable
       ((h.measurable Λ₁).mul
         ((h.measurable Λ₂).lintegral_kernel.mono cylinderEvents_le_pi le_rfl)).aemeasurable).1
-      this.symm
+    rw [← modificationKer_apply, ← DFunLike.congr_fun (h.isConsistent hΛ) η,
+      comp_modificationKer_apply hγ h.measurable hΛ]
   · rintro ⟨hmeas, hb⟩
     refine ⟨hmeas, fun Λ₁ Λ₂ hΛ ↦ Kernel.ext fun η ↦ ?_⟩
     rw [comp_modificationKer_apply hγ hmeas hΛ, modificationKer_apply]
     exact (withDensity_congr_ae (hb hΛ η)).symm
 
-lemma ae_eq_iff_ae_comm [IsMarkovKernel (γ Λ₁)] (hγ : γ.IsProper)
+lemma ae_eq_mul_lintegral_iff_ae_mul_comm [IsMarkovKernel (γ Λ₁)] (hγ : γ.IsProper)
     (hmeas : ∀ Λ, Measurable (ρ Λ)) (η₂ : S → E)
     (hnorm : ∫⁻ ζ, ρ Λ₁ ζ ∂γ Λ₁ η₂ = 1) :
     (ρ Λ₂ =ᵐ[γ Λ₁ η₂] fun ω ↦ ρ Λ₁ ω * ∫⁻ ζ, ρ Λ₂ ζ ∂γ Λ₁ ω) ↔
       ∀ᵐ z ∂(γ Λ₁ η₂).prod (γ Λ₁ η₂), ρ Λ₂ z.1 * ρ Λ₁ z.2 = ρ Λ₂ z.2 * ρ Λ₁ z.1 := by
-  have hG : Measurable[cylinderEvents (Λ₁ : Set S)ᶜ]
-      fun ω ↦ ∫⁻ ζ, ρ Λ₂ ζ ∂γ Λ₁ ω := (hmeas Λ₂).lintegral_kernel
-  have hGconst := (hγ Λ₁).ae_eq_const cylinderEvents_le_pi hG η₂
+  have hGconst := (hγ Λ₁).ae_eq_const cylinderEvents_le_pi (hmeas Λ₂).lintegral_kernel η₂
   constructor
   · intro h
     filter_upwards [Measure.quasiMeasurePreserving_fst.ae h,
       Measure.quasiMeasurePreserving_snd.ae h,
       Measure.quasiMeasurePreserving_fst.ae hGconst,
       Measure.quasiMeasurePreserving_snd.ae hGconst] with z h1 h2 hG1 hG2
-    rw [h1, h2, hG1, hG2]
-    ac_rfl
+    simp [h1, h2, hG1, hG2, mul_assoc, mul_left_comm, mul_right_comm]
   · intro h
-    filter_upwards [Measure.ae_ae_of_ae_prod h, hGconst] with ζ hζ hGζ
+    filter_upwards [Measure.ae_ae_of_ae_prod h] with ζ hζ
     have := lintegral_congr_ae hζ
     rw [lintegral_const_mul _ (hmeas Λ₁), lintegral_mul_const _ (hmeas Λ₂), hnorm, mul_one] at this
-    rw [this, hGζ, mul_comm]
-
-lemma ae_eq_iff_ae_ae_eq [DecidableEq S] (hindep : γ.IsIndep) (hmeas : ∀ Λ, Measurable (ρ Λ))
-    (hΛ : Λ₁ ⊆ Λ₂) (η₁ : S → E) :
-    (ρ Λ₂ =ᵐ[γ Λ₂ η₁] fun ω ↦ ρ Λ₁ ω * ∫⁻ ζ, ρ Λ₂ ζ ∂γ Λ₁ ω) ↔
-      ∀ᵐ η₂ ∂γ (Λ₂ \ Λ₁) η₁,
-        ρ Λ₂ =ᵐ[γ Λ₁ η₂] fun ω ↦ ρ Λ₁ ω * ∫⁻ ζ, ρ Λ₂ ζ ∂γ Λ₁ ω := by
-  have hG : Measurable fun ω : S → E ↦ ∫⁻ ζ, ρ Λ₂ ζ ∂γ Λ₁ ω :=
-    ((hmeas Λ₂).lintegral_kernel).mono cylinderEvents_le_pi le_rfl
-  have hμ : (γ (Λ₂ \ Λ₁) η₁).bind (γ Λ₁) = γ Λ₂ η₁ :=
-    (hindep.bind_union Λ₁ (Λ₂ \ Λ₁) η₁).trans <| by rw [Finset.union_sdiff_of_subset hΛ]
-  rw [← hμ]
-  exact Measure.ae_bind_iff ((γ Λ₁).measurable.mono cylinderEvents_le_pi le_rfl).aemeasurable
-    (measurableSet_eq_fun (hmeas Λ₂) ((hmeas Λ₁).mul hG))
+    rw [this, mul_comm]
 
 lemma isModifier_iff_ae_comm [DecidableEq S] [γ.IsMarkov] (hγ : γ.IsProper) (hindep : γ.IsIndep)
     (hnorm : ∀ Λ η, ∫⁻ ζ, ρ Λ ζ ∂γ Λ η = 1) :
@@ -464,9 +439,11 @@ lemma isModifier_iff_ae_comm [DecidableEq S] [γ.IsMarkov] (hγ : γ.IsProper) (
         ∀ᵐ z ∂(γ Λ₁ η₂).prod (γ Λ₁ η₂), ρ Λ₂ z.1 * ρ Λ₁ z.2 = ρ Λ₂ z.2 * ρ Λ₁ z.1 := by
   rw [isModifier_iff_ae_eq hγ]
   refine and_congr_right fun hmeas ↦ forall₄_congr fun Λ₁ Λ₂ hΛ η₁ ↦ ?_
-  rw [ae_eq_iff_ae_ae_eq hindep hmeas hΛ η₁]
+  rw [← ((hindep.bind_union Λ₁ (Λ₂ \ Λ₁) η₁).trans (by rw [Finset.union_sdiff_of_subset hΛ])),
+    Measure.ae_comp_iff (measurableSet_eq_fun (hmeas Λ₂)
+      ((hmeas Λ₁).mul ((hmeas Λ₂).lintegral_kernel.mono cylinderEvents_le_pi le_rfl)))]
   exact Filter.eventually_congr <| .of_forall fun η₂ ↦
-    ae_eq_iff_ae_comm hγ hmeas η₂ (hnorm Λ₁ η₂)
+    ae_eq_mul_lintegral_iff_ae_mul_comm hγ hmeas η₂ (hnorm Λ₁ η₂)
 
 /-- Modification specification.
 
@@ -539,13 +516,11 @@ lemma IsPremodifier.mul_lintegral_isssd {ν : Measure E} [IsProbabilityMeasure �
     (hρ : IsPremodifier ρ) (hΛ : Λ₁ ⊆ Λ₂) (ξ : S → E) :
     ρ Λ₂ ξ * ∫⁻ ζ, ρ Λ₁ ζ ∂isssd ν Λ₁ ξ = ρ Λ₁ ξ * ∫⁻ ζ, ρ Λ₂ ζ ∂isssd ν Λ₁ ξ := by
   simp_rw [isssd_apply, isssdFun_apply]
-  rw [lintegral_map (hρ.measurable Λ₁) .juxt, lintegral_map (hρ.measurable Λ₂) .juxt]
-  let Λ : Set S := Λ₁
-  have h1 : Measurable fun ζ : Λ → E ↦ ρ Λ₁ (juxt Λ ξ ζ) := (hρ.measurable Λ₁).comp .juxt
-  have h2 : Measurable fun ζ : Λ → E ↦ ρ Λ₂ (juxt Λ ξ ζ) := (hρ.measurable Λ₂).comp .juxt
-  rw [← lintegral_const_mul (ρ Λ₂ ξ) h1, ← lintegral_const_mul (ρ Λ₁ ξ) h2]
+  rw [lintegral_map (hρ.measurable Λ₁) .juxt, lintegral_map (hρ.measurable Λ₂) .juxt,
+    ← lintegral_const_mul _ ((hρ.measurable Λ₁).comp .juxt),
+    ← lintegral_const_mul _ ((hρ.measurable Λ₂).comp .juxt)]
   exact lintegral_congr fun ζ ↦
-    (mul_comm _ _).trans <| (hρ.comm_of_subset (ζ := juxt Λ ξ ζ) (η := ξ) hΛ
+    (mul_comm _ _).trans <| (hρ.comm_of_subset (ζ := juxt (Λ₁ : Set S) ξ ζ) (η := ξ) hΛ
       fun s hs ↦ juxt_apply_of_not_mem hs ζ).symm.trans (mul_comm _ _)
 
 lemma IsPremodifier.isModifier_div (hρ : IsPremodifier ρ) (ν : Measure E)
@@ -559,22 +534,16 @@ lemma IsPremodifier.isModifier_div (hρ : IsPremodifier ρ) (ν : Measure E)
     have hG : Measurable[cylinderEvents (Λ₁ : Set S)ᶜ] (Z Λ₂) :=
       (hρ.measurable Λ₂).lintegral_kernel.mono
         (cylinderEvents_mono <| compl_subset_compl_of_subset hΛ) le_rfl
-    have hint : ∫⁻ ζ, ρ Λ₂ ζ / Z Λ₂ ζ ∂isssd ν Λ₁ ω =
-        (Z Λ₂ ω)⁻¹ * ∫⁻ ζ, ρ Λ₂ ζ ∂isssd ν Λ₁ ω := by
-      simp_rw [div_eq_mul_inv, mul_comm (ρ Λ₂ _)]
-      simpa [mul_comm] using
-        (IsProper.isssd (ν := ν)).lintegral_mul Λ₁ (hρ.measurable Λ₂) hG.inv
+    simp_rw [div_eq_mul_inv]
     calc
-      ρ Λ₂ ω / Z Λ₂ ω
-          = ρ Λ₂ ω * (Z Λ₂ ω)⁻¹ := by rw [div_eq_mul_inv]
-        _ = ρ Λ₂ ω * (Z Λ₁ ω * (Z Λ₁ ω)⁻¹) * (Z Λ₂ ω)⁻¹ := by
-            rw [ENNReal.mul_inv_cancel (ne_of_gt (hZ Λ₁ ω).1) (hZ Λ₁ ω).2.ne, mul_one]
-        _ = (ρ Λ₂ ω * Z Λ₁ ω) * (Z Λ₁ ω)⁻¹ * (Z Λ₂ ω)⁻¹ := by ac_rfl
-        _ = ρ Λ₁ ω * (∫⁻ ζ, ρ Λ₂ ζ ∂isssd ν Λ₁ ω) * (Z Λ₁ ω)⁻¹ * (Z Λ₂ ω)⁻¹ := by
-            rw [hρ.mul_lintegral_isssd hΛ ω]
-        _ = ρ Λ₁ ω * (Z Λ₁ ω)⁻¹ * ((Z Λ₂ ω)⁻¹ * ∫⁻ ζ, ρ Λ₂ ζ ∂isssd ν Λ₁ ω) := by ac_rfl
-        _ = ρ Λ₁ ω / Z Λ₁ ω * ∫⁻ ζ, ρ Λ₂ ζ / Z Λ₂ ζ ∂isssd ν Λ₁ ω := by
-            rw [hint, div_eq_mul_inv]
+      ρ Λ₂ ω * (Z Λ₂ ω)⁻¹
+          = ρ Λ₁ ω * (∫⁻ ζ, ρ Λ₂ ζ ∂isssd ν Λ₁ ω) * (Z Λ₁ ω)⁻¹ * (Z Λ₂ ω)⁻¹ := by
+            rw [← mul_one (ρ Λ₂ ω * _),
+              ← ENNReal.mul_inv_cancel (ne_of_gt (hZ Λ₁ ω).1) (hZ Λ₁ ω).2.ne]
+            simp [mul_assoc, mul_left_comm, mul_right_comm, hρ.mul_lintegral_isssd hΛ]
+        _ = ρ Λ₁ ω * (Z Λ₁ ω)⁻¹ * ∫⁻ ζ, ρ Λ₂ ζ * (Z Λ₂ ζ)⁻¹ ∂isssd ν Λ₁ ω := by
+            simp [mul_assoc, mul_left_comm, mul_right_comm, mul_comm,
+              (IsProper.isssd (ν := ν)).lintegral_mul Λ₁ (hρ.measurable Λ₂) hG.inv]
 
 end Modifier
 end Specification
