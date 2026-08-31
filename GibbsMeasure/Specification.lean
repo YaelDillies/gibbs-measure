@@ -89,9 +89,7 @@ section IsIndep
 `Λ₁ Λ₂`. -/
 def IsIndep (γ : Specification S E) : Prop :=
   ∀ ⦃Λ₁ Λ₂⦄ [DecidableEq S], (γ Λ₁).comap id (by exact cylinderEvents_le_pi) ∘ₖ γ Λ₂ =
-      (γ (Λ₁ ∪ Λ₂)).comap id (by exact
-        (by gcongr; exact Finset.subset_union_right :
-          cylinderEvents (Λ₁ ∪ Λ₂)ᶜ ≤ cylinderEvents Λ₂ᶜ))
+      (γ (Λ₁ ∪ Λ₂)).comap id (measurable_id'' <| by gcongr; exact Finset.subset_union_right)
 
 lemma IsIndep.bind_union [DecidableEq S] (hγ : γ.IsIndep) (Λ₁ Λ₂ : Finset S) (η : S → E) :
     (γ Λ₂ η).bind (γ Λ₁) = γ (Λ₁ ∪ Λ₂) η := by
@@ -227,9 +225,8 @@ lemma lintegral_isssdFun_pi [DecidableEq S] {μ : Measure (S → E)}
 /-- Resampling `Λ₁` then `Λ₂` is resampling `Λ₁ ∪ Λ₂`. -/
 lemma isssdFun_comp_isssdFun [DecidableEq S] (Λ₁ Λ₂ : Finset S) :
     (isssdFun ν Λ₁).comap id (by exact cylinderEvents_le_pi) ∘ₖ isssdFun ν Λ₂ =
-      (isssdFun ν (Λ₁ ∪ Λ₂)).comap id (by exact
-        (by gcongr; exact Finset.subset_union_right :
-          cylinderEvents (Λ₁ ∪ Λ₂)ᶜ ≤ cylinderEvents Λ₂ᶜ)) := by
+      (isssdFun ν (Λ₁ ∪ Λ₂)).comap id
+        (measurable_id'' <| by gcongr; exact Finset.subset_union_right) := by
   refine DFunLike.ext _ _ fun η ↦ ext_of_generateFrom_of_isProbabilityMeasure
     generateFrom_measurableSquareCylinders.symm IsPiSystem.measurableSquareCylinders ?_
   rintro A ⟨s, t, ht, rfl⟩
