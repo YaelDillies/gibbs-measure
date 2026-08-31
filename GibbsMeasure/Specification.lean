@@ -452,7 +452,8 @@ lemma ae_eq_mul_lintegral_iff_ae_eq_sdiff [DecidableEq S] (hindep : γ.IsIndep)
   have hμ : (γ (Λ₂ \ Λ₁) η₁).bind (γ Λ₁) = γ Λ₂ η₁ :=
     (hindep.bind_union Λ₁ (Λ₂ \ Λ₁) η₁).trans <| by rw [Finset.union_sdiff_of_subset hΛ]
   rw [← hμ]
-  exact Measure.ae_comp_iff (measurableSet_eq_fun (hmeas Λ₂) ((hmeas Λ₁).mul hG))
+  exact Measure.ae_bind_iff ((γ Λ₁).measurable.mono cylinderEvents_le_pi le_rfl).aemeasurable
+    (measurableSet_eq_fun (hmeas Λ₂) ((hmeas Λ₁).mul hG))
 
 lemma isModifier_iff_ae_comm [DecidableEq S] [γ.IsMarkov] (hγ : γ.IsProper) (hindep : γ.IsIndep)
     (hnorm : ∀ Λ η, ∫⁻ ζ, ρ Λ ζ ∂γ Λ η = 1) :
