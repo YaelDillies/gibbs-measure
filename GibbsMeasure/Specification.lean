@@ -32,7 +32,7 @@ variable {S E : Type*} {mE : MeasurableSpace E} {Λ₁ Λ₂ : Finset S}
 Morally, the LHS should be thought of as discovering `Λ₁` then `Λ₂`, while the RHS should be
 thought of as discovering `Λ₂` straight away. -/
 def IsConsistent (γ : ∀ Λ : Finset S, Kernel[cylinderEvents Λᶜ] (S → E) (S → E)) : Prop :=
-  ∀ ⦃Λ₁ Λ₂⦄, Λ₁ ⊆ Λ₂ → (γ Λ₁).comap id (by exact cylinderEvents_le_pi) ∘ₖ γ Λ₂ = γ Λ₂
+  ∀ ⦃Λ₁ Λ₂⦄, Λ₁ ⊆ Λ₂ → (γ Λ₁).comap id cylinderEvents_le_pi ∘ₖ γ Λ₂ = γ Λ₂
 
 lemma isConsistentKernel_cylinderEventsCompl
     {γ : ∀ Λ : Finset S, Kernel[cylinderEvents Λᶜ] (S → E) (S → E)} :
@@ -88,7 +88,7 @@ section IsIndep
 /-- An independent specification is a specification `γ` where `γ Λ₁ ∘ₖ γ Λ₂ = γ (Λ₁ ∪ Λ₂)` for all
 `Λ₁ Λ₂`. -/
 def IsIndep (γ : Specification S E) : Prop :=
-  ∀ ⦃Λ₁ Λ₂⦄ [DecidableEq S], (γ Λ₁).comap id (by exact cylinderEvents_le_pi) ∘ₖ γ Λ₂ =
+  ∀ ⦃Λ₁ Λ₂⦄ [DecidableEq S], (γ Λ₁).comap id cylinderEvents_le_pi ∘ₖ γ Λ₂ =
       (γ (Λ₁ ∪ Λ₂)).comap id (measurable_id'' <| by gcongr; exact Finset.subset_union_right)
 
 lemma IsIndep.bind_union [DecidableEq S] (hγ : γ.IsIndep) (Λ₁ Λ₂ : Finset S) (η : S → E) :
@@ -224,7 +224,7 @@ lemma lintegral_isssdFun_pi [DecidableEq S] {μ : Measure (S → E)}
 
 /-- Resampling `Λ₁` then `Λ₂` is resampling `Λ₁ ∪ Λ₂`. -/
 lemma isssdFun_comp_isssdFun [DecidableEq S] (Λ₁ Λ₂ : Finset S) :
-    (isssdFun ν Λ₁).comap id (by exact cylinderEvents_le_pi) ∘ₖ isssdFun ν Λ₂ =
+    (isssdFun ν Λ₁).comap id cylinderEvents_le_pi ∘ₖ isssdFun ν Λ₂ =
       (isssdFun ν (Λ₁ ∪ Λ₂)).comap id
         (measurable_id'' <| by gcongr; exact Finset.subset_union_right) := by
   refine DFunLike.ext _ _ fun η ↦ ext_of_generateFrom_of_isProbabilityMeasure
@@ -233,7 +233,8 @@ lemma isssdFun_comp_isssdFun [DecidableEq S] (Λ₁ Λ₂ : Finset S) :
   have ht' (i) : MeasurableSet (t i) := ht i (mem_univ _)
   rw [Kernel.comp_apply, Measure.bind_apply
     (MeasurableSet.pi s.countable_toSet fun i _ ↦ ht' i) (Kernel.aemeasurable _)]
-  simp_rw [Kernel.comap_apply, id_eq]
+  simp_rw [Kernel.comap_apply (hg := measurable_id'' cylinderEvents_le_pi), Kernel.comap_apply,
+    id_eq]
   rw [lintegral_isssdFun_pi Λ₁ s t ht',
     isssdFun_pi Λ₂ (s \ Λ₁) t ht' η,
     isssdFun_pi (Λ₁ ∪ Λ₂) s t ht' η, ← indicator_const_mul]
@@ -501,15 +502,12 @@ lemma IsModifier.mul {ρ₁ ρ₂ : Finset S → (S → E) → ℝ≥0∞}
   measurable Λ := (hρ₁.measurable _).mul (hρ₂.measurable _)
   isConsistent := by simpa using hρ₂.isConsistent
 
-@[simp]
-lemma modification_one' (γ : Specification S E) :
+@[simp] lemma modification_one' (γ : Specification S E) :
     γ.modification (fun _Λ _η ↦ 1) .one' = γ := by ext; simp
 
-@[simp]
-lemma modification_one (γ : Specification S E) : γ.modification 1 .one = γ := by ext; simp
+@[simp] lemma modification_one (γ : Specification S E) : γ.modification 1 .one = γ := by ext; simp
 
-@[simp]
-lemma modification_modification (γ : Specification S E) (ρ₁ ρ₂ : Finset S → (S → E) → ℝ≥0∞)
+@[simp] lemma modification_modification (γ : Specification S E) (ρ₁ ρ₂ : Finset S → (S → E) → ℝ≥0∞)
     (hρ₁ : γ.IsModifier ρ₁) (hρ₂ : (γ.modification ρ₁ hρ₁).IsModifier ρ₂) :
     (γ.modification ρ₁ hρ₁).modification ρ₂ hρ₂ = γ.modification (ρ₁ * ρ₂) (hρ₁.mul hρ₂) := by
   ext Λ σ s hs
