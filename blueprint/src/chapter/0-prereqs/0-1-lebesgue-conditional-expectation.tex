@@ -6,7 +6,7 @@ Let $(X, \MCX)$ be a measurable space, let $\MCB$ be a sub $\sigma$-algebra of $
 \begin{definition}[Lebesgue conditional expectation]
   \label{def:lebesgue-cond-exp}
   % \uses{}
-  \lean{MeasureTheory.lcondExp}
+  \lean{MeasureTheory.condLExp}
   \leanok{}
 
   The {\bf conditional expectation} of a $\MCX$-measurable function $f : X \to [0, \infty]$ is
@@ -17,7 +17,7 @@ Let $(X, \MCX)$ be a measurable space, let $\MCB$ be a sub $\sigma$-algebra of $
 \begin{lemma}[Characterisation of the Lebesgue conditional expectation]
   \label{lem:lebesgue-cond-exp-char}
   \uses{def:lebesgue-cond-exp}
-  \lean{MeasureTheory.ae_eq_lcondExp_of_forall_setLIntegral_eq}
+  \lean{MeasureTheory.ae_eq_condLExp}
   \leanok{}
 
   If $f : X \to [0, \infty]$ is a $\MCX$-measurable function, then $\mu[f | \MCB]$ is the $\mu$-ae unique $\MCB$-measurable function $X \to [0, \infty]$ such that
