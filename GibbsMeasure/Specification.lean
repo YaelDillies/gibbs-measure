@@ -91,7 +91,7 @@ def IsIndep (γ : Specification S E) : Prop :=
   ∀ ⦃Λ₁ Λ₂⦄ [DecidableEq S], (γ Λ₁).comap id (by exact cylinderEvents_le_pi) ∘ₖ γ Λ₂ =
       (γ (Λ₁ ∪ Λ₂)).comap id (measurable_id'' <| by gcongr; exact Finset.subset_union_right)
 
-lemma IsIndep.bind_union [DecidableEq S] (hγ : γ.IsIndep) (Λ₁ Λ₂ : Finset S) (η : S → E) :
+lemma IsIndep.bind_eq_union [DecidableEq S] (hγ : γ.IsIndep) (Λ₁ Λ₂ : Finset S) (η : S → E) :
     (γ Λ₂ η).bind (γ Λ₁) = γ (Λ₁ ∪ Λ₂) η := by
   simpa [Kernel.comp_apply, Kernel.comap_apply, id_eq] using
     DFunLike.congr_fun (hγ (Λ₁ := Λ₁) (Λ₂ := Λ₂)) η
