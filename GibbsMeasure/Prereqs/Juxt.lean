@@ -53,12 +53,13 @@ lemma map_juxt_apply_pi [DecidablePred (· ∈ s)] (μ : Measure (Λ → E))
   · rw [preimage_juxt_pi hη, indicator_of_mem hη]
   · rw [preimage_juxt_pi_eq_empty hη, measure_empty, indicator_of_notMem hη]
 
-lemma measurable_map_juxt_apply_pi [DecidablePred (· ∈ s)] (μ : Measure (Λ → E))
-    (ht : ∀ i, MeasurableSet (t i)) (hs : s.Countable) :
+lemma measurable_map_juxt_apply_pi (μ : Measure (Λ → E)) (ht : ∀ i, MeasurableSet (t i))
+    (hs : s.Countable) :
     Measurable[cylinderEvents (X := fun _ : S ↦ E) Λᶜ] fun η : S → E ↦
       μ.map (juxt Λ η) (s.pi t) := by
+  classical
   simp_rw [map_juxt_apply_pi μ ht hs]
   exact Measurable.indicator measurable_const
-    (MeasurableSet.pi_cylinderEvents (fun _ h ↦ h.2) (hs.mono diff_subset) fun i _ ↦ ht i)
+    (MeasurableSet.pi_cylinderEvents (fun _ h ↦ h.2) (hs.mono sdiff_subset) fun i _ ↦ ht i)
 
 end juxt
