@@ -81,7 +81,7 @@ section IsIndep
 /-- An independent specification is a specification `γ` where `γ Λ₁ ∘ₖ γ Λ₂ = γ (Λ₁ ∪ Λ₂)` for all
 `Λ₁ Λ₂`. -/
 def IsIndep (γ : Specification S E) : Prop :=
-  ∀ ⦃Λ₁ Λ₂⦄ [DecidableEq S] , (γ Λ₁).comap id (measurable_id'' cylinderEvents_le_pi) ∘ₖ γ Λ₂ =
+  ∀ ⦃Λ₁ Λ₂⦄ [DecidableEq S], (γ Λ₁).comap id (measurable_id'' cylinderEvents_le_pi) ∘ₖ γ Λ₂ =
       (γ (Λ₁ ∪ Λ₂)).comap id
       (measurable_id'' <| by gcongr; exact Finset.subset_union_right)
 
@@ -259,10 +259,10 @@ protected lemma IsProper.isssd : (isssd (S := S) ν).IsProper :=
     have hxB (ζ) : juxt (↑Λ) x ζ ∈ B ↔ x ∈ B :=
       mem_congr_of_measurableSet_cylinderEvents hB fun _ hi ↦ juxt_apply_of_not_mem hi ζ
     by_cases hx : x ∈ B
-    · have : juxt (↑Λ) x ⁻¹' B = univ := by ext; simp [hxB, hx]
-      rw [this, inter_univ, indicator_of_mem hx, Pi.one_apply, one_mul]
-    · have : juxt (↑Λ) x ⁻¹' B = ∅ := by ext; simp [hxB, hx]
-      rw [this, inter_empty, measure_empty, indicator_of_notMem hx, zero_mul]
+    · rw [eq_univ_iff_forall.2 fun ζ ↦ (hxB ζ).2 hx, inter_univ,
+        indicator_of_mem hx, Pi.one_apply, one_mul]
+    · rw [eq_empty_iff_forall_notMem.2 fun ζ hζ ↦ hx ((hxB ζ).1 hζ),
+        inter_empty, measure_empty, indicator_of_notMem hx, zero_mul
 
 instance isssd.instIsMarkov : (isssd (S := S) ν).IsMarkov where
   isMarkovKernel Λ := ⟨inferInstanceAs <|
