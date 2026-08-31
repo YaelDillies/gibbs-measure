@@ -98,12 +98,11 @@ lemma univ_mem_measurableSquareCylinders :
     (univ : Set (∀ i, X i)) ∈ measurableSquareCylinders ι X :=
   ⟨∅, fun _ ↦ univ, fun _ _ ↦ MeasurableSet.univ, by simp⟩
 
-lemma _root_.MeasurableSet.pi_cylinderEvents {s : Finset ι} (hs : ↑s ⊆ Δ)
+lemma _root_.MeasurableSet.pi_cylinderEvents {s : Set ι} (hs : s ⊆ Δ) (hsc : s.Countable)
     {t : ∀ i, Set (X i)} (ht : ∀ i ∈ s, MeasurableSet (t i)) :
-    MeasurableSet[cylinderEvents (X := X) Δ] ((s : Set ι).pi t) := by
-  convert Finset.measurableSet_biInter (m := cylinderEvents (X := X) Δ) s fun i hi ↦
+    MeasurableSet[cylinderEvents (X := X) Δ] (s.pi t) := by
+  rw [pi_def]
+  exact MeasurableSet.biInter hsc fun i hi ↦
     (ht i hi).preimage (measurable_cylinderEvent_apply (hs hi))
-  ext f
-  simp [mem_pi, mem_iInter]
 
 end MeasureTheory

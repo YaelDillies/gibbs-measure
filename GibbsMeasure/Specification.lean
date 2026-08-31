@@ -175,7 +175,9 @@ lemma measurable_isssdFun (Λ : Finset S) :
   refine Measurable.measure_of_isPiSystem_of_isProbabilityMeasure
     generateFrom_measurableSquareCylinders.symm IsPiSystem.measurableSquareCylinders ?_
   rintro A ⟨s, t, ht, rfl⟩
-  exact measurable_map_juxt_apply_pi (Measure.pi fun _ : Λ ↦ ν) fun i ↦ ht i (mem_univ _)
+  classical
+  exact measurable_map_juxt_apply_pi (Measure.pi fun _ : Λ ↦ ν)
+    (fun i ↦ ht i (mem_univ _)) s.countable_toSet
 
 /-- Auxiliary definition for `Specification.isssd`. -/
 @[simps -fullyApplied]
@@ -200,7 +202,7 @@ lemma isssdFun_pi [DecidableEq S] (Λ s : Finset S) (t : S → Set E)
     simp only [apply_ite, measure_univ]
     exact (Finset.prod_attach Λ fun i : S ↦ if i ∈ s then ν (t i) else 1).trans <| by
       simp [Finset.prod_ite_mem, Finset.inter_comm]
-  rw [isssdFun_apply, map_juxt_apply_pi _ ht η, hprod]
+  rw [isssdFun_apply, map_juxt_apply_pi _ ht s.countable_toSet η, hprod]
 
 lemma lintegral_isssdFun_pi [DecidableEq S] {μ : Measure (S → E)}
     (Λ s : Finset S) (t : S → Set E) (ht : ∀ i, MeasurableSet (t i)) :
