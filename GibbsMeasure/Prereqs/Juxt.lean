@@ -13,7 +13,10 @@ variable {S E : Type*} {𝓔 : MeasurableSpace E} {Λ s : Set S} {t : S → Set 
 noncomputable def juxt (Λ : Set S) (η : S → E) (ζ : Λ → E) (x : S) : E := by
   classical exact dite (x ∈ Λ) (fun h ↦ ζ ⟨x, h⟩) (fun _ ↦ η x)
 
+@[simp]
 lemma juxt_apply_of_mem (hx : x ∈ Λ) (ζ : Λ → E) : juxt Λ η ζ x = ζ ⟨x, hx⟩ := by simp [juxt, hx]
+
+@[simp]
 lemma juxt_apply_of_not_mem (h : x ∉ Λ) (ζ : Λ → E) : juxt Λ η ζ x = η x := by simp [juxt, h]
 
 protected lemma Measurable.juxt : Measurable (juxt Λ η) := by
@@ -34,14 +37,13 @@ lemma preimage_juxt_pi [DecidablePred (· ∈ s)] (hη : η ∈ (s \ Λ).pi t) :
     · simpa [juxt_apply_of_not_mem hiΛ] using hη i ⟨hi, hiΛ⟩
 
 lemma preimage_juxt_pi_eq_empty (hη : η ∉ (s \ Λ).pi t) :
-    juxt Λ η ⁻¹' s.pi t = (∅ : Set (Λ → E)) := by
-  ext ζ
-  simp only [mem_preimage, mem_empty_iff_false, iff_false, mem_pi]
-  intro h
-  simp only [mem_pi] at hη
+    juxt Λ η ⁻¹' s.pi t = ∅ := by
+  rw [eq_empty_iff_forall_notMem]
+  intro ζ hζ
+  simp only [mem_preimage, mem_pi] at hζ hη
   push Not at hη
   obtain ⟨i, ⟨his, hiΛ⟩, hit⟩ := hη
-  exact hit <| by simpa [juxt_apply_of_not_mem hiΛ] using h i his
+  exact hit <| by simpa [juxt_apply_of_not_mem hiΛ] using hζ i his
 
 lemma map_juxt_apply_pi [DecidablePred (· ∈ s)] (μ : Measure (Λ → E))
     (ht : ∀ i, MeasurableSet (t i)) (hs : s.Countable) (η : S → E) :
