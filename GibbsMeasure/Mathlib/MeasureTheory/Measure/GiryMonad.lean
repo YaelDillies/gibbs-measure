@@ -36,8 +36,10 @@ lemma measurable_setLIntegral {f : α → ℝ≥0∞} (hf : Measurable f) (hs : 
 
 lemma bind_null {m : Measure α} {f : α → Measure β} {s : Set β}
     (hs : MeasurableSet s) (hf : AEMeasurable f m) :
-    m.bind f s = 0 ↔ (fun a ↦ f a s) =ᵐ[m] 0 :=
-  (bind_apply hs hf).trans <| lintegral_eq_zero_iff' <| (measurable_coe hs).comp_aemeasurable hf
+    m.bind f s = 0 ↔ (fun a ↦ f a s) =ᵐ[m] 0 := by
+  rw [bind_apply hs hf]
+  exact lintegral_eq_zero_iff' (f := fun a ↦ f a s) <|
+    (measurable_coe hs).comp_aemeasurable hf
 
 lemma ae_bind_of_ae_ae {m : Measure α} {f : α → Measure β} {p : β → Prop}
     (hf : AEMeasurable f m) (hp : MeasurableSet {x | p x})
