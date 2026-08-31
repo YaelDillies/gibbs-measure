@@ -202,7 +202,7 @@ lemma isssdFun_pi [DecidableEq S] (Λ s : Finset S) (t : S → Set E)
     exact (Finset.prod_attach Λ fun i : S ↦ if i ∈ s then ν (t i) else 1).trans <| by
       simp [Finset.prod_ite_mem, Finset.inter_comm]
   rw [isssdFun_apply, map_juxt_apply_pi _ ht s.countable_toSet η]
-  simp [Finset.coe_sdiff, Finset.mem_coe, hprod]
+  simp [Finset.coe_sdiff, hprod]
 
 lemma lintegral_isssdFun_pi [DecidableEq S] {μ : Measure (S → E)}
     (Λ s : Finset S) (t : S → Set E) (ht : ∀ i, MeasurableSet (t i)) :
@@ -259,10 +259,10 @@ protected lemma IsProper.isssd : (isssd (S := S) ν).IsProper :=
     have hxB (ζ) : juxt (↑Λ) x ζ ∈ B ↔ x ∈ B :=
       mem_congr_of_measurableSet_cylinderEvents hB fun _ hi ↦ juxt_apply_of_not_mem hi ζ
     by_cases hx : x ∈ B
-    · rw [eq_univ_iff_forall.2 fun ζ ↦ (hxB ζ).2 hx, inter_univ,
-        indicator_of_mem hx, Pi.one_apply, one_mul]
-    · rw [eq_empty_iff_forall_notMem.2 fun ζ hζ ↦ hx ((hxB ζ).1 hζ),
-        inter_empty, measure_empty, indicator_of_notMem hx, zero_mul
+    · have : juxt (↑Λ) x ⁻¹' B = univ := by ext; simp [hxB, hx]
+      rw [this, inter_univ, indicator_of_mem hx, Pi.one_apply, one_mul]
+    · have : juxt (↑Λ) x ⁻¹' B = ∅ := by ext; simp [hxB, hx]
+      rw [this, inter_empty, measure_empty, indicator_of_notMem hx, zero_mul]
 
 instance isssd.instIsMarkov : (isssd (S := S) ν).IsMarkov where
   isMarkovKernel Λ := ⟨inferInstanceAs <|
