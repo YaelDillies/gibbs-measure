@@ -449,7 +449,7 @@ lemma ae_eq_mul_lintegral_iff_ae_eq_sdiff [DecidableEq S] (hindep : γ.IsIndep)
   have hG : Measurable fun ω : S → E ↦ ∫⁻ ζ, ρ Λ₂ ζ ∂γ Λ₁ ω :=
     ((hmeas Λ₂).lintegral_kernel).mono cylinderEvents_le_pi le_rfl
   have hμ : (γ (Λ₂ \ Λ₁) η₁).bind (γ Λ₁) = γ Λ₂ η₁ :=
-    (hindep.bind_union Λ₁ (Λ₂ \ Λ₁) η₁).trans <| by rw [Finset.union_sdiff_of_subset hΛ]
+    (hindep.bind_eq_union Λ₁ (Λ₂ \ Λ₁) η₁).trans <| by rw [Finset.union_sdiff_of_subset hΛ]
   rw [← hμ]
   exact Measure.ae_bind_iff ((γ Λ₁).measurable.mono cylinderEvents_le_pi le_rfl).aemeasurable
     (measurableSet_eq_fun (hmeas Λ₂) ((hmeas Λ₁).mul hG))
