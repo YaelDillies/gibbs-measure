@@ -14,7 +14,7 @@ Let $S$ be a set, $(E, \mathcal{E})$ be a measurable space and $\nu$ a measure o
     \label{def:isssd}
     \uses{def:juxtaposition}
     \lean{Specification.isssdFun}
-    % \leanok
+    \leanok
 
     The \textbf{Independent Specification with Single Spin Distribution $\nu$} is
     \begin{align}
@@ -33,7 +33,7 @@ Let $S$ be a set, $(E, \mathcal{E})$ be a measurable space and $\nu$ a measure o
     $\ISSSD(\nu)$ is independent.
 \end{lemma}
 \begin{proof}
-    % \leanok
+    \leanok
 
   Immediate.
 \end{proof}
@@ -66,12 +66,14 @@ Let $S$ be a set, $(E, \mathcal{E})$ be a measurable space and $\nu$ a measure o
 \begin{lemma}[Uniqueness of a Gibbs measure specified by an ISSSD]
     \label{lem:isssd-gibbs-meas-uniqueness}
     \uses{def:gibbs-meas, def:isssd-spec}
+    \lean{Specification.isGibbsMeasure_isssd_iff}
+    \leanok
 
     There is at most one Gibbs measure specified by $\ISSSD(\nu)$.
 \end{lemma}
 \begin{proof}
     \uses{lem:isssd-proper-spec}
-    % \leanok
+    \leanok
 
     See book.
 \end{proof}
@@ -85,7 +87,7 @@ Let $S$ be a set, $(E, \mathcal{E})$ be a measurable space and $\nu$ a measure o
     The product measure $\nu^S$ is a Gibbs measure specified by $\ISSSD(\nu)$.
 \end{lemma}
 \begin{proof}
-    % \leanok
+    \leanok
 
    Immediate.
 \end{proof}
