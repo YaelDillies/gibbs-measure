@@ -100,11 +100,11 @@ lemma hamiltonianTerms_eq_zero_of_notMem_interactingSupport [IsFiniteRange Φ]
 
 lemma hasSum_interactingHamiltonian [IsFiniteRange Φ] (Λ : Finset S) (η : S → E) :
     HasSum (Φ.hamiltonianTerms Λ η) (interactingHamiltonian (Φ := Φ) Λ η)
-      (SummationFilter.powerset S) :=
-  (Finset.sum_congr rfl fun A hA ↦
-    hamiltonianTerms_eq_of_mem_interactingSupport (Φ := Φ) hA η) ▸
-    (hasSum_sum_of_ne_finset_zero fun A hA ↦
-      hamiltonianTerms_eq_zero_of_notMem_interactingSupport (Φ := Φ) η hA).powerset
+      (SummationFilter.powerset S) := by
+  convert (hasSum_sum_of_ne_finset_zero fun A hA ↦
+    hamiltonianTerms_eq_zero_of_notMem_interactingSupport (Φ := Φ) η hA).powerset
+  exact Finset.sum_congr rfl fun A hA ↦
+    hamiltonianTerms_eq_of_mem_interactingSupport (Φ := Φ) hA η
 
 instance (priority := 100) IsFiniteRange.isSummable [IsFiniteRange Φ] : IsSummable Φ where
   summable Λ η := ⟨_, hasSum_interactingHamiltonian (Φ := Φ) Λ η⟩
@@ -189,9 +189,11 @@ lemma dependsOn_sum_hamiltonianTerms_sub [IsPotential Φ] (Λ₁ Λ₂ : Finset 
       ((Λ₁ : Set S)ᶜ) := by
   refine DependsOn.sum fun A _ x y hxy ↦ ?_
   by_cases hA : ¬ Disjoint A Λ₂ ∧ Disjoint A Λ₁
-  · rw [Set.indicator_of_mem hA, Set.indicator_of_mem hA]
+  · have hmem : A ∈ {B : Finset S | ¬ Disjoint B Λ₂ ∧ Disjoint B Λ₁} := hA
+    rw [Set.indicator_of_mem hmem, Set.indicator_of_mem hmem]
     exact dependsOn_of_disjoint (Φ := Φ) hA.2 hxy
-  · rw [Set.indicator_of_notMem hA, Set.indicator_of_notMem hA]
+  · have hmem : A ∉ {B : Finset S | ¬ Disjoint B Λ₂ ∧ Disjoint B Λ₁} := hA
+    rw [Set.indicator_of_notMem hmem, Set.indicator_of_notMem hmem]
 
 theorem dependsOn_hamiltonian_sub [IsPotential Φ] [IsSummable Φ] (hΛ : Λ₁ ⊆ Λ₂) :
     DependsOn (fun η ↦ Φ.hamiltonian Λ₂ η - Φ.hamiltonian Λ₁ η) ((Λ₁ : Set S)ᶜ) :=
