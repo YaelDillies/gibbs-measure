@@ -60,7 +60,7 @@ end Algebra
 
 theorem DependsOn.sum {κ : Type*} [AddCommMonoid β] {t : Finset κ} {F : κ → (Π i, α i) → β}
     (hF : ∀ k ∈ t, DependsOn (F k) s) : DependsOn (fun x ↦ ∑ k ∈ t, F k x) s :=
-  fun x y h ↦ Finset.sum_congr rfl fun k hk ↦ hF k hk h
+  fun _ _ h ↦ Finset.sum_congr rfl fun k hk ↦ hF k hk h
 
 theorem DependsOn.of_tendsto {κ : Type*} {l : Filter κ} [l.NeBot] [TopologicalSpace β] [T2Space β]
     {F : κ → (Π i, α i) → β} {f : (Π i, α i) → β}

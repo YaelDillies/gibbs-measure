@@ -91,7 +91,7 @@ lemma hamiltonianTerms_eq_zero_of_notMem_interactingSupport [IsFiniteRange Φ]
     Φ.hamiltonianTerms Λ η A = 0 := by
   by_cases h : Disjoint A Λ
   · simp [h]
-  · simp [h, show Φ A = 0 from fun hΦ ↦ hA ((mem_interactingSupport (Φ := Φ)).2 ⟨h, hΦ⟩)]
+  · simp [h, not_ne_iff.1 fun hΦ ↦ hA ((mem_interactingSupport (Φ := Φ)).2 ⟨h, hΦ⟩)]
 
 @[simp] lemma hamiltonianTerms_eq_of_mem_interactingSupport [IsFiniteRange Φ]
     {A : Finset S} (hA : A ∈ interactingSupport (Φ := Φ) Λ) (η : S → E) :
@@ -100,8 +100,8 @@ lemma hamiltonianTerms_eq_zero_of_notMem_interactingSupport [IsFiniteRange Φ]
 
 lemma hasSum_interactingHamiltonian [IsFiniteRange Φ] (Λ : Finset S) (η : S → E) :
     HasSum (Φ.hamiltonianTerms Λ η) (interactingHamiltonian (Φ := Φ) Λ η)
-      (SummationFilter.powerset S) := by
-  simpa [interactingHamiltonian] using
+      (SummationFilter.powerset S) :=
+  (Finset.sum_congr rfl fun A hA ↦ hamiltonianTerms_eq_of_mem_interactingSupport hA η) ▸
     (hasSum_sum_of_ne_finset_zero fun A hA ↦
       hamiltonianTerms_eq_zero_of_notMem_interactingSupport (Φ := Φ) η hA).powerset
 
@@ -118,21 +118,22 @@ lemma truncatedHamiltonian_eq_interactingHamiltonian [IsFiniteRange Φ]
     Φ.truncatedHamiltonian Λ Δ η = interactingHamiltonian (Φ := Φ) Λ η := by
   rw [truncatedHamiltonian, ← Finset.sum_subset (f := Φ.hamiltonianTerms Λ η) h
     fun A _ hA' ↦ hamiltonianTerms_eq_zero_of_notMem_interactingSupport (Φ := Φ) η hA']
-  simp [interactingHamiltonian]
+  exact Finset.sum_congr rfl fun A hA ↦ hamiltonianTerms_eq_of_mem_interactingSupport hA η
 
 lemma eventually_truncatedHamiltonian_eq_interactingHamiltonian [IsFiniteRange Φ]
     (Λ : Finset S) :
     ∀ᶠ Δ in atTop, Φ.truncatedHamiltonian Λ Δ = interactingHamiltonian (Φ := Φ) Λ := by
   classical
-  filter_upwards [eventually_ge_atTop (interactingSupport (Φ := Φ) Λ).sup id] with Δ hΔ
+  filter_upwards [eventually_ge_atTop ((interactingSupport (Φ := Φ) Λ).sup id)] with Δ hΔ
   exact funext fun η ↦ truncatedHamiltonian_eq_interactingHamiltonian (Φ := Φ)
     (fun A hA ↦ Finset.mem_powerset.2 <| (Finset.le_sup (f := id) hA).trans hΔ) η
 
 instance (priority := 100) IsFiniteRange.isUniformlyConvergent [IsFiniteRange Φ] :
     IsUniformlyConvergent Φ where
   tendstoUniformly Λ := by
-    simpa using tendstoUniformly_of_eventually_eq
+    convert tendstoUniformly_of_eventually_eq
       (eventually_truncatedHamiltonian_eq_interactingHamiltonian (Φ := Φ) Λ)
+    exact funext fun η ↦ hamiltonian_eq_interactingHamiltonian (Φ := Φ) Λ η
 
 /-! ### Hamiltonian differences -/
 
@@ -184,10 +185,11 @@ lemma dependsOn_sum_hamiltonianTerms_sub [IsPotential Φ] (Λ₁ Λ₂ : Finset 
     DependsOn (fun η ↦ ∑ A ∈ s,
       ({A : Finset S | ¬ Disjoint A Λ₂ ∧ Disjoint A Λ₁}.indicator fun A ↦ Φ A η) A)
       ((Λ₁ : Set S)ᶜ) := by
-  refine DependsOn.sum fun A _ ↦ ?_
+  refine DependsOn.sum fun A _ x y hxy ↦ ?_
   by_cases hA : ¬ Disjoint A Λ₂ ∧ Disjoint A Λ₁
-  · simpa [Set.indicator_of_mem hA] using dependsOn_of_disjoint (Φ := Φ) hA.2
-  · simpa [Set.indicator_of_notMem hA] using dependsOn_of_const (0 : ℝ)
+  · simp [Set.indicator_of_mem hA]
+    exact dependsOn_of_disjoint (Φ := Φ) hA.2 hxy
+  · simp [Set.indicator_of_notMem hA]
 
 theorem dependsOn_hamiltonian_sub [IsPotential Φ] [IsSummable Φ] (hΛ : Λ₁ ⊆ Λ₂) :
     DependsOn (fun η ↦ Φ.hamiltonian Λ₂ η - Φ.hamiltonian Λ₁ η) ((Λ₁ : Set S)ᶜ) :=
@@ -222,7 +224,8 @@ lemma measurable_hamiltonian [Countable S] [IsPotential Φ] [IsSummable Φ] (Λ 
 @[fun_prop]
 lemma measurable_hamiltonian_of_isFiniteRange [IsPotential Φ] [IsFiniteRange Φ] (Λ : Finset S) :
     Measurable (Φ.hamiltonian Λ) := by
-  simpa using measurable_interactingHamiltonian (Φ := Φ) Λ
+  convert measurable_interactingHamiltonian (Φ := Φ) Λ
+  exact funext fun η ↦ hamiltonian_eq_interactingHamiltonian (Φ := Φ) Λ η
 
 lemma measurable_hamiltonian_sub_of_measurable [IsPotential Φ] [IsSummable Φ]
     (hmeas : ∀ Λ, Measurable (Φ.hamiltonian Λ)) (hΛ : Λ₁ ⊆ Λ₂) :
@@ -250,12 +253,14 @@ theorem isPremodifier_boltzmannFactor_of_measurable [IsPotential Φ] [IsSummable
     Specification.IsPremodifier (S := S) (E := E) (Φ.boltzmannFactor β) where
   measurable Λ := measurable_boltzmannFactor_of_measurable hmeas β Λ
   comm_of_subset {Λ₁ Λ₂ ζ η} hΛ hrestrict := by
+    have hH := hamiltonian_sub_eq_of_subset_eqOn_compl (Φ := Φ) hΛ hrestrict
     simp only [boltzmannFactor]
-    rw [← ENNReal.ofReal_mul (Real.exp_nonneg _), ← ENNReal.ofReal_mul (Real.exp_nonneg _),
-      ← Real.exp_add, ← Real.exp_add]
-    simp [← mul_add]
-    congr 3
-    linarith [hamiltonian_sub_eq_of_subset_eqOn_compl (Φ := Φ) hΛ hrestrict]
+    rw [← ENNReal.ofReal_mul (Real.exp_nonneg _), ← Real.exp_add,
+      ← ENNReal.ofReal_mul (Real.exp_nonneg _), ← Real.exp_add]
+    refine congrArg (ENNReal.ofReal ∘ Real.exp) ?_
+    simp only [← mul_add]
+    refine congrArg (fun x ↦ -β * x) ?_
+    simpa [sub_eq_sub_iff_add_eq_add, add_comm] using hH
 
 theorem isPremodifier_boltzmannFactor [Countable S] [IsPotential Φ] [IsSummable Φ] (β : ℝ) :
     Specification.IsPremodifier (S := S) (E := E) (Φ.boltzmannFactor β) :=
@@ -293,7 +298,10 @@ def termNorm (Λ : Finset S) : Finset S → ℝ≥0∞ :=
 
 lemma enorm_hamiltonianTerms_le_termNorm (Λ : Finset S) (η : S → E) (A : Finset S) :
     ‖Φ.hamiltonianTerms Λ η A‖ₑ ≤ Φ.termNorm Λ A := by
-  by_cases h : Disjoint A Λ <;> simp [h, le_iSup]
+  by_cases h : Disjoint A Λ
+  · simp [h]
+  · simp [h]
+    exact le_iSup (fun ζ ↦ ‖Φ A ζ‖ₑ) η
 
 lemma termNorm_le_sum (Λ : Finset S) (A : Finset S) :
     Φ.termNorm Λ A ≤ ∑ i ∈ Λ, {A : Finset S | i ∈ A}.indicator (fun A ↦ ⨆ η, ‖Φ A η‖ₑ) A := by
@@ -306,7 +314,7 @@ lemma termNorm_le_sum (Λ : Finset S) (A : Finset S) :
 
 lemma tsum_termNorm_le (Λ : Finset S) : ∑' A : Finset S, Φ.termNorm Λ A ≤ ∑ i ∈ Λ, Φ.normAt i :=
   (ENNReal.tsum_le_tsum (termNorm_le_sum (Φ := Φ) Λ)).trans <| by
-    simpa [Summable.tsum_finsetSum fun _ _ ↦ ENNReal.summable, normAt]
+    simp [Summable.tsum_finsetSum fun _ _ ↦ ENNReal.summable, normAt]
 
 lemma sum_normAt_ne_top [IsAbsolutelySummable Φ] (Λ : Finset S) :
     (∑ i ∈ Λ, Φ.normAt i) ≠ ⊤ :=
@@ -347,11 +355,11 @@ lemma hamiltonian_eq_tsum [IsAbsolutelySummable Φ] (Λ : Finset S) (η : S → 
 lemma tendstoUniformly_sum_hamiltonianTerms [IsAbsolutelySummable Φ] (Λ : Finset S) :
     TendstoUniformly (fun s : Finset (Finset S) ↦ fun η ↦ ∑ A ∈ s, Φ.hamiltonianTerms Λ η A)
       (Φ.hamiltonian Λ) atTop := by
-  rw [← tendstoUniformlyOn_univ]
-  exact (tendstoUniformlyOn_univ.1 <| tendstoUniformly_tsum
-      (ENNReal.summable_toReal (tsum_termNorm_ne_top (Φ := Φ) Λ))
-      fun A η ↦ abs_hamiltonianTerms_le_termNorm_toReal (Φ := Φ) Λ η A).congr_right
-    fun η _ ↦ (hamiltonian_eq_tsum (Φ := Φ) Λ η).symm
+  have h := tendstoUniformly_tsum
+    (ENNReal.summable_toReal (tsum_termNorm_ne_top (Φ := Φ) Λ))
+    (fun A η ↦ abs_hamiltonianTerms_le_termNorm_toReal (Φ := Φ) Λ η A)
+  rw [← tendstoUniformlyOn_univ] at h ⊢
+  exact h.congr_right fun η _ ↦ (hamiltonian_eq_tsum (Φ := Φ) Λ η).symm
 
 lemma hasSumUniformly_hamiltonianTerms [IsAbsolutelySummable Φ] (Λ : Finset S) :
     HasSumUniformly (fun A η ↦ Φ.hamiltonianTerms Λ η A) (Φ.hamiltonian Λ) :=
@@ -415,12 +423,19 @@ lemma IsFiniteRange.isAbsolutelySummable_iff [IsFiniteRange Φ] :
 lemma iSup_enorm_truncation_le (Δ B : Finset S) :
     ⨆ η, ‖Φ.truncation Δ B η‖ₑ ≤ ⨆ η, ‖Φ B η‖ₑ := by
   classical
-  exact iSup_le fun η ↦ by by_cases h : B ⊆ Δ <;> simp [h, le_iSup]
+  exact iSup_le fun η ↦ by
+    by_cases h : B ⊆ Δ
+    · simp [h]
+      exact le_iSup (fun ζ ↦ ‖Φ B ζ‖ₑ) η
+    · simp [h]
 
 lemma normAt_truncation_le (Δ : Finset S) (i : S) :
     (Φ.truncation Δ).normAt i ≤ Φ.normAt i :=
   ENNReal.tsum_le_tsum fun B ↦ by
-    by_cases hi : i ∈ B <;> simp [hi, iSup_enorm_truncation_le]
+    by_cases hi : i ∈ B
+    · simpa [Set.indicator_of_mem (show B ∈ {A : Finset S | i ∈ A} from hi)] using
+        iSup_enorm_truncation_le Δ B
+    · simp [Set.indicator_of_notMem (show B ∉ {A : Finset S | i ∈ A} from hi)]
 
 instance (Δ : Finset S) [IsAbsolutelySummable Φ] : IsAbsolutelySummable (Φ.truncation Δ) where
   normAt_ne_top i := ne_top_of_le_ne_top (IsAbsolutelySummable.normAt_ne_top (Φ := Φ) i)

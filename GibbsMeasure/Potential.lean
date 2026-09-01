@@ -71,24 +71,27 @@ lemma interactingSupport_subset_of_subset [IsFiniteRange Φ] {Λ₁ Λ₂ : Fins
 noncomputable def interactingHamiltonian [IsFiniteRange Φ] (Λ : Finset S) (η : S → E) : ℝ :=
   ∑ Δ ∈ interactingSupport (Φ := Φ) Λ, Φ Δ η
 
-section Truncation
-open Classical
-
 /-- Truncation of `Φ` to interactions contained in `Δ`. -/
 noncomputable def truncation (Φ : Potential S E) (Δ : Finset S) : Potential S E :=
-  fun A η ↦ if A ⊆ Δ then Φ A η else 0
+  fun A η ↦ @ite _ (A ⊆ Δ) (Classical.dec _) (Φ A η) 0
 
 @[simp] lemma truncation_of_subset {Δ B : Finset S} (h : B ⊆ Δ) :
-    Φ.truncation Δ B = Φ B := funext fun _ ↦ if_pos h
+    Φ.truncation Δ B = Φ B := by
+  classical
+  ext
+  simp [truncation, h]
 
 @[simp] lemma truncation_of_not_subset {Δ B : Finset S} (h : ¬ B ⊆ Δ) :
-    Φ.truncation Δ B = 0 := funext fun _ ↦ if_neg h
+    Φ.truncation Δ B = 0 := by
+  classical
+  ext
+  simp [truncation, h]
 
 instance (Δ : Finset S) : IsFiniteRange (Φ.truncation Δ) where
-  finite i := (Δ.powerset.finite_toSet).subset fun A hA ↦
-    mem_powerset.2 <| by_contra fun h ↦ hA.2 (truncation_of_not_subset h)
-
-end Truncation
+  finite _ := by
+    classical
+    exact (Δ.powerset.finite_toSet).subset fun A hA ↦
+      mem_powerset.2 <| by_contra fun h ↦ hA.2 (truncation_of_not_subset h)
 
 section
 variable [MeasurableSpace E]
