@@ -1,6 +1,6 @@
 module
 
-public import GibbsMeasure.Mathlib.Data.ENNReal.Basic
+public import GibbsMeasure.Mathlib.Basic.ENNReal.Basic
 public import GibbsMeasure.Mathlib.MeasureTheory.Function.SimpleFunc
 public import GibbsMeasure.Mathlib.MeasureTheory.Function.SimpleFuncDenseLp
 public import GibbsMeasure.Mathlib.MeasureTheory.Function.StronglyMeasurable.Basic
