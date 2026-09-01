@@ -5,6 +5,7 @@ Authors: Yaël Dillies, Matteo Cipollina
 -/
 module
 
+public import GibbsMeasure.Mathlib.MeasureTheory.MeasurableSpace.Defs
 public import Mathlib.MeasureTheory.Constructions.Cylinders
 public import Mathlib.MeasureTheory.Function.FactorsThrough
 
@@ -62,19 +63,12 @@ theorem _root_.Measurable.cylinderEvents_of_dependsOn
   · classical
     obtain ⟨x₀⟩ := hα
     let e : (∀ i : Δ, X i) → ∀ i, X i := fun y i ↦ if h : i ∈ Δ then y ⟨i, h⟩ else x₀ i
-    have he : Measurable e := by
-      refine measurable_pi_lambda _ fun i ↦ ?_
-      by_cases h : i ∈ Δ
-      · simp only [e, h, dite_true]
-        exact measurable_pi_apply _
-      · simp only [e, h, dite_false]
-        exact measurable_const
     have hfe : f = (f ∘ e) ∘ Δ.domRestrict := by
       funext x
       refine (hdep fun i hi ↦ ?_).symm
       simp [e, hi, Set.domRestrict]
     rw [cylinderEvents_eq_comap_domRestrict, hfe]
-    exact (hf.comp he).comp (Measurable.of_comap_le le_rfl)
+    exact .comp (by fun_prop) (.of_comap_le le_rfl)
 
 theorem measurable_cylinderEvents_iff_dependsOn [MeasurableSingletonClass Z] :
     Measurable[cylinderEvents Δ] f ↔ Measurable f ∧ DependsOn f Δ :=

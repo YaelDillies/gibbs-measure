@@ -1,7 +1,7 @@
 module
 
 public import Mathlib.Algebra.Group.Indicator
-public import Mathlib.Data.ENNReal.Basic
+public import Mathlib.Basic.ENNReal.Basic
 
 public section
 

@@ -12,6 +12,8 @@ namespace MeasureTheory.Measure
 section AEEqMul
 variable {α : Type*} [MeasurableSpace α] {μ : Measure α} {f g : α → ℝ≥0∞}
 
+/-- If `∫⁻ f ∂μ = 1`, then `g` is a.e. equal to `f` times its integral iff
+`g x * f y = g y * f x` for `μ.prod μ`-a.e. `(x, y)`. -/
 lemma ae_eq_mul_lintegral_iff_ae_mul_comm [SFinite μ]
     (hf : Measurable f) (hg : Measurable g) (hf1 : ∫⁻ x, f x ∂μ = 1) :
     (g =ᵐ[μ] fun x ↦ f x * ∫⁻ y, g y ∂μ) ↔

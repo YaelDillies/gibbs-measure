@@ -1,9 +1,7 @@
-module
+module  -- shake: keep-all --deprecated_module: ignore
 
-public import GibbsMeasure.Mathlib.Data.ENNReal.Basic
+public import GibbsMeasure.Mathlib.Basic.ENNReal.Basic
 public import GibbsMeasure.Mathlib.Logic.Function.DependsOn
-public import GibbsMeasure.Mathlib.Order.Filter.AtTopBot.Finset
-public import GibbsMeasure.Mathlib.Topology.Algebra.InfiniteSum.Volume
 public import GibbsMeasure.Mathlib.MeasureTheory.Constructions.Cylinders
 public import GibbsMeasure.Mathlib.MeasureTheory.Function.ConditionalExpectation.Basic
 public import GibbsMeasure.Mathlib.MeasureTheory.Function.ConditionalExpectation.Unique
@@ -14,14 +12,18 @@ public import GibbsMeasure.Mathlib.MeasureTheory.Function.SimpleFunc
 public import GibbsMeasure.Mathlib.MeasureTheory.Function.SimpleFuncDenseLp
 public import GibbsMeasure.Mathlib.MeasureTheory.Function.StronglyMeasurable.Basic
 public import GibbsMeasure.Mathlib.MeasureTheory.Integral.Bochner.Basic
+public import GibbsMeasure.Mathlib.MeasureTheory.Integral.IntegrableOn
+public import GibbsMeasure.Mathlib.MeasureTheory.MeasurableSpace.Defs
 public import GibbsMeasure.Mathlib.MeasureTheory.Measure.AEMeasurable
 public import GibbsMeasure.Mathlib.MeasureTheory.Measure.Ext
 public import GibbsMeasure.Mathlib.MeasureTheory.Measure.GiryMonad
 public import GibbsMeasure.Mathlib.MeasureTheory.Measure.Prod
 public import GibbsMeasure.Mathlib.MeasureTheory.Measure.WithDensity
+public import GibbsMeasure.Mathlib.Order.Filter.AtTopBot.Finset
 public import GibbsMeasure.Mathlib.Probability.Kernel.Composition.IntegralCompProd
 public import GibbsMeasure.Mathlib.Probability.Kernel.Condexp
 public import GibbsMeasure.Mathlib.Probability.Kernel.Proper
+public import GibbsMeasure.Mathlib.Topology.Algebra.InfiniteSum.Volume
 public import GibbsMeasure.Prereqs.Filtration.Consistent
 public import GibbsMeasure.Prereqs.Juxt
 public import GibbsMeasure.Prereqs.Kernel.CondExp
