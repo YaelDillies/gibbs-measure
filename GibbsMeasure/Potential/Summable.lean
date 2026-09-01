@@ -104,7 +104,7 @@ lemma hasSum_interactingHamiltonian [IsFiniteRange Φ] (Λ : Finset S) (η : S �
   convert (hasSum_sum_of_ne_finset_zero fun A hA ↦
     hamiltonianTerms_eq_zero_of_notMem_interactingSupport (Φ := Φ) η hA).powerset
   exact Finset.sum_congr rfl fun A hA ↦
-    hamiltonianTerms_eq_of_mem_interactingSupport (Φ := Φ) hA η
+    (hamiltonianTerms_eq_of_mem_interactingSupport (Φ := Φ) hA η).symm
 
 instance (priority := 100) IsFiniteRange.isSummable [IsFiniteRange Φ] : IsSummable Φ where
   summable Λ η := ⟨_, hasSum_interactingHamiltonian (Φ := Φ) Λ η⟩
