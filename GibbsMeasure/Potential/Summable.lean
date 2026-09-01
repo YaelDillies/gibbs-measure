@@ -124,7 +124,7 @@ lemma hamiltonianTerms_sub (hΛ : Λ₁ ⊆ Λ₂) (η : S → E) :
   funext A
   by_cases h₁ : Disjoint A Λ₁
   · by_cases h₂ : Disjoint A Λ₂
-    · simp [hamiltonianTerms, Set.indicator_of_notMem, h₁, h₂, not_not]
+    · simp [hamiltonianTerms, Set.indicator_of_notMem, h₁, h₂]
     · rw [Pi.sub_apply, hamiltonianTerms_of_not_disjoint h₂, hamiltonianTerms_of_disjoint h₁,
         Set.indicator_of_mem (show A ∈ {A : Finset S | ¬ Disjoint A Λ₂ ∧ Disjoint A Λ₁} from
           ⟨h₂, h₁⟩), sub_zero]
@@ -384,9 +384,9 @@ lemma IsFiniteRange.normAt_eq_sum [IsFiniteRange Φ] (i : S) {Δ : Finset S}
   by_cases hi : i ∈ A
   · rw [Set.indicator_of_mem (show A ∈ {B : Finset S | i ∈ B} from hi)]
     by_cases hΦ : Φ A = 0
-    · simp [hΦ, Pi.zero_apply]
+    · simp [hΦ]
     · exact (hA (Finset.mem_powerset.2 (hΔ A hi hΦ))).elim
-  · exact Set.indicator_of_notMem (show A ∉ {B : Finset S | i ∈ B} from hi)
+  · rw [Set.indicator_of_notMem (show A ∉ {B : Finset S | i ∈ B} from hi)]
 
 /-- A finite range potential is absolutely summable as soon as every term on a nonempty support
 is bounded. -/
@@ -405,7 +405,7 @@ lemma IsFiniteRange.isAbsolutelySummable [IsFiniteRange Φ]
 /-- For finite range potentials, absolute summability is boundedness of the nonempty terms. -/
 lemma IsFiniteRange.isAbsolutelySummable_iff [IsFiniteRange Φ] :
     IsAbsolutelySummable Φ ↔ ∀ A : Finset S, A.Nonempty → ⨆ η, ‖Φ A η‖ₑ ≠ ⊤ :=
-  ⟨fun _ A hA ↦ IsAbsolutelySummable.iSup_enorm_ne_top hA,
+  ⟨fun _ _ hA ↦ IsAbsolutelySummable.iSup_enorm_ne_top hA,
     IsFiniteRange.isAbsolutelySummable⟩
 
 end Potential
