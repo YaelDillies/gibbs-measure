@@ -144,8 +144,8 @@ instance (priority := 100) IsFiniteRange.isSummable [IsFiniteRange Φ] : IsSumma
 lemma truncatedHamiltonian_eq_interactingHamiltonian [IsFiniteRange Φ]
     {Λ Δ : Finset S} (h : interactingSupport (Φ := Φ) Λ ⊆ Δ.powerset) (η : S → E) :
     Φ.truncatedHamiltonian Λ Δ η = interactingHamiltonian (Φ := Φ) Λ η := by
-  refine (Finset.sum_subset h ?_).trans ?_
-  · intro A hA hA'
+  refine (Finset.sum_subset (f := Φ.hamiltonianTerms Λ η) h ?_).trans ?_
+  · intro A _ hA'
     exact hamiltonianTerms_eq_zero_of_notMem_interactingSupport (Φ := Φ) η hA'
   · refine Finset.sum_congr rfl fun A hA ↦ ?_
     obtain ⟨⟨x, hxA, hxΛ⟩, -⟩ := (mem_interactingSupport (Φ := Φ)).1 hA
@@ -574,13 +574,6 @@ theorem tendsto_tailWeight_atTop [IsAbsolutelySummable Φ] (Λ : Finset S) :
     (tsum_termNorm_ne_top (Φ := Φ) Λ)).comp
     (Filter.tendsto_finset_powerset_atTop_atTop (α := S))
   simpa [Function.comp_def] using h
-
-lemma sub_truncation_apply (Δ A : Finset S) (η : S → E) :
-    (Φ - Φ.truncation Δ) A η = if A ⊆ Δ then 0 else Φ A η := by
-  classical
-  by_cases h : A ⊆ Δ
-  · simp [truncation_of_subset h, h]
-  · simp [truncation_of_not_subset h, h]
 
 lemma normAt_sub_truncation (Δ : Finset S) (i : S) :
     (Φ - Φ.truncation Δ).normAt i = Φ.tailWeight Δ {i} := by
