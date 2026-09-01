@@ -89,6 +89,7 @@ $\beta = 1$.
     \uses{def:pot-hamiltonian, lem:pot-depends-on}
     \lean{Potential.hamiltonian_sub, Potential.hasSum_hamiltonianTerms_sub,
       Potential.dependsOn_hamiltonian_sub, Potential.measurable_hamiltonian_sub,
+      Potential.measurable_hamiltonian_sub_of_measurable,
       Potential.hamiltonian_sub_eq_of_subset_eqOn_compl}
     \leanok
 
@@ -101,9 +102,12 @@ $\beta = 1$.
     H^\Phi_\Delta(\zeta)$ whenever $\eta_{S \setminus \Lambda} = \zeta_{S \setminus \Lambda}$.
 
     The series identity is $\mathtt{Potential.hamiltonian\_sub}$. Dependence on the coordinates
-    in $\Lambda^c$ is $\mathtt{Potential.dependsOn\_hamiltonian\_sub}$; for countable $S$,
+    in $\Lambda^c$ is $\mathtt{Potential.dependsOn\_hamiltonian\_sub}$; this needs no countability
+    of $S$. For countable $S$,
     $\mathtt{Potential.measurable\_hamiltonian\_sub}$ upgrades this to
-    $\mathtt{cylinderEvents}\ \Lambda^c$-measurability. The cocycle form is
+    $\mathtt{cylinderEvents}\ \Lambda^c$-measurability; the same upgrade with Hamiltonian
+    measurability as a hypothesis is
+    $\mathtt{Potential.measurable\_hamiltonian\_sub\_of\_measurable}$. The cocycle form is
     $\mathtt{Potential.hamiltonian\_sub\_eq\_of\_subset\_eqOn\_compl}$.
 \end{lemma}
 \begin{proof}
@@ -119,7 +123,10 @@ $\beta = 1$.
 \begin{proposition}[Georgii, Proposition (2.5)]
     \label{prop:pot-premodification}
     \uses{def:premodif, def:pot-boltzmann-factor, lem:pot-hamiltonian-diff}
-    \lean{Potential.isPremodifier_boltzmannFactor, Potential.boltzmannFactor_pos}
+    \lean{Potential.isPremodifier_boltzmannFactor,
+      Potential.isPremodifier_boltzmannFactor_of_measurable,
+      Potential.isPremodifier_boltzmannFactor_of_isFiniteRange,
+      Potential.boltzmannFactor_pos}
     \leanok
 
     For each summable interaction potential $\Phi$ the family
@@ -127,11 +134,15 @@ $\beta = 1$.
 
     Two differences from the book. First, positivity is not part of the Lean predicate
     $\mathtt{Specification.IsPremodifier}$ (which asks measurability and the exchange identity);
-    it is the separate lemma $\mathtt{Potential.boltzmannFactor\_pos}$. Second, the Lean
-    statement assumes \texttt{[Countable S]}, used only to get measurability of $H_\Lambda^\Phi$
-    as a pointwise limit of finite sums; Georgii's $S$ is countably infinite, so this is not a
-    restriction on his statement. Finite range is the special case
-    $\mathtt{Potential.IsFiniteRange.isSummable}$, not a second family of Boltzmann factors.
+    it is the separate lemma $\mathtt{Potential.boltzmannFactor\_pos}$. Second, Georgii's $S$ is
+    countably infinite. Lean splits the countable case
+    ($\mathtt{Potential.isPremodifier\_boltzmannFactor}$) from the versions that assume
+    Hamiltonian measurability or finite range
+    ($\mathtt{Potential.isPremodifier\_boltzmannFactor\_of\_measurable}$,
+    $\mathtt{Potential.isPremodifier\_boltzmannFactor\_of\_isFiniteRange}$); countability is used
+    only to pass from the volume net to a measurable pointwise limit. Finite range is still the
+    special case $\mathtt{Potential.IsFiniteRange.isSummable}$, not a second family of Boltzmann
+    factors.
 \end{proposition}
 \begin{proof}
     \leanok
@@ -256,4 +267,27 @@ $\beta = 1$.
 
     The summands vanish off the finite set $\mathtt{interactingSupport}\ \Lambda$, so the net
     of partial sums is eventually constant and converges to the finite sum.
+\end{proof}
+
+\begin{lemma}[Finite range and $\Bspace$, Georgii (2.15)]
+    \label{lem:pot-finite-range-abs-summable}
+    \uses{def:pot-finite-range, def:pot-abs-summable}
+    \lean{Potential.IsAbsolutelySummable.iSup_enorm_ne_top,
+      Potential.IsFiniteRange.normAt_eq_sum,
+      Potential.IsFiniteRange.isAbsolutelySummable,
+      Potential.IsFiniteRange.isAbsolutelySummable_iff}
+    \leanok
+
+    A finite range potential lies in $\Bspace$ if and only if $\Phi_A$ is bounded for every
+    nonempty $A$. The empty term is unconstrained: Lean indexes $\emptyset$ as well as the
+    nonempty finite sets, and $\Phi_\emptyset$ never appears in any $\|\Phi\|_i$. The forward
+    implication needs no finite range
+    ($\mathtt{IsAbsolutelySummable.iSup\_enorm\_ne\_top}$).
+\end{lemma}
+\begin{proof}
+    \leanok
+
+    If $A$ is nonempty then some $i \in A$, so $\|\Phi_A\|$ is a summand of $\|\Phi\|_i$.
+    Conversely, finite range means that for each $i$ only finitely many $A \ni i$ can have
+    $\Phi_A \neq 0$, so $\|\Phi\|_i$ is a finite sum of bounded terms.
 \end{proof}
