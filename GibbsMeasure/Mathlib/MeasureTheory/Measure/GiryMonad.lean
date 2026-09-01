@@ -5,6 +5,7 @@ public import Mathlib.MeasureTheory.Measure.GiryMonad
 public section
 
 open scoped ENNReal
+open Filter
 
 namespace MeasureTheory.Measure
 variable {α β : Type*} [MeasurableSpace β]
@@ -32,5 +33,19 @@ lemma measurable_restrict (hs : MeasurableSet s) : Measurable fun μ : Measure �
 lemma measurable_setLIntegral {f : α → ℝ≥0∞} (hf : Measurable f) (hs : MeasurableSet s) :
     Measurable fun μ : Measure α ↦ ∫⁻ x in s, f x ∂μ :=
   (measurable_lintegral hf).comp (measurable_restrict hs)
+
+lemma bind_null {m : Measure α} {f : α → Measure β} {s : Set β}
+    (hs : MeasurableSet s) (hf : AEMeasurable f m) :
+    m.bind f s = 0 ↔ (fun a ↦ f a s) =ᵐ[m] 0 := by
+  rw [bind_apply hs hf]
+  exact lintegral_eq_zero_iff' (f := fun a ↦ f a s) <|
+    (measurable_coe hs).comp_aemeasurable hf
+
+theorem ae_bind_iff {m : Measure α} {f : α → Measure β} {p : β → Prop}
+    (hf : AEMeasurable f m) (hp : MeasurableSet {x | p x}) :
+    (∀ᵐ b ∂m.bind f, p b) ↔ ∀ᵐ a ∂m, ∀ᵐ b ∂f a, p b :=
+  ⟨ae_ae_of_ae_bind hf, fun h ↦ by
+    rwa [ae_iff, bind_null _ hf] at *
+    exact hp.compl⟩
 
 end MeasureTheory.Measure
