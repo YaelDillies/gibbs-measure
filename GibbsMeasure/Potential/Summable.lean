@@ -6,27 +6,28 @@ Authors: Matteo Cipollina
 module
 
 public import GibbsMeasure.Potential
+public import GibbsMeasure.Specification
 public import GibbsMeasure.Mathlib.Logic.Function.DependsOn
 public import GibbsMeasure.Mathlib.Topology.Algebra.InfiniteSum.Volume
 public import Mathlib.Analysis.Normed.Group.InfiniteSum
+public import Mathlib.Analysis.SpecialFunctions.Exp
 public import Mathlib.MeasureTheory.Constructions.BorelSpace.Metrizable
+public import Mathlib.MeasureTheory.Function.SpecialFunctions.Basic
 
 /-!
 # Potentials and their Hamiltonians
 
-Georgii's Definition (2.2) of an interaction potential: each `Φ A` is `𝓕_A`-measurable
-(`Potential.IsPotential`) and the Hamiltonian series `H_Λ = ∑_{A ∩ Λ ≠ ∅} Φ_A` converges in the
-sense
-of Convention (2.1) (`Potential.IsSummable`).
-
-`Potential.IsFiniteRange` is the special case in which the series has finite support.
+An interaction potential (`Potential.IsPotential`) is summable when the Hamiltonian series
+`H_Λ = ∑_{A ∩ Λ ≠ ∅} Φ_A` converges along `SummationFilter.volume` (`Potential.IsSummable`).
+Finite range is the special case in which the series has finite support.
 
 ## Main results
 
-* `Potential.dependsOn_hamiltonian_sub`: Georgii (2.6).
-* `Potential.isPremodifier_boltzmannFactor`: Georgii Proposition (2.5).
-* `Potential.IsAbsolutelySummable`: absolute summability, Georgii (2.11), with `‖Φ‖ᵢ` of (2.12); it
-  implies `IsSummable` and bounds the Hamiltonian by Georgii (2.14).
+* `Potential.hamiltonian_sub`: the Hamiltonian difference as a series, and
+  `Potential.dependsOn_hamiltonian_sub` / `Potential.measurable_hamiltonian_sub`.
+* `Potential.isPremodifier_boltzmannFactor`: Boltzmann factors form a pre-modification.
+* `Potential.IsAbsolutelySummable`: absolute summability, with `‖Φ‖ᵢ` as `Potential.normAt`; it
+  implies `IsSummable` and bounds the Hamiltonian.
 -/
 
 @[expose] public section
@@ -50,12 +51,12 @@ lemma hamiltonianTerms_of_not_disjoint (h : ¬ Disjoint Λ₁ Λ) (η : S → E)
 lemma hamiltonianTerms_of_disjoint (h : Disjoint Λ₁ Λ) (η : S → E) :
     Φ.hamiltonianTerms Λ η Λ₁ = 0 := Set.indicator_of_notMem (by simpa using h) _
 
-/-- Georgii, Definition (2.2)(ii). -/
+/-- Summability of the Hamiltonian series along `SummationFilter.volume`. -/
 class IsSummable (Φ : Potential S E) : Prop where
   summable (Λ : Finset S) (η : S → E) :
     Summable (Φ.hamiltonianTerms Λ η) (SummationFilter.volume S)
 
-/-- Georgii, eq. (2.3). -/
+/-- The Hamiltonian in volume `Λ`. -/
 def hamiltonian (Φ : Potential S E) (Λ : Finset S) (η : S → E) : ℝ :=
   ∑'[SummationFilter.volume S] A, Φ.hamiltonianTerms Λ η A
 
@@ -105,9 +106,9 @@ instance (priority := 100) IsFiniteRange.isSummable [IsFiniteRange Φ] : IsSumma
     Φ.hamiltonian Λ η = interactingHamiltonian (Φ := Φ) Λ η :=
   (hasSum_interactingHamiltonian (Φ := Φ) Λ η).tsum_eq
 
-/-! ### Georgii (2.6) -/
+/-! ### Hamiltonian differences -/
 
-/-- The terms of `H_Λ₂ - H_Λ₁`, for `Λ₁ ⊆ Λ₂`; Georgii (2.6). -/
+/-- The terms of `H_Λ₂ - H_Λ₁`, for `Λ₁ ⊆ Λ₂`. -/
 lemma hamiltonianTerms_sub (hΛ : Λ₁ ⊆ Λ₂) (η : S → E) :
     Φ.hamiltonianTerms Λ₂ η - Φ.hamiltonianTerms Λ₁ η
       = {A : Finset S | ¬ Disjoint A Λ₂ ∧ Disjoint A Λ₁}.indicator fun A ↦ Φ A η := by
@@ -122,6 +123,20 @@ lemma hamiltonianTerms_sub (hΛ : Λ₁ ⊆ Λ₂) (η : S → E) :
     rw [Pi.sub_apply, hamiltonianTerms_of_not_disjoint h₂, hamiltonianTerms_of_not_disjoint h₁,
       Set.indicator_of_notMem (show A ∉ {A : Finset S | ¬ Disjoint A Λ₂ ∧ Disjoint A Λ₁} from
         fun h ↦ h₁ h.2), sub_self]
+
+lemma hasSum_hamiltonianTerms_sub [IsSummable Φ] (hΛ : Λ₁ ⊆ Λ₂) (η : S → E) :
+    HasSum ({A : Finset S | ¬ Disjoint A Λ₂ ∧ Disjoint A Λ₁}.indicator fun A ↦ Φ A η)
+      (Φ.hamiltonian Λ₂ η - Φ.hamiltonian Λ₁ η) (SummationFilter.volume S) :=
+  hamiltonianTerms_sub (Φ := Φ) hΛ η ▸
+    (hasSum_hamiltonian (Φ := Φ) Λ₂ η).sub (hasSum_hamiltonian (Φ := Φ) Λ₁ η)
+
+/-- For `Λ₁ ⊆ Λ₂`,
+`H_Λ₂ - H_Λ₁ = ∑_{A ∩ Λ₂ ≠ ∅, A ∩ Λ₁ = ∅} Φ_A`. -/
+lemma hamiltonian_sub [IsSummable Φ] (hΛ : Λ₁ ⊆ Λ₂) (η : S → E) :
+    Φ.hamiltonian Λ₂ η - Φ.hamiltonian Λ₁ η =
+      ∑'[SummationFilter.volume S] A,
+        ({A : Finset S | ¬ Disjoint A Λ₂ ∧ Disjoint A Λ₁}.indicator fun A ↦ Φ A η) A :=
+  (hasSum_hamiltonianTerms_sub (Φ := Φ) hΛ η).tsum_eq.symm
 
 /-- An interaction term disjoint from `Λ` depends only on the coordinates outside `Λ`. -/
 lemma dependsOn_of_disjoint [IsPotential Φ] {A : Finset S} (hA : Disjoint A Λ) :
@@ -142,21 +157,14 @@ lemma dependsOn_sum_hamiltonianTerms_sub [IsPotential Φ] (Λ₁ Λ₂ : Finset 
   · have hmem : A ∉ {B : Finset S | ¬ Disjoint B Λ₂ ∧ Disjoint B Λ₁} := hA
     rw [Set.indicator_of_notMem hmem, Set.indicator_of_notMem hmem]
 
-/-- **Georgii (2.6).** For `Λ₁ ⊆ Λ₂` the Hamiltonian difference depends only on the coordinates
-outside `Λ₁` — the `DependsOn` half of Georgii's `𝓣_{Λ₁}`-measurability. Full
-`cylinderEvents (Λ₁ : Set S)ᶜ`-measurability follows for countable `S` by combining this with
-`measurable_hamiltonian` (`Measurable.cylinderEvents_of_dependsOn`). -/
+/-- For `Λ₁ ⊆ Λ₂` the Hamiltonian difference depends only on the coordinates outside `Λ₁`. -/
 theorem dependsOn_hamiltonian_sub [IsPotential Φ] [IsSummable Φ] (hΛ : Λ₁ ⊆ Λ₂) :
-    DependsOn (fun η ↦ Φ.hamiltonian Λ₂ η - Φ.hamiltonian Λ₁ η) ((Λ₁ : Set S)ᶜ) := by
-  refine DependsOn.of_tendsto (l := (SummationFilter.volume S).filter)
+    DependsOn (fun η ↦ Φ.hamiltonian Λ₂ η - Φ.hamiltonian Λ₁ η) ((Λ₁ : Set S)ᶜ) :=
+  DependsOn.of_tendsto (l := (SummationFilter.volume S).filter)
     (F := fun s η ↦ ∑ A ∈ s,
       ({A : Finset S | ¬ Disjoint A Λ₂ ∧ Disjoint A Λ₁}.indicator fun A ↦ Φ A η) A)
-    (fun s ↦ dependsOn_sum_hamiltonianTerms_sub (Φ := Φ) Λ₁ Λ₂ s) fun η ↦ ?_
-  have h := (hasSum_hamiltonian (Φ := Φ) Λ₂ η).sub (hasSum_hamiltonian (Φ := Φ) Λ₁ η)
-  have heq : ∀ A, Φ.hamiltonianTerms Λ₂ η A - Φ.hamiltonianTerms Λ₁ η A
-      = ({A : Finset S | ¬ Disjoint A Λ₂ ∧ Disjoint A Λ₁}.indicator fun A ↦ Φ A η) A :=
-    fun A ↦ congrFun (hamiltonianTerms_sub (Φ := Φ) hΛ η) A
-  simpa only [HasSum, heq] using h
+    (fun s ↦ dependsOn_sum_hamiltonianTerms_sub (Φ := Φ) Λ₁ Λ₂ s)
+    fun η ↦ hasSum_hamiltonianTerms_sub (Φ := Φ) hΛ η
 
 theorem hamiltonian_sub_eq_of_subset_eqOn_compl [IsPotential Φ] [IsSummable Φ] {η ζ : S → E}
     (hΛ : Λ₁ ⊆ Λ₂) (hrestrict : ∀ s ∉ Λ₁, ζ s = η s) :
@@ -166,7 +174,7 @@ theorem hamiltonian_sub_eq_of_subset_eqOn_compl [IsPotential Φ] [IsSummable Φ]
   rw [sub_eq_sub_iff_add_eq_add] at h ⊢
   simpa [add_comm] using h
 
-/-! ### Georgii Proposition (2.5) -/
+/-! ### Boltzmann factors -/
 
 lemma measurable_sum_hamiltonianTerms [IsPotential Φ] (Λ : Finset S) (s : Finset (Finset S)) :
     Measurable fun η : S → E ↦ ∑ A ∈ s, Φ.hamiltonianTerms Λ η A := by
@@ -182,7 +190,14 @@ lemma measurable_hamiltonian [Countable S] [IsPotential Φ] [IsSummable Φ] (Λ 
     (fun s ↦ measurable_sum_hamiltonianTerms (Φ := Φ) Λ s)
     (tendsto_pi_nhds.2 fun η ↦ hasSum_hamiltonian (Φ := Φ) Λ η)
 
-/-- Georgii, eq. (2.4). -/
+lemma measurable_hamiltonian_sub [Countable S] [IsPotential Φ] [IsSummable Φ] (hΛ : Λ₁ ⊆ Λ₂) :
+    Measurable[cylinderEvents (Λ₁ : Set S)ᶜ]
+      (fun η ↦ Φ.hamiltonian Λ₂ η - Φ.hamiltonian Λ₁ η) :=
+  ((measurable_hamiltonian (Φ := Φ) Λ₂).sub
+    (measurable_hamiltonian (Φ := Φ) Λ₁)).cylinderEvents_of_dependsOn
+    (dependsOn_hamiltonian_sub (Φ := Φ) hΛ)
+
+/-- Boltzmann factor `exp(-β H_Λ)`, valued in `ℝ≥0∞`. -/
 def boltzmannFactor (Φ : Potential S E) (β : ℝ) (Λ : Finset S) (η : S → E) : ℝ≥0∞ :=
   ENNReal.ofReal (Real.exp (-β * Φ.hamiltonian Λ η))
 
@@ -202,9 +217,8 @@ private lemma ofReal_exp_mul_comm {a b c d : ℝ} (h : a + b = c + d) :
   rw [← ENNReal.ofReal_mul (Real.exp_pos _).le, ← ENNReal.ofReal_mul (Real.exp_pos _).le,
     ← Real.exp_add, ← Real.exp_add, h]
 
-/-- **Georgii, Proposition (2.5).** The Boltzmann factors of a potential form a pre-modification.
-The positivity in Georgii's statement is not part of `Specification.IsPremodifier`; it is the
-separate lemma `Potential.boltzmannFactor_pos`. -/
+/-- The Boltzmann factors of a potential form a pre-modification. Positivity is not part of
+`Specification.IsPremodifier`; it is `Potential.boltzmannFactor_pos`. -/
 theorem isPremodifier_boltzmannFactor [Countable S] [IsPotential Φ] [IsSummable Φ] (β : ℝ) :
     Specification.IsPremodifier (S := S) (E := E) (Φ.boltzmannFactor β) where
   measurable Λ := measurable_boltzmannFactor (Φ := Φ) β Λ
@@ -216,18 +230,13 @@ theorem isPremodifier_boltzmannFactor [Countable S] [IsPotential Φ] [IsSummable
     rw [sub_eq_sub_iff_add_eq_add] at hH
     simpa [add_comm] using hH
 
-@[simp] lemma boltzmannFactor_eq_boltzmannWeight [IsFiniteRange Φ]
-    (β : ℝ) (Λ : Finset S) (η : S → E) :
-    Φ.boltzmannFactor β Λ η = boltzmannWeight (Φ := Φ) β Λ η := by
-  rw [boltzmannFactor, boltzmannWeight, hamiltonian_eq_interactingHamiltonian]
-
 /-! ### Absolutely summable potentials -/
 
-/-- Georgii (2.12): `‖Φ‖ᵢ`, the total sup-norm of the interaction terms containing `i`. -/
+/-- `‖Φ‖ᵢ`, the total sup-norm of the interaction terms containing `i`. -/
 def normAt (Φ : Potential S E) (i : S) : ℝ≥0∞ :=
   ∑' A : Finset S, {A : Finset S | i ∈ A}.indicator (fun A ↦ ⨆ η, ‖Φ A η‖ₑ) A
 
-/-- Georgii (2.11): `Φ` is absolutely summable. -/
+/-- `Φ` is absolutely summable. -/
 class IsAbsolutelySummable (Φ : Potential S E) : Prop where
   normAt_ne_top (i : S) : Φ.normAt i ≠ ⊤
 
@@ -280,7 +289,7 @@ lemma tsum_enorm_hamiltonianTerms_le (Λ : Finset S) (η : S → E) :
   le_trans (ENNReal.tsum_le_tsum (enorm_hamiltonianTerms_le_termNorm (Φ := Φ) Λ η))
     (tsum_termNorm_le (Φ := Φ) Λ)
 
-/-- **Georgii (2.11) ⇒ (2.2)(ii).** An absolutely summable potential is summable. -/
+/-- An absolutely summable potential is summable. -/
 lemma summable_hamiltonianTerms [IsAbsolutelySummable Φ] (Λ : Finset S) (η : S → E) :
     Summable (Φ.hamiltonianTerms Λ η) := by
   exact Summable.of_enorm (ne_of_lt (lt_of_le_of_lt (tsum_enorm_hamiltonianTerms_le Λ η)
@@ -295,18 +304,18 @@ lemma hamiltonian_eq_tsum [IsAbsolutelySummable Φ] (Λ : Finset S) (η : S → 
     Φ.hamiltonian Λ η = ∑' A : Finset S, Φ.hamiltonianTerms Λ η A :=
   ((summable_hamiltonianTerms (Φ := Φ) Λ η).hasSum.volume).tsum_eq
 
-/-- **Georgii (2.14).** `‖H_Λ^Φ‖ ≤ ∑_{i ∈ Λ} ‖Φ‖ᵢ`. -/
+/-- `‖H_Λ^Φ‖ ≤ ∑_{i ∈ Λ} ‖Φ‖ᵢ`. -/
 theorem enorm_hamiltonian_le [IsAbsolutelySummable Φ] (Λ : Finset S) (η : S → E) :
     ‖Φ.hamiltonian Λ η‖ₑ ≤ ∑ i ∈ Λ, Φ.normAt i := by
   rw [hamiltonian_eq_tsum (Φ := Φ) Λ η]
   exact le_trans enorm_tsum_le_tsum_enorm (tsum_enorm_hamiltonianTerms_le Λ η)
 
-/-- **Georgii (2.14)** in sup-norm form. -/
+/-- The Hamiltonian bound in sup-norm form. -/
 theorem iSup_enorm_hamiltonian_le [IsAbsolutelySummable Φ] (Λ : Finset S) :
     ⨆ η, ‖Φ.hamiltonian Λ η‖ₑ ≤ ∑ i ∈ Λ, Φ.normAt i :=
   iSup_le fun η ↦ enorm_hamiltonian_le (Φ := Φ) Λ η
 
-/-- Georgii (2.14) in real form. -/
+/-- The Hamiltonian bound in real form. -/
 lemma abs_hamiltonian_le [IsAbsolutelySummable Φ] (Λ : Finset S) (η : S → E) :
     |Φ.hamiltonian Λ η| ≤ (∑ i ∈ Λ, Φ.normAt i).toReal := by
   have h := enorm_hamiltonian_le (Φ := Φ) Λ η

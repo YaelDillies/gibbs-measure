@@ -63,8 +63,8 @@ $\beta = 1$.
     indexed by the finite volumes $\Delta$ ordered by inclusion, converges.
     $H^\Phi_\Lambda$ is the \textbf{Hamiltonian} in $\Lambda$.
 
-    Convention (2.1) is exactly Mathlib's \texttt{SummationFilter.volume S}; the summands, with
-    the terms disjoint from $\Lambda$ set to $0$, are
+    Convention (2.1) is the overlay \texttt{SummationFilter.volume} (not a Mathlib
+    declaration): the summands, with the terms disjoint from $\Lambda$ set to $0$, are
     $\mathtt{Potential.hamiltonianTerms}$, and $\mathtt{Potential.hamiltonian}$ is the
     corresponding $\sum'$. So $\mathtt{Potential.IsSummable}$ is (2.2)(ii) verbatim, and is
     genuinely weaker than unconditional summability
@@ -87,7 +87,9 @@ $\beta = 1$.
 \begin{lemma}[Georgii (2.6)]
     \label{lem:pot-hamiltonian-diff}
     \uses{def:pot-hamiltonian, lem:pot-depends-on}
-    \lean{Potential.dependsOn_hamiltonian_sub, Potential.hamiltonian_sub_eq_of_subset_eqOn_compl}
+    \lean{Potential.hamiltonian_sub, Potential.hasSum_hamiltonianTerms_sub,
+      Potential.dependsOn_hamiltonian_sub, Potential.measurable_hamiltonian_sub,
+      Potential.hamiltonian_sub_eq_of_subset_eqOn_compl}
     \leanok
 
     Let $\Phi$ be a summable interaction potential and $\emptyset \neq \Lambda \subset \Delta
@@ -98,11 +100,11 @@ $\beta = 1$.
     $H^\Phi_\Lambda(\eta) - H^\Phi_\Lambda(\zeta) = H^\Phi_\Delta(\eta) -
     H^\Phi_\Delta(\zeta)$ whenever $\eta_{S \setminus \Lambda} = \zeta_{S \setminus \Lambda}$.
 
-    The Lean theorem delivers half of Georgii's measurability claim, namely that the difference
-    depends only on the coordinates in $\Lambda^c$ --- which is what the pre-modification
-    identity needs; full
-    $\mathtt{cylinderEvents}\ \Lambda^c$-measurability follows for countable $S$ by combining it
-    with $\mathtt{Potential.measurable\_hamiltonian}$ and is not a separate declaration.
+    The series identity is $\mathtt{Potential.hamiltonian\_sub}$. Dependence on the coordinates
+    in $\Lambda^c$ is $\mathtt{Potential.dependsOn\_hamiltonian\_sub}$; for countable $S$,
+    $\mathtt{Potential.measurable\_hamiltonian\_sub}$ upgrades this to
+    $\mathtt{cylinderEvents}\ \Lambda^c$-measurability. The cocycle form is
+    $\mathtt{Potential.hamiltonian\_sub\_eq\_of\_subset\_eqOn\_compl}$.
 \end{lemma}
 \begin{proof}
     \leanok
@@ -128,8 +130,8 @@ $\beta = 1$.
     it is the separate lemma $\mathtt{Potential.boltzmannFactor\_pos}$. Second, the Lean
     statement assumes \texttt{[Countable S]}, used only to get measurability of $H_\Lambda^\Phi$
     as a pointwise limit of finite sums; Georgii's $S$ is countably infinite, so this is not a
-    restriction on his statement. For finite range potentials the countability hypothesis
-    disappears ($\mathtt{Potential.isPremodifier\_boltzmannWeight}$).
+    restriction on his statement. Finite range is the special case
+    $\mathtt{Potential.IsFiniteRange.isSummable}$, not a second family of Boltzmann factors.
 \end{proposition}
 \begin{proof}
     \leanok
@@ -246,8 +248,8 @@ $\beta = 1$.
     \leanok
 
     A finite range potential satisfies (2.2)(ii), and its Hamiltonian coincides with the finite
-    sum $\mathtt{interactingHamiltonian}$. Consequently the two Boltzmann factors of the tree
-    agree ($\mathtt{Potential.boltzmannFactor\_eq\_boltzmannWeight}$).
+    sum $\mathtt{interactingHamiltonian}$. The Boltzmann factor is still
+    $\mathtt{Potential.boltzmannFactor}$, evaluated on that finite sum.
 \end{lemma}
 \begin{proof}
     \leanok

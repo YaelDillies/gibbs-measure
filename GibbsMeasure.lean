@@ -2,6 +2,7 @@ module
 
 public import GibbsMeasure.Mathlib.Data.ENNReal.Basic
 public import GibbsMeasure.Mathlib.Logic.Function.DependsOn
+public import GibbsMeasure.Mathlib.Order.Filter.AtTopBot.Finset
 public import GibbsMeasure.Mathlib.Topology.Algebra.InfiniteSum.Volume
 public import GibbsMeasure.Mathlib.MeasureTheory.Constructions.Cylinders
 public import GibbsMeasure.Mathlib.MeasureTheory.Function.ConditionalExpectation.Basic

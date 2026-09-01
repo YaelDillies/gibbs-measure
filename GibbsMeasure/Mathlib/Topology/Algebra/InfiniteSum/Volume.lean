@@ -5,19 +5,17 @@ Authors: Matteo Cipollina
 -/
 module
 
+public import GibbsMeasure.Mathlib.Order.Filter.AtTopBot.Finset
 public import Mathlib.Topology.Algebra.InfiniteSum.Group
-public import Mathlib.Order.Filter.AtTopBot.CountablyGenerated
-public import Mathlib.Order.Filter.AtTopBot.Finset
 
 /-!
-# Summation over finite subsets, ordered by ambient volume
+# Summation over finite subsets, ordered by inclusion
 
 For a family indexed by `Finset ι`, `SummationFilter.volume ι` sums along the net of partial sums
-over `{A | A ⊆ Δ}`, `Δ : Finset ι` ranging over `atTop`.
+over `{A | A ⊆ Δ}`, as `Δ : Finset ι` ranges over `atTop`.
 
-This is the summation convention of Georgii, *Gibbs Measures and Phase Transitions*, (2.1). It is
-coarser than unconditional summation, so `Summable f` implies `Summable f (SummationFilter.volume ι)`
-with the same sum.
+This is coarser than unconditional summation, so `Summable f` implies
+`Summable f (SummationFilter.volume ι)` with the same sum.
 -/
 
 @[expose] public section
@@ -39,10 +37,6 @@ instance : (volume ι).LeAtTop := ⟨Filter.tendsto_finset_powerset_atTop_atTop�
 
 instance : (volume ι).NeBot := ⟨Filter.map_neBot⟩
 
-instance _root_.Filter.isCountablyGenerated_atTop_finset [Countable ι] :
-    (atTop : Filter (Finset ι)).IsCountablyGenerated := by
-  rw [Filter.atTop_finset_eq_iInf]; infer_instance
-
 instance [Countable ι] : (volume ι).filter.IsCountablyGenerated := by
   rw [volume_filter]; infer_instance
 
@@ -56,9 +50,8 @@ namespace HasSum
 
 variable {ι α : Type*} [AddCommMonoid α] [TopologicalSpace α] {f : Finset ι → α} {a : α}
 
-/-- Unconditional summability implies summability along `SummationFilter.volume`, with the same sum.
-This is the step from unconditional convergence to convergence of the net of Georgii's Convention
-(2.1); it is what makes an absolutely summable potential (2.11) satisfy (2.2)(ii). -/
+/-- Unconditional summability implies summability along `SummationFilter.volume`, with the same
+sum. -/
 lemma volume (h : HasSum f a) : HasSum f a (SummationFilter.volume ι) :=
   h.mono_left (SummationFilter.le_atTop (L := SummationFilter.volume ι))
 
