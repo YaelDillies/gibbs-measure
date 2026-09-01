@@ -44,6 +44,8 @@ lemma bind_null {m : Measure α} {f : α → Measure β} {s : Set β}
 theorem ae_bind_iff {m : Measure α} {f : α → Measure β} {p : β → Prop}
     (hf : AEMeasurable f m) (hp : MeasurableSet {x | p x}) :
     (∀ᵐ b ∂m.bind f, p b) ↔ ∀ᵐ a ∂m, ∀ᵐ b ∂f a, p b :=
-  ⟨ae_ae_of_ae_bind hf, fun h ↦ by rwa [ae_iff, bind_null hp.compl hf] at *⟩
+  ⟨ae_ae_of_ae_bind hf, fun h ↦ by
+    rwa [ae_iff, bind_null _ hf] at *
+    exact hp.compl⟩
 
 end MeasureTheory.Measure
