@@ -17,19 +17,16 @@ open Filter
 
 variable {ι κ α β : Type*} [UniformSpace β] {F : ι → α → β} {f : α → β} {p : Filter ι}
 
-/-- Reindexing the domain of a net which converges uniformly on a set. -/
 theorem TendstoUniformlyOn.comp_tendsto {s : Set α} {q : Filter κ} {g : κ → ι}
     (h : TendstoUniformlyOn F f p s) (hg : Tendsto g q p) :
     TendstoUniformlyOn (fun k ↦ F (g k)) f q s :=
   fun u hu ↦ hg.eventually (h u hu)
 
-/-- Reindexing the domain of a uniformly convergent net. -/
 theorem TendstoUniformly.comp_tendsto {q : Filter κ} {g : κ → ι}
     (h : TendstoUniformly F f p) (hg : Tendsto g q p) :
     TendstoUniformly (fun k ↦ F (g k)) f q :=
   fun u hu ↦ hg.eventually (h u hu)
 
-/-- A net of functions which is eventually constantly equal to `f` converges uniformly to `f`. -/
 theorem tendstoUniformly_of_eventually_eq (h : ∀ᶠ n in p, F n = f) :
     TendstoUniformly F f p :=
   fun _u hu ↦ h.mono fun _ hn x ↦ mem_uniformity_of_eq hu (congrFun hn x).symm

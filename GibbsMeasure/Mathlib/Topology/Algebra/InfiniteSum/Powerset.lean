@@ -13,11 +13,9 @@ public import Mathlib.Topology.Algebra.InfiniteSum.Group
 /-!
 # Summation along the powerset net
 
-For a family indexed by `Finset ι`, `SummationFilter.powerset ι` sums along the net of partial
-sums over `{A | A ⊆ s}`, as `s : Finset ι` ranges over `atTop`.
-
-This is coarser than unconditional summation, so `Summable f` implies
-`Summable f (SummationFilter.powerset ι)` with the same sum.
+`SummationFilter.powerset ι` sums a family indexed by `Finset ι` along the net of partial sums
+over `{A | A ⊆ s}` as `s : Finset ι` ranges over `atTop`. This is coarser than unconditional
+summation.
 -/
 
 @[expose] public section
@@ -28,8 +26,7 @@ namespace SummationFilter
 
 variable (ι : Type*)
 
-/-- Summation along the net of partial sums over the subsets of a finite set, as that set
-ranges over `atTop`. -/
+/-- Partial sums over the subsets of a finite set, as that set ranges over `atTop`. -/
 def powerset : SummationFilter (Finset ι) := ⟨Filter.map Finset.powerset atTop⟩
 
 variable {ι}
@@ -44,27 +41,19 @@ instance [Countable ι] : (powerset ι).filter.IsCountablyGenerated := by
   rw [powerset_filter]
   infer_instance
 
-lemma tendsto_powerset_filter {α : Type*} [TopologicalSpace α] {f : Finset (Finset ι) → α} {a : α}
-    (h : Tendsto (fun s : Finset ι ↦ f s.powerset) atTop (nhds a)) :
-    Tendsto f (powerset ι).filter (nhds a) :=
-  tendsto_map' h
-
-lemma hasSum_powerset_iff {α : Type*} [AddCommMonoid α] [TopologicalSpace α]
-    {f : Finset ι → α} {a : α} :
-    HasSum f a (powerset ι) ↔
-      Tendsto (fun s : Finset ι ↦ ∑ i ∈ s.powerset, f i) atTop (nhds a) := by
-  rw [HasSum, powerset_filter, tendsto_map'_iff, Function.comp_def]
-
 end SummationFilter
 
 namespace HasSum
 
 variable {ι α : Type*} [AddCommMonoid α] [TopologicalSpace α] {f : Finset ι → α} {a : α}
 
-/-- Unconditional summability implies summability along `SummationFilter.powerset`, with the same
-sum. -/
 lemma powerset (h : HasSum f a) : HasSum f a (SummationFilter.powerset ι) :=
   h.mono_left (SummationFilter.le_atTop (L := SummationFilter.powerset ι))
+
+lemma powerset_iff :
+    HasSum f a (SummationFilter.powerset ι) ↔
+      Tendsto (fun s : Finset ι ↦ ∑ i ∈ s.powerset, f i) atTop (nhds a) := by
+  rw [HasSum, SummationFilter.powerset_filter, tendsto_map'_iff, Function.comp_def]
 
 end HasSum
 
