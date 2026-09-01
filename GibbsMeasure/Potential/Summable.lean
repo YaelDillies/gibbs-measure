@@ -101,7 +101,8 @@ lemma hamiltonianTerms_eq_zero_of_notMem_interactingSupport [IsFiniteRange Φ]
 lemma hasSum_interactingHamiltonian [IsFiniteRange Φ] (Λ : Finset S) (η : S → E) :
     HasSum (Φ.hamiltonianTerms Λ η) (interactingHamiltonian (Φ := Φ) Λ η)
       (SummationFilter.powerset S) :=
-  (Finset.sum_congr rfl fun A hA ↦ hamiltonianTerms_eq_of_mem_interactingSupport hA η) ▸
+  (Finset.sum_congr rfl fun A hA ↦
+    hamiltonianTerms_eq_of_mem_interactingSupport (Φ := Φ) hA η) ▸
     (hasSum_sum_of_ne_finset_zero fun A hA ↦
       hamiltonianTerms_eq_zero_of_notMem_interactingSupport (Φ := Φ) η hA).powerset
 
@@ -118,7 +119,8 @@ lemma truncatedHamiltonian_eq_interactingHamiltonian [IsFiniteRange Φ]
     Φ.truncatedHamiltonian Λ Δ η = interactingHamiltonian (Φ := Φ) Λ η := by
   rw [truncatedHamiltonian, ← Finset.sum_subset (f := Φ.hamiltonianTerms Λ η) h
     fun A _ hA' ↦ hamiltonianTerms_eq_zero_of_notMem_interactingSupport (Φ := Φ) η hA']
-  exact Finset.sum_congr rfl fun A hA ↦ hamiltonianTerms_eq_of_mem_interactingSupport hA η
+  exact Finset.sum_congr rfl fun A hA ↦
+    hamiltonianTerms_eq_of_mem_interactingSupport (Φ := Φ) hA η
 
 lemma eventually_truncatedHamiltonian_eq_interactingHamiltonian [IsFiniteRange Φ]
     (Λ : Finset S) :
@@ -187,9 +189,9 @@ lemma dependsOn_sum_hamiltonianTerms_sub [IsPotential Φ] (Λ₁ Λ₂ : Finset 
       ((Λ₁ : Set S)ᶜ) := by
   refine DependsOn.sum fun A _ x y hxy ↦ ?_
   by_cases hA : ¬ Disjoint A Λ₂ ∧ Disjoint A Λ₁
-  · simp [Set.indicator_of_mem hA]
+  · rw [Set.indicator_of_mem hA, Set.indicator_of_mem hA]
     exact dependsOn_of_disjoint (Φ := Φ) hA.2 hxy
-  · simp [Set.indicator_of_notMem hA]
+  · rw [Set.indicator_of_notMem hA, Set.indicator_of_notMem hA]
 
 theorem dependsOn_hamiltonian_sub [IsPotential Φ] [IsSummable Φ] (hΛ : Λ₁ ⊆ Λ₂) :
     DependsOn (fun η ↦ Φ.hamiltonian Λ₂ η - Φ.hamiltonian Λ₁ η) ((Λ₁ : Set S)ᶜ) :=
@@ -300,7 +302,7 @@ lemma enorm_hamiltonianTerms_le_termNorm (Λ : Finset S) (η : S → E) (A : Fin
     ‖Φ.hamiltonianTerms Λ η A‖ₑ ≤ Φ.termNorm Λ A := by
   by_cases h : Disjoint A Λ
   · simp [h]
-  · simp [h]
+  · rw [hamiltonianTerms_of_not_disjoint h, termNorm_of_not_disjoint h]
     exact le_iSup (fun ζ ↦ ‖Φ A ζ‖ₑ) η
 
 lemma termNorm_le_sum (Λ : Finset S) (A : Finset S) :
@@ -425,9 +427,9 @@ lemma iSup_enorm_truncation_le (Δ B : Finset S) :
   classical
   exact iSup_le fun η ↦ by
     by_cases h : B ⊆ Δ
-    · simp [h]
+    · rw [truncation_of_subset h]
       exact le_iSup (fun ζ ↦ ‖Φ B ζ‖ₑ) η
-    · simp [h]
+    · simp [truncation_of_not_subset h]
 
 lemma normAt_truncation_le (Δ : Finset S) (i : S) :
     (Φ.truncation Δ).normAt i ≤ Φ.normAt i :=
