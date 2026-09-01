@@ -19,11 +19,11 @@ public import GibbsMeasure.Mathlib.MeasureTheory.Measure.Ext
 public import GibbsMeasure.Mathlib.MeasureTheory.Measure.GiryMonad
 public import GibbsMeasure.Mathlib.MeasureTheory.Measure.Prod
 public import GibbsMeasure.Mathlib.MeasureTheory.Measure.WithDensity
-public import GibbsMeasure.Mathlib.Order.Filter.AtTopBot.Finset
 public import GibbsMeasure.Mathlib.Probability.Kernel.Composition.IntegralCompProd
 public import GibbsMeasure.Mathlib.Probability.Kernel.Condexp
 public import GibbsMeasure.Mathlib.Probability.Kernel.Proper
-public import GibbsMeasure.Mathlib.Topology.Algebra.InfiniteSum.Volume
+public import GibbsMeasure.Mathlib.Topology.Algebra.InfiniteSum.Powerset
+public import GibbsMeasure.Mathlib.Topology.UniformSpace.UniformConvergence
 public import GibbsMeasure.Prereqs.Filtration.Consistent
 public import GibbsMeasure.Prereqs.Juxt
 public import GibbsMeasure.Prereqs.Kernel.CondExp

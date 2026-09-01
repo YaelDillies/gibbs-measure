@@ -16,8 +16,11 @@ public import Mathlib.MeasureTheory.Constructions.BorelSpace.Real
 
 A potential is a family of real-valued functions indexed by finite subsets of the site set.
 `Potential.IsPotential` is measurability of each term for `cylinderEvents` on its support.
-`Potential.IsFiniteRange` is the locally finite case, in which the Hamiltonian in a finite
-volume is a finite sum (`interactingHamiltonian`).
+`Potential.IsFiniteRange` is the locally finite case: only finitely many interacting supports
+meet each site, so the Hamiltonian in a finite volume is a finite sum
+(`interactingHamiltonian`).
+
+`Potential.truncation` cuts a potential to the interactions contained in a finite volume.
 
 Convergence of the Hamiltonian series in general is `Potential.IsSummable` in
 `GibbsMeasure/Potential/Summable.lean`.
@@ -26,7 +29,6 @@ Convergence of the Hamiltonian series in general is `Potential.IsSummable` in
 @[expose] public section
 
 open Set Finset MeasureTheory
-open scoped BigOperators
 
 variable {S E : Type*}
 
@@ -45,21 +47,23 @@ class IsPotential [MeasurableSpace E] (Φ : Potential S E) : Prop where
   measurable (Δ : Finset S) :
     Measurable[cylinderEvents (X := fun _ : S ↦ E) (Δ : Set S)] (Φ Δ)
 
-/-- `Φ` has finite range if for each site `i` there is a finite `Δ` containing every interaction
-support that contains `i` and carries a nonzero term. -/
+/-- `Φ` has finite range if each site belongs to only finitely many interacting supports. -/
 class IsFiniteRange (Φ : Potential S E) : Prop where
-  exists_finset (i : S) : ∃ Δ : Finset S, ∀ A : Finset S, i ∈ A → Φ A ≠ 0 → A ⊆ Δ
+  finite (i : S) : {A : Finset S | i ∈ A ∧ Φ A ≠ 0}.Finite
+
+lemma IsFiniteRange.exists_finset (Φ : Potential S E) [IsFiniteRange Φ] (i : S) :
+    ∃ Δ : Finset S, ∀ A : Finset S, i ∈ A → Φ A ≠ 0 → A ⊆ Δ := by
+  classical
+  refine ⟨(IsFiniteRange.finite (Φ := Φ) i).toFinset.sup id, fun A hi hΦ ↦ ?_⟩
+  exact Finset.le_sup (f := id) (by simp [hi, hΦ])
 
 /-- A finite range potential has, in each finite volume, only finitely many interacting terms. -/
 lemma IsFiniteRange.finite_support (Φ : Potential S E) [IsFiniteRange Φ] (Λ : Finset S) :
     ({Δ : Finset S | ((Δ : Set S) ∩ (Λ : Set S)).Nonempty ∧ Φ Δ ≠ 0} : Set (Finset S)).Finite := by
   classical
-  choose Δ hΔ using IsFiniteRange.exists_finset (Φ := Φ)
-  refine Set.Finite.subset (Set.Finite.biUnion Λ.finite_toSet
-    fun i _ ↦ (Δ i).powerset.finite_toSet) ?_
+  refine (Λ.finite_toSet.biUnion fun i _ ↦ IsFiniteRange.finite (Φ := Φ) i).subset ?_
   rintro A ⟨⟨x, hxA, hxΛ⟩, hΦ⟩
-  exact Set.mem_biUnion (by simpa using hxΛ)
-    (by simpa using hΔ x A (by simpa using hxA) hΦ)
+  exact Set.mem_biUnion (by simpa using hxΛ) ⟨by simpa using hxA, hΦ⟩
 
 /-- The finite set of interaction supports that meet `Λ` and carry a nonzero interaction term. -/
 noncomputable def interactingSupport [IsFiniteRange Φ] (Λ : Finset S) : Finset (Finset S) :=
@@ -73,16 +77,38 @@ lemma mem_interactingSupport [IsFiniteRange Φ] {Λ Δ : Finset S} :
 lemma interactingSupport_subset_of_subset [IsFiniteRange Φ] {Λ₁ Λ₂ : Finset S} (hΛ : Λ₁ ⊆ Λ₂) :
     interactingSupport (Φ := Φ) Λ₁ ⊆ interactingSupport (Φ := Φ) Λ₂ := by
   intro Δ hΔ
-  rcases (mem_interactingSupport (Φ := Φ)).1 hΔ with ⟨⟨x, hxΔ, hxΛ₁⟩, hΦΔ⟩
-  have hxΛ₂ : x ∈ (Λ₂ : Set S) := by
-    have : x ∈ Λ₂ := hΛ (by simpa using hxΛ₁)
-    simpa using this
-  exact (mem_interactingSupport (Φ := Φ)).2 ⟨⟨x, hxΔ, hxΛ₂⟩, hΦΔ⟩
+  rw [mem_interactingSupport] at hΔ ⊢
+  exact ⟨hΔ.1.mono (inter_subset_inter_right _ (mod_cast hΛ)), hΔ.2⟩
 
 /-- The interacting Hamiltonian in a volume `Λ`: the finite sum of all interaction terms whose
 support meets `Λ`. -/
 noncomputable def interactingHamiltonian [IsFiniteRange Φ] (Λ : Finset S) (η : S → E) : ℝ :=
   ∑ Δ ∈ interactingSupport (Φ := Φ) Λ, Φ Δ η
+
+/-! ### Truncation to a finite volume -/
+
+/-- The truncation of `Φ` to interactions contained in `Δ`. -/
+open Classical in
+def truncation (Φ : Potential S E) (Δ : Finset S) : Potential S E :=
+  fun A η ↦ if A ⊆ Δ then Φ A η else 0
+
+lemma truncation_of_subset {Δ B : Finset S} (h : B ⊆ Δ) : Φ.truncation Δ B = Φ B := by
+  classical
+  funext η; simp [truncation, h]
+
+lemma truncation_of_not_subset {Δ B : Finset S} (h : ¬ B ⊆ Δ) : Φ.truncation Δ B = 0 := by
+  classical
+  funext η; simp [truncation, h]
+
+instance (Δ : Finset S) : IsFiniteRange (Φ.truncation Δ) where
+  finite i := by
+    classical
+    refine (Δ.powerset.finite_toSet).subset ?_
+    intro A hA
+    have : A ⊆ Δ := by
+      by_contra h
+      exact hA.2 (truncation_of_not_subset h)
+    exact mem_powerset.2 this
 
 section
 variable [MeasurableSpace E]
@@ -103,6 +129,15 @@ lemma measurable_interactingHamiltonian [IsFiniteRange Φ] [IsPotential Φ]
   refine Finset.measurable_sum _ fun A _ ↦
     (IsPotential.measurable (Φ := Φ) A).mono
       (cylinderEvents_le_pi (X := fun _ : S ↦ E) (Δ := (A : Set S))) le_rfl
+
+instance (Δ : Finset S) [IsPotential Φ] : IsPotential (Φ.truncation Δ) where
+  measurable B := by
+    classical
+    by_cases h : B ⊆ Δ
+    · rw [truncation_of_subset h]
+      exact IsPotential.measurable (Φ := Φ) B
+    · rw [truncation_of_not_subset h]
+      exact measurable_const
 
 end
 
