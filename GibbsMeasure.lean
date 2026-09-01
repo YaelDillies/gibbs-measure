@@ -1,6 +1,8 @@
 module
 
 public import GibbsMeasure.Mathlib.Data.ENNReal.Basic
+public import GibbsMeasure.Mathlib.Logic.Function.DependsOn
+public import GibbsMeasure.Mathlib.Topology.Algebra.InfiniteSum.Volume
 public import GibbsMeasure.Mathlib.MeasureTheory.Constructions.Cylinders
 public import GibbsMeasure.Mathlib.MeasureTheory.Function.ConditionalExpectation.Basic
 public import GibbsMeasure.Mathlib.MeasureTheory.Function.ConditionalExpectation.Unique
@@ -23,3 +25,5 @@ public import GibbsMeasure.Prereqs.Filtration.Consistent
 public import GibbsMeasure.Prereqs.Juxt
 public import GibbsMeasure.Prereqs.Kernel.CondExp
 public import GibbsMeasure.Specification
+public import GibbsMeasure.Potential
+public import GibbsMeasure.Potential.Summable
