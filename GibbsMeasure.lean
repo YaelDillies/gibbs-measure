@@ -1,6 +1,7 @@
 module  -- shake: keep-all --deprecated_module: ignore
 
 public import GibbsMeasure.Mathlib.Basic.ENNReal.Basic
+public import GibbsMeasure.Mathlib.Logic.Function.DependsOn
 public import GibbsMeasure.Mathlib.MeasureTheory.Constructions.Cylinders
 public import GibbsMeasure.Mathlib.MeasureTheory.Function.ConditionalExpectation.Basic
 public import GibbsMeasure.Mathlib.MeasureTheory.Function.ConditionalExpectation.Unique
@@ -21,7 +22,11 @@ public import GibbsMeasure.Mathlib.MeasureTheory.Measure.WithDensity
 public import GibbsMeasure.Mathlib.Probability.Kernel.Composition.IntegralCompProd
 public import GibbsMeasure.Mathlib.Probability.Kernel.Condexp
 public import GibbsMeasure.Mathlib.Probability.Kernel.Proper
+public import GibbsMeasure.Mathlib.Topology.Algebra.InfiniteSum.Powerset
+public import GibbsMeasure.Mathlib.Topology.UniformSpace.UniformConvergence
 public import GibbsMeasure.Prereqs.Filtration.Consistent
 public import GibbsMeasure.Prereqs.Juxt
 public import GibbsMeasure.Prereqs.Kernel.CondExp
 public import GibbsMeasure.Specification
+public import GibbsMeasure.Potential
+public import GibbsMeasure.Potential.Summable
