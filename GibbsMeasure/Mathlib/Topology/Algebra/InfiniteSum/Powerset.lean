@@ -47,13 +47,13 @@ instance [Countable ι] : (powerset ι).filter.IsCountablyGenerated := by
 lemma tendsto_powerset_filter {α : Type*} [TopologicalSpace α] {f : Finset (Finset ι) → α} {a : α}
     (h : Tendsto (fun s : Finset ι ↦ f s.powerset) atTop (nhds a)) :
     Tendsto f (powerset ι).filter (nhds a) :=
-  tendsto_map.2 h
+  tendsto_map' h
 
 lemma hasSum_powerset_iff {α : Type*} [AddCommMonoid α] [TopologicalSpace α]
     {f : Finset ι → α} {a : α} :
     HasSum f a (powerset ι) ↔
-      Tendsto (fun s : Finset ι ↦ ∑ i ∈ s.powerset, f i) atTop (nhds a) :=
-  tendsto_map
+      Tendsto (fun s : Finset ι ↦ ∑ i ∈ s.powerset, f i) atTop (nhds a) := by
+  rw [HasSum, powerset_filter, tendsto_map'_iff, Function.comp_def]
 
 end SummationFilter
 

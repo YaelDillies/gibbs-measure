@@ -87,9 +87,10 @@ noncomputable def interactingHamiltonian [IsFiniteRange Φ] (Λ : Finset S) (η 
 
 /-! ### Truncation to a finite volume -/
 
+open Classical
+
 /-- The truncation of `Φ` to interactions contained in `Δ`. -/
-open Classical in
-def truncation (Φ : Potential S E) (Δ : Finset S) : Potential S E :=
+noncomputable def truncation (Φ : Potential S E) (Δ : Finset S) : Potential S E :=
   fun A η ↦ if A ⊆ Δ then Φ A η else 0
 
 lemma truncation_of_subset {Δ B : Finset S} (h : B ⊆ Δ) : Φ.truncation Δ B = Φ B := by
