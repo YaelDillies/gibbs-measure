@@ -61,15 +61,6 @@ lemma IsFiniteRange.finite_support (Φ : Potential S E) [IsFiniteRange Φ] (Λ :
   exact Set.mem_biUnion (by simpa using hxΛ)
     (by simpa using hΔ x A (by simpa using hxA) hΦ)
 
-/-- An interaction term depends only on the coordinates in its support. -/
-lemma IsPotential.dependsOn [IsPotential Φ] (Δ : Finset S) :
-    DependsOn (Φ Δ) (Δ : Set S) :=
-  (IsPotential.measurable (Φ := Φ) Δ).dependsOn_of_cylinderEvents
-
-lemma IsPotential.eq_of_eqOn [IsPotential Φ] {Δ : Finset S} {η ζ : S → E}
-    (h : EqOn η ζ Δ) : Φ Δ η = Φ Δ ζ :=
-  IsPotential.dependsOn (Φ := Φ) Δ fun x hx ↦ h (by exact_mod_cast hx)
-
 /-- The finite set of interaction supports that meet `Λ` and carry a nonzero interaction term. -/
 noncomputable def interactingSupport [IsFiniteRange Φ] (Λ : Finset S) : Finset (Finset S) :=
   (IsFiniteRange.finite_support (Φ := Φ) Λ).toFinset
@@ -93,6 +84,18 @@ support meets `Λ`. -/
 noncomputable def interactingHamiltonian [IsFiniteRange Φ] (Λ : Finset S) (η : S → E) : ℝ :=
   ∑ Δ ∈ interactingSupport (Φ := Φ) Λ, Φ Δ η
 
+section
+variable [MeasurableSpace E]
+
+/-- An interaction term depends only on the coordinates in its support. -/
+lemma IsPotential.dependsOn [IsPotential Φ] (Δ : Finset S) :
+    DependsOn (Φ Δ) (Δ : Set S) :=
+  (IsPotential.measurable (Φ := Φ) Δ).dependsOn_of_cylinderEvents
+
+lemma IsPotential.eq_of_eqOn [IsPotential Φ] {Δ : Finset S} {η ζ : S → E}
+    (h : EqOn η ζ Δ) : Φ Δ η = Φ Δ ζ :=
+  IsPotential.dependsOn (Φ := Φ) Δ fun x hx ↦ h (by exact_mod_cast hx)
+
 @[fun_prop]
 lemma measurable_interactingHamiltonian [IsFiniteRange Φ] [IsPotential Φ]
     (Λ : Finset S) : Measurable (interactingHamiltonian (Φ := Φ) Λ) := by
@@ -100,5 +103,7 @@ lemma measurable_interactingHamiltonian [IsFiniteRange Φ] [IsPotential Φ]
   refine Finset.measurable_sum _ fun A _ ↦
     (IsPotential.measurable (Φ := Φ) A).mono
       (cylinderEvents_le_pi (X := fun _ : S ↦ E) (Δ := (A : Set S))) le_rfl
+
+end
 
 end Potential

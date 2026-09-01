@@ -245,8 +245,8 @@ lemma measurable_boltzmannFactor [Countable S] [IsPotential Φ] [IsSummable Φ]
 
 private lemma ofReal_exp_add (a b : ℝ) :
     ENNReal.ofReal (Real.exp (a + b)) =
-      ENNReal.ofReal (Real.exp a) * ENNReal.ofReal (Real.exp b) :=
-  (Real.exp_add a b).symm ▸ ENNReal.ofReal_mul (Real.exp_nonneg a)
+      ENNReal.ofReal (Real.exp a) * ENNReal.ofReal (Real.exp b) := by
+  rw [Real.exp_add, ENNReal.ofReal_mul (Real.exp_nonneg a)]
 
 /-- The Boltzmann factors of a potential form a pre-modification, given measurability of the
 Hamiltonian. Countability of `S` is not required for the exchange identity. -/
@@ -384,7 +384,7 @@ lemma IsFiniteRange.normAt_eq_sum [IsFiniteRange Φ] (i : S) {Δ : Finset S}
   by_cases hi : i ∈ A
   · rw [Set.indicator_of_mem (show A ∈ {B : Finset S | i ∈ B} from hi)]
     by_cases hΦ : Φ A = 0
-    · rw [hΦ]; simp
+    · simp [hΦ, Pi.zero_apply]
     · exact (hA (Finset.mem_powerset.2 (hΔ A hi hΦ))).elim
   · exact Set.indicator_of_notMem (show A ∉ {B : Finset S | i ∈ B} from hi)
 
@@ -398,7 +398,7 @@ lemma IsFiniteRange.isAbsolutelySummable [IsFiniteRange Φ]
     refine (ENNReal.sum_lt_top.2 fun A _ ↦ ?_).ne
     by_cases hi : i ∈ A
     · rw [Set.indicator_of_mem (show A ∈ {B : Finset S | i ∈ B} from hi)]
-      exact (h A ⟨i, hi⟩).lt_top
+      exact lt_top_iff_ne_top.2 (h A ⟨i, hi⟩)
     · rw [Set.indicator_of_notMem (show A ∉ {B : Finset S | i ∈ B} from hi)]
       exact ENNReal.zero_lt_top
 
