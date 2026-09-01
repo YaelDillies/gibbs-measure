@@ -144,13 +144,12 @@ instance (priority := 100) IsFiniteRange.isSummable [IsFiniteRange Φ] : IsSumma
 lemma truncatedHamiltonian_eq_interactingHamiltonian [IsFiniteRange Φ]
     {Λ Δ : Finset S} (h : interactingSupport (Φ := Φ) Λ ⊆ Δ.powerset) (η : S → E) :
     Φ.truncatedHamiltonian Λ Δ η = interactingHamiltonian (Φ := Φ) Λ η := by
-  refine (Finset.sum_subset (f := Φ.hamiltonianTerms Λ η) h ?_).trans ?_
-  · intro A _ hA'
-    exact hamiltonianTerms_eq_zero_of_notMem_interactingSupport (Φ := Φ) η hA'
-  · refine Finset.sum_congr rfl fun A hA ↦ ?_
-    obtain ⟨⟨x, hxA, hxΛ⟩, -⟩ := (mem_interactingSupport (Φ := Φ)).1 hA
-    exact hamiltonianTerms_of_not_disjoint
-      (Finset.not_disjoint_iff.2 ⟨x, by simpa using hxA, by simpa using hxΛ⟩) η
+  rw [truncatedHamiltonian, ← Finset.sum_subset (f := Φ.hamiltonianTerms Λ η) h
+    fun A _ hA' ↦ hamiltonianTerms_eq_zero_of_notMem_interactingSupport (Φ := Φ) η hA']
+  refine Finset.sum_congr rfl fun A hA ↦ ?_
+  obtain ⟨⟨x, hxA, hxΛ⟩, -⟩ := (mem_interactingSupport (Φ := Φ)).1 hA
+  exact hamiltonianTerms_of_not_disjoint
+    (Finset.not_disjoint_iff.2 ⟨x, by simpa using hxA, by simpa using hxΛ⟩) η
 
 lemma eventually_truncatedHamiltonian_eq_interactingHamiltonian [IsFiniteRange Φ]
     (Λ : Finset S) :
