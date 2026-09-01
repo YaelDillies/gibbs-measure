@@ -41,15 +41,9 @@ lemma bind_null {m : Measure α} {f : α → Measure β} {s : Set β}
   exact lintegral_eq_zero_iff' (f := fun a ↦ f a s) <|
     (measurable_coe hs).comp_aemeasurable hf
 
-lemma ae_bind_of_ae_ae {m : Measure α} {f : α → Measure β} {p : β → Prop}
-    (hf : AEMeasurable f m) (hp : MeasurableSet {x | p x})
-    (h : ∀ᵐ a ∂m, ∀ᵐ b ∂f a, p b) : ∀ᵐ b ∂m.bind f, p b := by
-  rwa [ae_iff, bind_null _ hf] at *
-  exact hp.compl
-
 theorem ae_bind_iff {m : Measure α} {f : α → Measure β} {p : β → Prop}
     (hf : AEMeasurable f m) (hp : MeasurableSet {x | p x}) :
     (∀ᵐ b ∂m.bind f, p b) ↔ ∀ᵐ a ∂m, ∀ᵐ b ∂f a, p b :=
-  ⟨ae_ae_of_ae_bind hf, ae_bind_of_ae_ae hf hp⟩
+  ⟨ae_ae_of_ae_bind hf, fun h ↦ by rwa [ae_iff, bind_null hp.compl hf] at *⟩
 
 end MeasureTheory.Measure
