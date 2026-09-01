@@ -10,6 +10,7 @@ public import Mathlib.Logic.Function.DependsOn
 public import Mathlib.Analysis.SpecialFunctions.Exp
 public import Mathlib.Algebra.BigOperators.Ring.Finset
 public import Mathlib.Data.Set.Finite.Lattice
+public import Mathlib.MeasureTheory.Function.SpecialFunctions.Basic
 
 /-!
 # Interaction potentials
@@ -82,20 +83,17 @@ end Locality
 
 section InteractingHamiltonian
 
-variable [DecidableEq S]
 variable {Φ}
 
 /-- The finite set of interaction supports that meet `Λ` and carry a nonzero interaction term. -/
 noncomputable def interactingSupport [IsFiniteRange Φ] (Λ : Finset S) : Finset (Finset S) :=
   (IsFiniteRange.finite_support (Φ := Φ) Λ).toFinset
 
-omit [DecidableEq S] in
 lemma mem_interactingSupport [IsFiniteRange Φ] {Λ Δ : Finset S} :
     Δ ∈ interactingSupport (Φ := Φ) Λ ↔
       ((Δ : Set S) ∩ (Λ : Set S)).Nonempty ∧ Φ Δ ≠ 0 := by
   simp [interactingSupport]
 
-omit [DecidableEq S] in
 lemma interactingSupport_subset_of_subset [IsFiniteRange Φ] {Λ₁ Λ₂ : Finset S}
     (hΛ : Λ₁ ⊆ Λ₂) :
     interactingSupport (Φ := Φ) Λ₁ ⊆ interactingSupport (Φ := Φ) Λ₂ := by
@@ -114,7 +112,6 @@ The local finiteness assumption ensures this is a finite sum. -/
 noncomputable def interactingHamiltonian [IsFiniteRange Φ] (Λ : Finset S) (η : S → E) : ℝ :=
   Finset.sum (interactingSupport (Φ := Φ) Λ) (fun Δ => Φ Δ η)
 
-omit [DecidableEq S] in
 lemma measurable_interactingHamiltonian [IsFiniteRange Φ] [IsPotential Φ] (Λ : Finset S) :
     Measurable (interactingHamiltonian (Φ := Φ) Λ) := by
   classical
@@ -135,7 +132,6 @@ eq. (2.4) — valued in `ℝ≥0∞`. -/
 noncomputable def boltzmannWeight [IsFiniteRange Φ] (β : ℝ) (Λ : Finset S) (η : S → E) : ℝ≥0∞ :=
   ENNReal.ofReal (Real.exp (-β * interactingHamiltonian (Φ := Φ) Λ η))
 
-omit [DecidableEq S] in
 lemma measurable_boltzmannWeight [IsFiniteRange Φ] [IsPotential Φ] (β : ℝ) (Λ : Finset S) :
     Measurable (boltzmannWeight (Φ := Φ) β Λ) := by
   have hH : Measurable fun η : S → E => interactingHamiltonian (Φ := Φ) Λ η :=
@@ -148,14 +144,12 @@ lemma measurable_boltzmannWeight [IsFiniteRange Φ] [IsPotential Φ] (β : ℝ) 
   rw [h]
   exact ((measurable_const.mul hH).exp).ennreal_ofReal
 
-omit [DecidableEq S] in
 lemma interactingHamiltonian_sub_eq_sum_sub [IsFiniteRange Φ]
     (Λ : Finset S) (η ζ : S → E) :
     interactingHamiltonian (Φ := Φ) Λ η - interactingHamiltonian (Φ := Φ) Λ ζ =
       Finset.sum (interactingSupport (Φ := Φ) Λ) (fun Δ => Φ Δ η - Φ Δ ζ) := by
   simp [interactingHamiltonian, Finset.sum_sub_distrib]
 
-omit [DecidableEq S] in
 lemma interactingHamiltonian_sub_eq_of_subset_eqOn_compl
     [IsFiniteRange Φ] [IsPotential Φ] {Λ₁ Λ₂ : Finset S}
     (hΛ : Λ₁ ⊆ Λ₂) {η ζ : S → E} (hrestrict : ∀ s ∉ Λ₁, ζ s = η s) :
@@ -179,7 +173,6 @@ lemma interactingHamiltonian_sub_eq_of_subset_eqOn_compl
     exact (hrestrict x (hΔ_out x hxΔ)).symm
   simp [hΦΔ]
 
-omit [DecidableEq S] in
 lemma boltzmannWeight_mul_comm_of_hamiltonian_sum_eq [IsFiniteRange Φ]
     (β : ℝ) {Λ₁ Λ₂ : Finset S} {η ζ : S → E}
     (hsum :
@@ -218,7 +211,6 @@ lemma boltzmannWeight_mul_comm_of_hamiltonian_sum_eq [IsFiniteRange Φ]
         ENNReal.ofReal (Real.exp (-β * interactingHamiltonian Λ₂ η)) := by
           exact ENNReal.ofReal_mul (Real.exp_pos _).le
 
-omit [DecidableEq S] in
 lemma boltzmannWeight_mul_comm_of_hamiltonian_sub_eq [IsFiniteRange Φ]
     (β : ℝ) {Λ₁ Λ₂ : Finset S} {η ζ : S → E}
     (hH :
@@ -236,7 +228,6 @@ lemma boltzmannWeight_mul_comm_of_hamiltonian_sub_eq [IsFiniteRange Φ]
       _ = H Λ₁ ζ + H Λ₂ η := by simp [add_comm]
   exact boltzmannWeight_mul_comm_of_hamiltonian_sum_eq (Φ := Φ) β hsum
 
-omit [DecidableEq S] in
 /-- The cocycle identity for interacting Boltzmann weights (the pre-modification identity of
 Georgii's Definition (1.31); cf. Proposition (2.5)), expressed as
 `Specification.IsPremodifier`. -/

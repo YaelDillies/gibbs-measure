@@ -19,7 +19,7 @@ operations; those lemmas reduce to `DependsOn.comp` and `DependsOn.comp₂`. Fin
 pointwise limits are also covered (`DependsOn.sum`, `DependsOn.of_tendsto`).
 -/
 
-public section
+@[expose] public section
 
 variable {ι : Type*} {α : ι → Type*} {β γ δ : Type*} {s : Set ι}
   {f g : (Π i, α i) → β}

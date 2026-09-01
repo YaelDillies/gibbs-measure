@@ -8,6 +8,7 @@ module
 public import GibbsMeasure.Potential
 public import GibbsMeasure.Mathlib.Logic.Function.DependsOn
 public import GibbsMeasure.Mathlib.Topology.Algebra.InfiniteSum.Volume
+public import Mathlib.Analysis.Normed.Group.InfiniteSum
 public import Mathlib.MeasureTheory.Constructions.BorelSpace.Metrizable
 
 /-!
@@ -162,7 +163,8 @@ theorem hamiltonian_sub_eq_of_subset_eqOn_compl [IsPotential Φ] [IsSummable Φ]
     Φ.hamiltonian Λ₁ η - Φ.hamiltonian Λ₁ ζ = Φ.hamiltonian Λ₂ η - Φ.hamiltonian Λ₂ ζ := by
   have h := dependsOn_hamiltonian_sub (Φ := Φ) hΛ (x := ζ) (y := η)
     fun i hi ↦ hrestrict i (by simpa using hi)
-  linarith [h]
+  rw [sub_eq_sub_iff_add_eq_add] at h ⊢
+  simpa [add_comm] using h
 
 /-! ### Georgii Proposition (2.5) -/
 
@@ -209,11 +211,12 @@ theorem isPremodifier_boltzmannFactor [Countable S] [IsPotential Φ] [IsSummable
   comm_of_subset {Λ₁ Λ₂ ζ η} hΛ hrestrict := by
     have hH := hamiltonian_sub_eq_of_subset_eqOn_compl (Φ := Φ) hΛ hrestrict
     refine ofReal_exp_mul_comm ?_
-    have hsum : Φ.hamiltonian Λ₂ ζ + Φ.hamiltonian Λ₁ η
-        = Φ.hamiltonian Λ₁ ζ + Φ.hamiltonian Λ₂ η := by linarith
-    linear_combination (-β) * hsum
+    simp only [← mul_add]
+    refine congrArg (fun x ↦ -β * x) ?_
+    rw [sub_eq_sub_iff_add_eq_add] at hH
+    simpa [add_comm] using hH
 
-@[simp] lemma boltzmannFactor_eq_boltzmannWeight [DecidableEq S] [IsFiniteRange Φ]
+@[simp] lemma boltzmannFactor_eq_boltzmannWeight [IsFiniteRange Φ]
     (β : ℝ) (Λ : Finset S) (η : S → E) :
     Φ.boltzmannFactor β Λ η = boltzmannWeight (Φ := Φ) β Λ η := by
   rw [boltzmannFactor, boltzmannWeight, hamiltonian_eq_interactingHamiltonian]
