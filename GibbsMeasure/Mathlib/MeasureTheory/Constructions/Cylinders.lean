@@ -5,7 +5,6 @@ Authors: Yaël Dillies, Matteo Cipollina
 -/
 module
 
-public import GibbsMeasure.Mathlib.MeasureTheory.MeasurableSpace.Defs
 public import Mathlib.MeasureTheory.Constructions.Cylinders
 public import Mathlib.MeasureTheory.Function.FactorsThrough
 
