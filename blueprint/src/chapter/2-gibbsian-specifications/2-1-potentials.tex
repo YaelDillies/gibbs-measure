@@ -1,1 +1,256 @@
 \section{Potentials}
+
+Throughout, $(E,\mathcal{E})$ is a measurable space, $S$ a set of sites,
+$(\Cfg,\mathcal{F})=(E,\mathcal{E})^S$, and $\Fin$ the finite subsets of $S$.
+Boltzmann factors carry an inverse temperature $\beta\in\R$; Georgii's statements are the case
+$\beta=1$.
+
+\begin{definition}[Interaction potential, Georgii (2.2)(i)]
+    \label{def:pot-potential}
+    \uses{def:cylinder-event}
+    \lean{Potential, Potential.IsPotential}
+    \leanok{}
+
+    A \textbf{potential} is a family $\Phi=(\Phi_A)_{A\in\Fin}$ of functions
+    $\Phi_A:\Cfg\to\R$. It is an \textbf{interaction potential} if each $\Phi_A$ is
+    $\mathcal{F}_A$-measurable.
+\end{definition}
+
+\begin{lemma}[An interaction term is local]
+    \label{lem:pot-depends-on}
+    \uses{def:pot-potential}
+    \lean{Potential.IsPotential.dependsOn, Potential.IsPotential.eq_of_eqOn}
+    \leanok{}
+
+    If $\Phi$ is an interaction potential, then $\Phi_A(\eta)=\Phi_A(\zeta)$ whenever
+    $\eta$ and $\zeta$ agree on $A$.
+\end{lemma}
+\begin{proof}
+    \leanok{}
+
+    A real-valued $\mathcal{F}_A$-measurable function is constant on the fibres of
+    $\eta\mapsto\eta_A$.
+\end{proof}
+
+\begin{definition}[Hamiltonian, Georgii (2.1), (2.2)(ii) and (2.3)]
+    \label{def:pot-hamiltonian}
+    \uses{def:pot-potential}
+    \lean{Potential.IsSummable, Potential.hamiltonianTerms, Potential.hamiltonian,
+      Potential.truncatedHamiltonian, SummationFilter.powerset}
+    \leanok{}
+
+    A potential $\Phi$ is \textbf{summable} if for all $\Lambda\in\Fin$ and $\omega\in\Cfg$ the
+    series
+    \[
+      H_\Lambda^\Phi(\omega)=\sum_{\substack{A\in\Fin\\ A\cap\Lambda\neq\emptyset}}\Phi_A(\omega)
+    \]
+    converges as the net of truncated sums
+    \[
+      H_{\Lambda,\Delta}^\Phi(\omega)
+        =\sum_{\substack{A\subset\Delta\\ A\cap\Lambda\neq\emptyset}}\Phi_A(\omega),\qquad
+      \Delta\in\Fin,
+    \]
+    indexed by inclusion. The limit $H_\Lambda^\Phi$ is the \textbf{Hamiltonian} in $\Lambda$.
+\end{definition}
+
+\begin{definition}[Uniformly convergent potential, Georgii (2.13)]
+    \label{def:pot-uniformly-convergent}
+    \uses{def:pot-hamiltonian}
+    \lean{Potential.IsUniformlyConvergent, Potential.IsUniformlyConvergent.isSummable}
+    \leanok{}
+
+    $\Phi$ is \textbf{uniformly convergent} if, for every $\Lambda\in\Fin$, the truncated
+    Hamiltonians $H_{\Lambda,\Delta}^\Phi$ converge to $H_\Lambda^\Phi$ uniformly in $\omega$ as
+    $\Delta\uparrow S$. Every uniformly convergent potential is summable.
+\end{definition}
+
+\begin{definition}[Boltzmann factor, Georgii (2.4)]
+    \label{def:pot-boltzmann-factor}
+    \uses{def:pot-hamiltonian}
+    \lean{Potential.boltzmannFactor, Potential.boltzmannFactor_pos,
+      Potential.boltzmannFactor_ne_top}
+    \leanok{}
+
+    $h_\Lambda^\Phi=\exp[-\beta H_\Lambda^\Phi]$, valued in $[0,\infty]$. It is everywhere
+    strictly positive and finite.
+\end{definition}
+
+\begin{lemma}[Georgii (2.6)]
+    \label{lem:pot-hamiltonian-diff}
+    \uses{def:pot-hamiltonian, lem:pot-depends-on}
+    \lean{Potential.hamiltonian_sub, Potential.dependsOn_hamiltonian_sub,
+      Potential.measurable_hamiltonian_sub,
+      Potential.hamiltonian_sub_eq_of_subset_eqOn_compl}
+    \leanok{}
+
+    Let $\Phi$ be a summable interaction potential and $\Lambda\subset\Delta\in\Fin$. Then
+    \[
+      H_\Delta^\Phi-H_\Lambda^\Phi
+        =\sum_{\substack{A\cap\Delta\neq\emptyset\\ A\cap\Lambda=\emptyset}}\Phi_A,
+    \]
+    and this function depends only on the coordinates in $S\setminus\Lambda$. If $S$ is
+    countable, it is $\mathcal{F}_{S\setminus\Lambda}$-measurable.
+\end{lemma}
+\begin{proof}
+    \leanok{}
+
+    Each summand is indexed by an $A$ disjoint from $\Lambda$, hence depends only on
+    $\Lambda^c$ by Lemma~\ref{lem:pot-depends-on}. The property passes to finite sums and to the
+    limit along the summation net.
+\end{proof}
+
+\begin{proposition}[Georgii, Proposition (2.5)]
+    \label{prop:pot-premodification}
+    \uses{def:premodif, def:pot-boltzmann-factor, lem:pot-hamiltonian-diff}
+    \lean{Potential.isPremodifier_boltzmannFactor,
+      Potential.isPremodifier_boltzmannFactor_of_measurable,
+      Potential.isPremodifier_boltzmannFactor_of_isFiniteRange,
+      Potential.boltzmannFactor_pos}
+    \leanok{}
+
+    If $\Phi$ is a summable interaction potential, then $(h_\Lambda^\Phi)_{\Lambda\in\Fin}$ is a
+    strictly positive pre-modification. Countability of $S$ is used only to obtain
+    measurability of $H_\Lambda^\Phi$ as a pointwise limit.
+\end{proposition}
+\begin{proof}
+    \leanok{}
+
+    For $\Lambda\subset\Delta$ and $\zeta_{S\setminus\Lambda}=\eta_{S\setminus\Lambda}$,
+    Lemma~\ref{lem:pot-hamiltonian-diff} gives
+    $H_\Lambda^\Phi(\zeta)+H_\Delta^\Phi(\eta)=H_\Delta^\Phi(\zeta)+H_\Lambda^\Phi(\eta)$.
+    Exponentiating yields the exchange identity. Positivity is $e^x>0$.
+\end{proof}
+
+\begin{definition}[Absolutely summable potentials, Georgii (2.11)--(2.12)]
+    \label{def:pot-abs-summable}
+    \uses{def:pot-potential}
+    \lean{Potential.normAt, Potential.IsAbsolutelySummable}
+    \leanok{}
+
+    $\Phi$ is \textbf{absolutely summable} if for all $i\in S$
+    \[
+      \|\Phi\|_i=\sum_{\substack{A\in\Fin\\ A\ni i}}\|\Phi_A\|<\infty,
+    \]
+    where $\|\cdot\|$ is the supremum norm.
+\end{definition}
+
+\begin{lemma}[Georgii (2.11) $\Rightarrow$ (2.2)(ii) and (2.13)]
+    \label{lem:pot-abs-summable-summable}
+    \uses{def:pot-abs-summable, def:pot-hamiltonian, def:pot-uniformly-convergent}
+    \lean{Potential.summable_hamiltonianTerms, Potential.IsAbsolutelySummable.isSummable,
+      Potential.IsAbsolutelySummable.isUniformlyConvergent,
+      Potential.hasSumUniformly_hamiltonianTerms, Potential.hamiltonian_eq_tsum}
+    \leanok{}
+
+    An absolutely summable potential is uniformly convergent (hence summable), and
+    $H_\Lambda^\Phi$ is the unconditional sum of its terms.
+\end{lemma}
+\begin{proof}
+    \leanok{}
+
+    Each summand is dominated by $\|\Phi_A\|1_{A\cap\Lambda\neq\emptyset}$, and
+    $\sum_A\|\Phi_A\|1_{A\cap\Lambda\neq\emptyset}\le\sum_{i\in\Lambda}\|\Phi\|_i<\infty$.
+    The Weierstrass $M$-test gives uniform convergence of the unordered partial sums; the
+    truncated Hamiltonians are the subnet along finite volumes ordered by inclusion.
+\end{proof}
+
+\begin{theorem}[Georgii (2.14)]
+    \label{thm:pot-hamiltonian-bound}
+    \uses{def:pot-abs-summable, def:pot-hamiltonian}
+    \lean{Potential.enorm_hamiltonian_le, Potential.iSup_enorm_hamiltonian_le,
+      Potential.abs_hamiltonian_le}
+    \leanok{}
+
+    For every absolutely summable $\Phi$ and $\Lambda\in\Fin$,
+    \[
+      \sup_{\eta\in\Cfg}\bigl|H_\Lambda^\Phi(\eta)\bigr|
+        \le\sum_{i\in\Lambda}\|\Phi\|_i.
+    \]
+\end{theorem}
+\begin{proof}
+    \uses{lem:pot-abs-summable-summable}
+    \leanok{}
+
+    The triangle inequality for the unconditional sum, together with the comparison in the
+    proof of Lemma~\ref{lem:pot-abs-summable-summable}.
+\end{proof}
+
+\begin{definition}[Finite range potentials, Georgii (2.15)]
+    \label{def:pot-finite-range}
+    \uses{def:pot-potential}
+    \lean{Potential.IsFiniteRange, Potential.interactingSupport,
+      Potential.interactingHamiltonian}
+    \leanok{}
+
+    $\Phi$ is of \textbf{finite range} if for each $i\in S$ the set of supports $A\ni i$ with
+    $\Phi_A\neq 0$ is finite. Equivalently, there is $\Delta_i\in\Fin$ such that $\Phi_A=0$
+    unless $A\subset\Delta_i$ for all $i\in A$.
+\end{definition}
+
+\begin{lemma}[Finite range potentials are summable]
+    \label{lem:pot-finite-range-summable}
+    \uses{def:pot-finite-range, def:pot-hamiltonian, def:pot-uniformly-convergent}
+    \lean{Potential.IsFiniteRange.isSummable, Potential.IsFiniteRange.isUniformlyConvergent,
+      Potential.hasSum_interactingHamiltonian,
+      Potential.hamiltonian_eq_interactingHamiltonian}
+    \leanok{}
+
+    A finite range potential is uniformly convergent, and its Hamiltonian is the finite sum
+    of the interacting terms that meet $\Lambda$.
+\end{lemma}
+\begin{proof}
+    \leanok{}
+
+    Only finitely many summands are nonzero, independently of $\omega$.
+\end{proof}
+
+\begin{lemma}[Finite range and absolute summability]
+    \label{lem:pot-finite-range-abs-summable}
+    \uses{def:pot-finite-range, def:pot-abs-summable}
+    \lean{Potential.IsAbsolutelySummable.iSup_enorm_ne_top,
+      Potential.IsFiniteRange.normAt_eq_sum,
+      Potential.IsFiniteRange.isAbsolutelySummable,
+      Potential.IsFiniteRange.isAbsolutelySummable_iff}
+    \leanok{}
+
+    A finite range potential is absolutely summable if and only if $\Phi_A$ is bounded for
+    every nonempty $A$.
+\end{lemma}
+\begin{proof}
+    \leanok{}
+
+    If $A$ is nonempty then some $i\in A$, so $\|\Phi_A\|$ is a summand of $\|\Phi\|_i$.
+    Conversely, for each $i$ only finitely many $A\ni i$ can have $\Phi_A\neq 0$.
+\end{proof}
+
+\begin{definition}[Truncation]
+    \label{def:pot-truncation}
+    \uses{def:pot-potential, def:pot-finite-range}
+    \lean{Potential.truncation}
+    \leanok{}
+
+    The \textbf{truncation} of $\Phi$ to $\Delta\in\Fin$ is
+    $\Phi^\Delta_A=\Phi_A$ if $A\subset\Delta$ and $\Phi^\Delta_A=0$ otherwise. Every
+    truncation has finite range.
+\end{definition}
+
+\begin{theorem}[Density of truncations]
+    \label{thm:pot-truncation-dense}
+    \uses{def:pot-truncation, def:pot-abs-summable}
+    \lean{Potential.tendsto_normAt_sub_truncation, Potential.tendsto_tailWeight_atTop,
+      Potential.normAt_sub_truncation, Potential.tailWeight}
+    \leanok{}
+
+    If $\Phi$ is absolutely summable, then each truncation $\Phi^\Delta$ is absolutely
+    summable, and
+    \[
+      \|\Phi-\Phi^\Delta\|_i\to 0\qquad\text{as }\Delta\uparrow S,
+    \]
+    for every $i\in S$.
+\end{theorem}
+\begin{proof}
+    \leanok{}
+
+    $\|\Phi-\Phi^\Delta\|_i$ is the tail of the interaction series at $i$ outside $\Delta$.
+    The tail of a convergent series in $[0,\infty]$ vanishes along $\Delta\uparrow S$.
+\end{proof}
