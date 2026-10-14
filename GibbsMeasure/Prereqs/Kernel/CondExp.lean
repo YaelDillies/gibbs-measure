@@ -11,6 +11,7 @@ open MeasureTheory ENNReal NNReal Set
 
 attribute [fun_prop] MeasureTheory.StronglyMeasurable.integral_kernel
 
+
 namespace ProbabilityTheory.Kernel
 variable {X : Type*} {𝓑 𝓧 : MeasurableSpace X} {π : Kernel[𝓑, 𝓧] X X} {μ : Measure[𝓧] X}
   {A B : Set X} {f g : X → ℝ≥0∞} {x₀ : X}
@@ -95,11 +96,20 @@ private lemma condExp_simpleFunc_ae_eq_integral_kernel (f : @SimpleFunc X 𝓧 �
       ((hf.add hg).trans (.of_forall fun x₀ ↦
         (integral_add (by fun_prop) (by fun_prop)).symm))
 
+set_option trace.Meta.Tactic.fun_prop true
+/-
+      [] ❌️ applying: Measurable.mono ▼
+        [] ❌️ Measurable fun a ↦ π a ▼
+          [] skipping proof search, proving Measurable fun a ↦ π a was tried already and failed
+        [] @Measurable.mono, failed to discharge hypotheses
+              Measurable fun a ↦ π a
+-/
 lemma condExp_ae_eq_integral (hπ : π.IsProper) (h𝓑𝓧 : 𝓑 ≤ 𝓧) (f : X → ℝ) [IsFiniteMeasure μ]
     (hf : Integrable f μ) : condExp 𝓑 μ f =ᵐ[μ] (fun x₀ ↦ ∫ x, f x ∂(π x₀)) := by
   let T (h : X → ℝ) (x₀ : X) := ∫ x, h x ∂(π x₀)
   have hbind : μ.bind π = μ := (isCondExp_iff_bind_eq_left hπ h𝓑𝓧).mp inferInstance
-  have hπ_aemX : AEMeasurable (fun x₀ ↦ π x₀) μ := (π.measurable.mono h𝓑𝓧 le_rfl).aemeasurable
+  --have hπ_aemX' : AEMeasurable π μ := by fun_prop (maxTransitionDepth := 3) (discharger := measurability)
+  have hπ_aemX : AEMeasurable  π μ := (π.measurable.mono h𝓑𝓧 le_rfl).aemeasurable
   have hTnorm_le (h : X → ℝ) (hh : AEMeasurable h μ) : (∫⁻ x₀, ‖T h x₀‖ₑ ∂μ) ≤ ∫⁻ x, ‖h x‖ₑ ∂μ := by
     calc (∫⁻ x₀, ‖T h x₀‖ₑ ∂μ) ≤ ∫⁻ x₀, ∫⁻ x, ‖h x‖ₑ ∂(π x₀) ∂μ :=
       lintegral_mono fun x₀ ↦ enorm_integral_le_lintegral_enorm _
