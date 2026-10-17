@@ -51,9 +51,7 @@ lemma IsProper.ae_eq_const (hπ : IsProper π) (h𝓑𝓧 : 𝓑 ≤ 𝓧)
     rw [hπ.restrict_eq_indicator_smul h𝓑𝓧 hB x₀]
     simp [B]
   rw [ae_iff, ← hπB]
-  convert restrict_apply' π hB' x₀ hB'.compl
-  · ext a; simp [B]
-  · simp
+  convert restrict_apply' π hB' x₀ hB'.compl <;> simp [B]
 
 variable [IsFiniteKernel π]
 

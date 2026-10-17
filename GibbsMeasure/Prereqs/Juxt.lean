@@ -61,7 +61,7 @@ lemma measurable_map_juxt_pi (μ : Measure (Λ → E)) (ht : ∀ i, MeasurableSe
       μ.map (juxt Λ η) (s.pi t) := by
   classical
   simp_rw [map_juxt_pi μ ht hs]
-  exact Measurable.indicator measurable_const
-    (MeasurableSet.pi_cylinderEvents (fun _ h ↦ h.2) (hs.mono sdiff_subset) fun i _ ↦ ht i)
+  exact measurable_const.indicator <| .pi_cylinderEvents (by simp) (hs.mono sdiff_subset)
+    fun i _ ↦ ht i
 
 end juxt
