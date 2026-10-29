@@ -90,7 +90,6 @@ private lemma condExp_simpleFunc_ae_eq_integral_kernel (f : @SimpleFunc X 𝓧 �
   induction f using SimpleFunc.induction with
   | @const c _s hs => exact condExp_const_indicator_ae_eq_integral_kernel c hs
   | @add f g _disj hf hg =>
-    simp only [SimpleFunc.coe_add]
     exact (condExp_add (by fun_prop) (by fun_prop) 𝓑).trans
       ((hf.add hg).trans (.of_forall fun x₀ ↦
         (integral_add (by fun_prop) (by fun_prop)).symm))

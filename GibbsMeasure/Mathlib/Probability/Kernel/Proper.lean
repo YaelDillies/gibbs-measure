@@ -77,7 +77,7 @@ private lemma IsProper.integral_simpleFunc_mul_indicator (h𝓑𝓧 : 𝓑 ≤ �
         simp [hπ.integral_indicator_mul_indicator h𝓑𝓧 hA hS]
       _ = S.indicator (fun _ ↦ c) x₀ * ∫ x, A.indicator 1 x ∂π x₀ := by
         by_cases hxS : x₀ ∈ S <;> simp [hxS]
-  · simp only [SimpleFunc.coe_add, indicator_add', Pi.add_apply, add_mul, ← hf, ← hg]
+  · simp only [FunLike.coe_add, indicator_add', Pi.add_apply, add_mul, ← hf, ← hg]
     apply MeasureTheory.integral_add <;> exact .indicator (integrable_of_isFiniteMeasure' h𝓑𝓧 _) hA
 
 private lemma IsProper.integral_bdd_mul_indicator (h𝓑𝓧 : 𝓑 ≤ 𝓧) (hπ : IsProper π)
