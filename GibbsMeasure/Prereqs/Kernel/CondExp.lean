@@ -101,8 +101,8 @@ lemma condExp_ae_eq_integral (hπ : π.IsProper) (h𝓑𝓧 : 𝓑 ≤ 𝓧) (f 
   have hπ_aemX : AEMeasurable (fun x₀ ↦ π x₀) μ := (π.measurable.mono h𝓑𝓧 le_rfl).aemeasurable
   have hTnorm_le (h : X → ℝ) (hh : AEMeasurable h μ) : (∫⁻ x₀, ‖T h x₀‖ₑ ∂μ) ≤ ∫⁻ x, ‖h x‖ₑ ∂μ := by
     calc (∫⁻ x₀, ‖T h x₀‖ₑ ∂μ) ≤ ∫⁻ x₀, ∫⁻ x, ‖h x‖ₑ ∂(π x₀) ∂μ :=
-      lintegral_mono fun x₀ ↦ enorm_integral_le_lintegral_enorm _
-      _ = ∫⁻ x, ‖h x‖ₑ ∂μ := by rw [← Measure.lintegral_bind hπ_aemX (hbind.symm ▸ hh.enorm), hbind]
+      lintegral_mono fun x₀ ↦ eNorm_integral_le_lintegral_eNorm _
+      _ = ∫⁻ x, ‖h x‖ₑ ∂μ := by rw [← Measure.lintegral_bind hπ_aemX (hbind.symm ▸ hh.eNorm), hbind]
   have hT_congr {h₁ h₂ : X → ℝ} (h12 : h₁ =ᵐ[μ] h₂) : T h₁ =ᵐ[μ] T h₂ := by
     filter_upwards [Measure.ae_ae_of_ae_bind hπ_aemX (hbind.symm ▸ h12)] with _ hx₀
       using integral_congr_ae hx₀
@@ -132,9 +132,9 @@ lemma condExp_ae_eq_integral (hπ : π.IsProper) (h𝓑𝓧 : 𝓑 ≤ 𝓧) (f 
       rw [Integrable.edist_toL1_toL1, ENNReal.coe_one, one_mul]
       have hstep : ∀ᵐ x₀ ∂μ, edist (T (⇑f) x₀) (T (⇑g) x₀) ≤ ∫⁻ x, edist (⇑f x) (⇑g x) ∂(π x₀) := by
         filter_upwards [hT_ae_int (L1.integrable_coeFn f), hT_ae_int (L1.integrable_coeFn g)]
-          with _ hf₀ hg₀ using edist_eq_enorm_sub (E := ℝ) _ _ ▸ integral_sub hf₀ hg₀ ▸
-            ((enorm_integral_le_lintegral_enorm _).trans
-            (lintegral_mono fun _ ↦ (edist_eq_enorm_sub _ _).ge))
+          with _ hf₀ hg₀ using eDist_eq_eNorm_sub (E := ℝ) _ _ ▸ integral_sub hf₀ hg₀ ▸
+            ((eNorm_integral_le_lintegral_eNorm _).trans
+            (lintegral_mono fun _ ↦ (eDist_eq_eNorm_sub _ _).ge))
       calc
         _ ≤ ∫⁻ x₀, ∫⁻ x, edist (⇑f x) (⇑g x) ∂(π x₀) ∂μ := lintegral_mono_ae hstep
         _ = ∫⁻ x, edist _ _ ∂μ := by rw [← Measure.lintegral_bind hπ_aemX (by fun_prop), hbind]
